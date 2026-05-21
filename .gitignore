@@ -1,0 +1,41 @@
+# ─────────────────────────────────────────────────────────────
+#  Git ignore — robotics-backend
+# ─────────────────────────────────────────────────────────────
+
+# Secrets — NEVER commit these
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# SQLite database (local dev only — production uses PostgreSQL)
+*.db
+*.sqlite3
+
+# Build / dist
+dist/
+build/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# OS
+.DS_Store
+Thumbs.db
