@@ -211,7 +211,6 @@ export default function Landing() {
       {/* ── MINIMAL GLASSMORPHISM HERO ── */}
       <section ref={heroRef} className="relative min-h-screen pt-36 pb-20 mx-auto overflow-hidden flex items-center justify-center">
         
-<<<<<<< HEAD:frontend/src/pages/Landing.jsx
         {/* Wide Elegant 2-Column Split Panel with 3D Parallax Tilt */}
         <motion.div 
           style={{ opacity: heroOpacity, y: heroY }} 
