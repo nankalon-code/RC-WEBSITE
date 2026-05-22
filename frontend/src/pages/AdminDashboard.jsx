@@ -6,7 +6,7 @@ import { apiFetch } from '../utils/api';
 import { useAuthStore } from '../store/authStore';
 import { useNavigate } from 'react-router-dom';
 
-const TABS = ['Overview', 'Users', 'Create Member', 'Ideas', 'Team Display', 'Achievements', 'Events', 'Resources', 'Announcements', 'Site Content'];
+const TABS = ['Overview', 'Users', 'Create Member', 'Ideas', 'Team Display', 'Achievements', 'Gallery', 'Events', 'Resources', 'Announcements', 'Site Content'];
 
 export default function AdminDashboard() {
   const [tab, setTab] = useState('Overview');
@@ -63,6 +63,7 @@ export default function AdminDashboard() {
           {tab === 'Ideas' && <IdeasTab />}
           {tab === 'Team Display' && <TeamDisplayTab />}
           {tab === 'Achievements' && <AchievementsTab />}
+          {tab === 'Gallery' && <GalleryTab />}
           {tab === 'Events' && <EventsTab />}
           {tab === 'Resources' && <ResourcesTab />}
           {tab === 'Announcements' && <AnnouncementsTab />}
@@ -320,15 +321,28 @@ function CrudTab({ endpoint, fields, title }) {
       <div className="space-y-3">
         {items.map((item) => (
           <Card key={item.id} className="p-4 flex items-center justify-between glass-card border-var">
-            <div>
-              <h3 className="font-bold text-primary-var">{item.title || item.name || item.key}</h3>
-              <p className="text-sm text-muted-var mt-1 line-clamp-1">
-                {item.description || item.message || item.value || item.role || ''}
-              </p>
+            <div className="flex items-center gap-4 min-w-0">
+              {item.image_url && (
+                <img
+                  src={item.image_url}
+                  alt=""
+                  className="w-12 h-12 rounded-lg object-cover border border-var shrink-0"
+                  onError={(e) => { e.target.style.display = 'none'; }}
+                />
+              )}
+              <div className="min-w-0">
+                <h3 className="font-bold text-primary-var truncate">
+                  {item.title || item.caption || item.name || item.key || `Item #${item.id}`}
+                </h3>
+                <p className="text-sm text-muted-var mt-1 line-clamp-1">
+                  {item.project_name ? `[${item.award_place}] ${item.project_name} - ` : ''}
+                  {item.description || item.message || item.value || item.role || ''}
+                </p>
+              </div>
             </div>
             <button
               onClick={() => handleDelete(item.id)}
-              className="text-red-400/60 hover:text-red-400 text-xs font-bold uppercase tracking-widest transition-colors ml-4"
+              className="text-red-400/60 hover:text-red-400 text-xs font-bold uppercase tracking-widest transition-colors ml-4 shrink-0"
             >
               Delete
             </button>
@@ -732,10 +746,28 @@ function AchievementsTab() {
       endpoint="/achievements"
       title="Achievements"
       fields={[
-        { key: 'title', label: 'Title', required: true },
-        { key: 'description', label: 'Description', type: 'textarea', wide: true },
-        { key: 'date', label: 'Date' },
-        { key: 'category', label: 'Category' },
+        { key: 'title', label: 'Achievement / Win Title', required: true },
+        { key: 'project_name', label: 'Associated Project Name', required: true },
+        { key: 'award_place', label: 'Winning Place (e.g. 1st Place)', required: true },
+        { key: 'image_url', label: 'Project Image URL', required: false },
+        { key: 'description', label: 'Detailed Description', type: 'textarea', wide: true },
+        { key: 'date', label: 'Date / Year Won' },
+        { key: 'category', label: 'Category (e.g. Swarm Robotics, AI)' },
+      ]}
+    />
+  );
+}
+
+function GalleryTab() {
+  return (
+    <CrudTab
+      endpoint="/gallery"
+      title="Gallery"
+      fields={[
+        { key: 'image_url', label: 'Image URL', required: true },
+        { key: 'caption', label: 'Photo Caption', required: true },
+        { key: 'description', label: 'Short Description / Context', type: 'textarea', wide: true },
+        { key: 'order', label: 'Display Order (Number)', type: 'number', required: false },
       ]}
     />
   );

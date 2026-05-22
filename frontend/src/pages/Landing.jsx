@@ -9,6 +9,28 @@ import ErrorBoundary from '../components/ErrorBoundary';
 import { apiFetch } from '../utils/api';
 import { Cpu, GitBranch, Users, Zap, Calendar } from 'lucide-react';
 
+// Glitch hook — scrambles text on hover then resolves back
+function useGlitch(original) {
+  const [display, setDisplay] = useState(original);
+  const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ01!@#$%&';
+  const glitch = () => {
+    let step = 0;
+    const total = original.length;
+    const interval = setInterval(() => {
+      setDisplay(
+        original.split('').map((ch, i) => {
+          if (ch === ' ') return ' ';
+          if (i < step) return original[i];
+          return CHARS[Math.floor(Math.random() * CHARS.length)];
+        }).join('')
+      );
+      step += 0.6;
+      if (step >= total) { setDisplay(original); clearInterval(interval); }
+    }, 28);
+  };
+  return [display, glitch];
+}
+
 function useCounter(end, duration = 2000) {
   const [count, setCount] = useState(0);
   const ref = useRef(null);
@@ -125,6 +147,7 @@ export default function Landing() {
   const [resources, setResources] = useState([]);
   const [contactForm, setContactForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [contactStatus, setContactStatus] = useState('');
+  const [glitchText, triggerGlitch] = useGlitch('ROBOTICS');
 
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
@@ -176,93 +199,107 @@ export default function Landing() {
   ));
 
   return (
-    <div className="w-full relative overflow-hidden text-primary-var">
+    <div className="w-full relative overflow-hidden text-primary-var bg-black">
+      {/* Subtle executive greyish spotlight glow in background */}
+      <div className="absolute top-[5%] left-1/2 -translate-x-1/2 w-[1200px] h-[1200px] rounded-full blur-[200px] opacity-[0.08] pointer-events-none z-0"
+        style={{ background: 'radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, transparent 70%)' }} />
+      <div className="absolute top-[40%] left-[10%] w-[900px] h-[900px] rounded-full blur-[180px] opacity-[0.06] pointer-events-none z-0"
+        style={{ background: 'radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%)' }} />
+      <div className="absolute bottom-[20%] right-[5%] w-[900px] h-[900px] rounded-full blur-[160px] opacity-[0.06] pointer-events-none z-0"
+        style={{ background: 'radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%)' }} />
 
       {/* ── MINIMAL GLASSMORPHISM HERO ── */}
       <section ref={heroRef} className="relative min-h-screen pt-36 pb-20 mx-auto overflow-hidden flex items-center justify-center">
         
-        {/* Wide Elegant 2-Column Split Panel matching your second alignment image */}
+<<<<<<< HEAD:frontend/src/pages/Landing.jsx
+        {/* Wide Elegant 2-Column Split Panel with 3D Parallax Tilt */}
         <motion.div 
           style={{ opacity: heroOpacity, y: heroY }} 
           className="w-full relative z-10 flex items-center justify-center min-h-[60vh] px-6 md:px-12 lg:px-16"
         >
-          <div className="relative w-full max-w-7xl mx-auto glass-minimal rounded-3xl p-8 md:p-16 lg:p-20 overflow-hidden transition-all duration-700 group">
-            
-            {/* Background geometric grid markers inside panel */}
-            <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] pointer-events-none" />
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center w-full">
+          <Tilt tiltMaxAngleX={3} tiltMaxAngleY={3} scale={1.01} transitionSpeed={2000} className="w-full">
+            <div className="relative w-full max-w-7xl mx-auto rounded-3xl p-8 md:p-16 lg:p-20 overflow-hidden transition-all duration-500 group border border-white/20 hover:border-white/60 backdrop-blur-2xl bg-black/80 shadow-[0_0_50px_rgba(255,255,255,0.02)] hover:shadow-[0_0_60px_rgba(255,255,255,0.12)]">
               
-              {/* Left Column: Premium Left-Aligned Swiss Editorial Typography */}
-              <div className="lg:col-span-7 flex flex-col items-start text-left">
+              {/* Background geometric grid markers inside panel */}
+              <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] pointer-events-none" />
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center w-full">
                 
-                {/* Monochromatic Technical Category Pill */}
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6 }}
-                  className="mb-6 flex items-center space-x-2 border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-1.5 rounded-full"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-text-main)] animate-pulse" />
-                  <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[var(--color-text-main)]">
-                    WE LEARN, WE SHARE
-                  </span>
-                </motion.div>
+                {/* Left Column: Premium Left-Aligned Swiss Editorial Typography */}
+                <div className="lg:col-span-7 flex flex-col items-start text-left">
+                  
+                  {/* Monochromatic Technical Category Pill */}
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.6 }}
+                    className="mb-6 flex items-center space-x-2 border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-1.5 rounded-full"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-text-main)] animate-pulse" />
+                    <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-[var(--color-text-main)]">
+                      WE LEARN, WE SHARE
+                    </span>
+                  </motion.div>
 
-                <motion.h1 
-                  initial={{ opacity: 0, x: -30 }} 
-                  animate={{ opacity: 1, x: 0 }} 
-                  transition={{ delay: 0.1, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                  className="text-4xl sm:text-6xl md:text-[5.5rem] lg:text-[6.2rem] font-display font-black tracking-tight uppercase leading-[0.95] select-none text-[var(--color-text-main)]"
-                >
-                  ROBOTICS<br/><span className="text-[var(--color-text-muted)]">CLUB</span>
-                </motion.h1>
-                
-                {/* Description Paragraph */}
-                <motion.p
-                  initial={{ opacity: 0, x: -20 }} 
-                  animate={{ opacity: 1, x: 0 }} 
-                  transition={{ delay: 0.3, duration: 0.8 }}
-                  className="text-md md:text-lg text-muted-var font-light max-w-lg mt-6 leading-relaxed"
-                >
-                  Build cool robotics projects, lock in your team's ideas, and work on awesome hardware and software challenges.
-                </motion.p>
+                  <motion.h1 
+                    initial={{ opacity: 0, x: -30 }} 
+                    animate={{ opacity: 1, x: 0 }} 
+                    transition={{ delay: 0.1, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                    className="text-4xl sm:text-6xl md:text-[5.5rem] lg:text-[6.2rem] font-display font-black tracking-tight uppercase leading-[0.95] select-none text-[var(--color-text-main)]"
+                  >
+                    <span
+                      onMouseEnter={triggerGlitch}
+                      className="cursor-default inline-block transition-none"
+                      style={{ fontVariantNumeric: 'tabular-nums' }}
+                    >{glitchText}</span><br/><span className="text-[var(--color-text-muted)]">CLUB</span>
+                  </motion.h1>
+                  
+                  {/* Description Paragraph */}
+                  <motion.p
+                    initial={{ opacity: 0, x: -20 }} 
+                    animate={{ opacity: 1, x: 0 }} 
+                    transition={{ delay: 0.3, duration: 0.8 }}
+                    className="text-md md:text-lg text-muted-var font-light max-w-lg mt-6 leading-relaxed"
+                  >
+                    We tinker, we break things, we fix them, and we build robots that actually work. Come find your people.
+                  </motion.p>
 
-                {/* Actions (Monochromatic Swiss Adaptive Buttons) */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }} 
-                  animate={{ opacity: 1, y: 0 }} 
-                  transition={{ delay: 0.5 }} 
-                  className="z-10 flex flex-wrap gap-4 mt-10 items-center"
-                >
-                  <Link to="/forum">
-                    <button className="px-8 py-4 rounded-full bg-[var(--color-primary)] text-[var(--color-base)] font-bold text-sm tracking-wider hover:opacity-90 transition-all shadow-md">
-                      Explore Projects
-                    </button>
-                  </Link>
-                  <a href="#about">
-                    <button className="px-8 py-4 rounded-full border border-[var(--color-border)] hover:border-[var(--color-border-hover)] text-[var(--color-text-main)] font-medium text-sm tracking-wider bg-[var(--color-surface)] hover:bg-[var(--color-surface-2)] transition-all">
-                      Learn More
-                    </button>
-                  </a>
-                </motion.div>
+                  {/* Actions (Monochromatic Swiss Adaptive Buttons) */}
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }} 
+                    animate={{ opacity: 1, y: 0 }} 
+                    transition={{ delay: 0.5 }} 
+                    className="z-10 flex flex-wrap gap-4 mt-10 items-center"
+                  >
+                    <Link to="/forum">
+                      <button className="px-8 py-4 rounded-full bg-[var(--color-primary)] text-[var(--color-base)] font-bold text-sm tracking-wider hover:opacity-90 transition-all shadow-md">
+                        Explore Projects
+                      </button>
+                    </Link>
+                    <a href="#about">
+                      <button className="px-8 py-4 rounded-full border border-[var(--color-border)] hover:border-[var(--color-border-hover)] text-[var(--color-text-main)] font-medium text-sm tracking-wider bg-[var(--color-surface)] hover:bg-[var(--color-surface-2)] transition-all">
+                        Learn More
+                      </button>
+                    </a>
+                  </motion.div>
 
-              </div>
+                </div>
 
-              {/* Right Column: Rotating Technical 3D Gyroscope/Globe */}
-              <div className="lg:col-span-5 flex items-center justify-center pointer-events-none">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.85 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.2, duration: 1 }}
-                >
-                  <TechGyroscope />
-                </motion.div>
+                {/* Right Column: Premium High-Visibility Tech Radar */}
+                <div className="lg:col-span-5 flex items-center justify-center relative min-h-[360px]">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.85 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.2, duration: 1 }}
+                  >
+                    <TechGyroscope />
+                  </motion.div>
+                </div>
+
               </div>
 
             </div>
-
-          </div>
+          </Tilt>
         </motion.div>
       </section>
 
@@ -407,7 +444,7 @@ export default function Landing() {
                   return (
                     <motion.div
                       key={m.id}
-                      className={`w-80 ${positionClass}`}
+                      className={`w-[22rem] ${positionClass}`}
                       onClick={() => setActiveTeamIdx(idx)}
                       drag={isActive ? "x" : false}
                       dragConstraints={{ left: 0, right: 0 }}
@@ -424,13 +461,7 @@ export default function Landing() {
                       }}
                     >
                       <div className="relative glass-premium rounded-3xl p-8 flex flex-col items-center text-center border border-[var(--color-border)] backdrop-blur-2xl select-none cursor-grab active:cursor-grabbing">
-                        {/* Glowing active pill indicator */}
-                        {idx === activeTeamIdx && (
-                          <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full border border-[var(--color-border-hover)] bg-[var(--color-glow)] text-[9px] uppercase font-mono tracking-widest text-accent">
-                            Swipe to Navigate
-                          </div>
-                        )}
-                        <div className="w-28 h-28 rounded-full overflow-hidden mb-6 border-2 border-[var(--color-border)] pointer-events-none">
+                        <div className="w-32 h-32 rounded-full overflow-hidden mb-6 border-2 border-[var(--color-border)] pointer-events-none">
                           <img src={m.photo_url || 'https://i.pravatar.cc/200?u=' + m.id} alt={m.name} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500" />
                         </div>
                         <h3 className="font-bold text-xl mb-2 text-primary-var font-display tracking-wide pointer-events-none">{m.name}</h3>
@@ -494,33 +525,74 @@ export default function Landing() {
       </section>
 
       {/* ── Contact ── */}
-      <section className="py-32 px-6 max-w-3xl mx-auto relative">
+      <section className="py-32 px-6 max-w-4xl mx-auto relative">
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="w-[500px] h-[500px] rounded-full blur-[120px] bg-glow" />
         </div>
-        <Tilt tiltMaxAngleX={2} tiltMaxAngleY={2}>
-          <Card glow className="p-8 md:p-12 text-center relative z-10 border-var bg-panel-var/80 backdrop-blur-xl">
-            <h2 className="text-3xl font-display font-bold mb-2 text-primary-var">Contact Us</h2>
-            <p className="mb-8 max-w-md mx-auto text-muted-var">Have a question or want to sponsor us? Reach out directly.</p>
-            
-            <form className="flex flex-col gap-4 text-left" onSubmit={handleContactSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="text" placeholder="Name" required value={contactForm.name} onChange={e=>setContactForm({...contactForm,name:e.target.value})}
-                  className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-colors border border-var bg-input-bg text-primary-var focus:border-accent" />
-                <input type="email" placeholder="Email" required value={contactForm.email} onChange={e=>setContactForm({...contactForm,email:e.target.value})}
-                  className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-colors border border-var bg-input-bg text-primary-var focus:border-accent" />
+
+        <motion.div {...fadeUp}>
+          {/* Header */}
+          <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-12 gap-4">
+            <div>
+              <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-muted-var font-mono block mb-3">COMMS OPEN</span>
+              <h2 className="text-4xl md:text-5xl font-display font-black uppercase tracking-tight text-primary-var leading-none">
+                Drop us a<br /><span className="text-muted-var">signal.</span>
+              </h2>
+            </div>
+            {/* Robot mascot in corner */}
+            <motion.img src="/new_robot.png" alt="" className="w-20 h-20 object-contain opacity-80 pointer-events-none hidden md:block"
+              animate={{ y: [0, -6, 0] }} transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
+              style={{ filter: 'drop-shadow(0 8px 20px rgba(96,165,250,0.25))' }} />
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-10 items-start">
+            {/* Left: context */}
+            <div className="space-y-6">
+              <p className="text-muted-var leading-relaxed">
+                We're in the lab most days. Whether you want to join, collaborate, or sponsor us — hit us up. No corporate emails, just real people.
+              </p>
+              <div className="space-y-3">
+                {[
+                  { label: 'For joining', val: 'Use the forum or login portal' },
+                  { label: 'For sponsors', val: 'Mention it in the subject line' },
+                  { label: 'Response time', val: 'Usually same day' },
+                ].map(({ label, val }) => (
+                  <div key={label} className="flex items-start gap-3 text-sm">
+                    <span className="text-muted-var font-mono text-[10px] tracking-widest uppercase mt-0.5 shrink-0 w-28">{label}</span>
+                    <span className="text-primary-var opacity-70">{val}</span>
+                  </div>
+                ))}
               </div>
-              <input type="text" placeholder="Subject" required value={contactForm.subject} onChange={e=>setContactForm({...contactForm,subject:e.target.value})}
-                className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-colors border border-var bg-input-bg text-primary-var focus:border-accent" />
-              <textarea placeholder="Message" required rows="4" value={contactForm.message} onChange={e=>setContactForm({...contactForm,message:e.target.value})}
-                className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-colors border border-var bg-input-bg text-primary-var focus:border-accent resize-none" />
-              <Button type="submit" variant="primary" className="w-full mt-2 group relative overflow-hidden">
-                <span className="relative z-10 font-bold tracking-wide">Send Message</span>
+            </div>
+
+            {/* Right: form */}
+            <form className="flex flex-col gap-3" onSubmit={handleContactSubmit}>
+              <div className="grid grid-cols-2 gap-3">
+                <input type="text" placeholder="Your name" required value={contactForm.name}
+                  onChange={e => setContactForm({ ...contactForm, name: e.target.value })}
+                  className="w-full rounded-xl px-4 py-3 text-sm outline-none border border-var bg-input-bg text-primary-var focus:border-accent transition-colors" />
+                <input type="email" placeholder="Your email" required value={contactForm.email}
+                  onChange={e => setContactForm({ ...contactForm, email: e.target.value })}
+                  className="w-full rounded-xl px-4 py-3 text-sm outline-none border border-var bg-input-bg text-primary-var focus:border-accent transition-colors" />
+              </div>
+              <input type="text" placeholder="What's this about?" required value={contactForm.subject}
+                onChange={e => setContactForm({ ...contactForm, subject: e.target.value })}
+                className="w-full rounded-xl px-4 py-3 text-sm outline-none border border-var bg-input-bg text-primary-var focus:border-accent transition-colors" />
+              <textarea placeholder="Tell us more..." required rows="4" value={contactForm.message}
+                onChange={e => setContactForm({ ...contactForm, message: e.target.value })}
+                className="w-full rounded-xl px-4 py-3 text-sm outline-none border border-var bg-input-bg text-primary-var focus:border-accent transition-colors resize-none" />
+              <Button type="submit" variant="primary" className="w-full group relative overflow-hidden">
+                <span className="relative z-10 font-bold tracking-wider">Transmit</span>
               </Button>
-              {contactStatus && <p className="text-accent text-center mt-2 text-sm font-bold">{contactStatus}</p>}
+              {contactStatus && (
+                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                  className="text-accent text-center text-sm font-bold font-mono tracking-wide">
+                  {contactStatus}
+                </motion.p>
+              )}
             </form>
-          </Card>
-        </Tilt>
+          </div>
+        </motion.div>
       </section>
     </div>
   );

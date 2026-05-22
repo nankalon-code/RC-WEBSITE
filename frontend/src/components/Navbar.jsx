@@ -40,7 +40,9 @@ export default function Navbar() {
         <div className="hidden md:flex items-center space-x-5 text-sm font-medium">
           <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-accent transition-colors text-muted-var">Home</Link>
           <a href="/#about" className="hover:text-accent transition-colors text-muted-var">About</a>
-          <a href="/#events" className="hover:text-accent transition-colors text-muted-var">Events</a>
+          <Link to="/achievements" className="hover:text-accent transition-colors text-muted-var">Achievements</Link>
+          <Link to="/team" className="hover:text-accent transition-colors text-muted-var">Team</Link>
+          <Link to="/gallery" className="hover:text-accent transition-colors text-muted-var">Gallery</Link>
           <Link to="/forum" className="hover:text-accent transition-colors text-muted-var">Forum</Link>
           <Link to="/resources" className="hover:text-accent transition-colors text-muted-var">Resources</Link>
 
@@ -188,6 +190,9 @@ export default function Navbar() {
             style={{ background: 'var(--dropdown-bg)', borderColor: 'var(--color-border)' }}
           >
             <Link to="/" onClick={() => setMobileOpen(false)} className="block py-2.5 px-3 rounded-xl text-sm hover:bg-[var(--glass-bg)] transition-colors" style={{ color: 'var(--color-text-muted)' }}>Home</Link>
+            <Link to="/achievements" onClick={() => setMobileOpen(false)} className="block py-2.5 px-3 rounded-xl text-sm hover:bg-[var(--glass-bg)] transition-colors" style={{ color: 'var(--color-text-muted)' }}>Achievements</Link>
+            <Link to="/team" onClick={() => setMobileOpen(false)} className="block py-2.5 px-3 rounded-xl text-sm hover:bg-[var(--glass-bg)] transition-colors" style={{ color: 'var(--color-text-muted)' }}>Team</Link>
+            <Link to="/gallery" onClick={() => setMobileOpen(false)} className="block py-2.5 px-3 rounded-xl text-sm hover:bg-[var(--glass-bg)] transition-colors" style={{ color: 'var(--color-text-muted)' }}>Gallery</Link>
             <Link to="/forum" onClick={() => setMobileOpen(false)} className="block py-2.5 px-3 rounded-xl text-sm hover:bg-[var(--glass-bg)] transition-colors" style={{ color: 'var(--color-text-muted)' }}>Forum</Link>
             <Link to="/resources" onClick={() => setMobileOpen(false)} className="block py-2.5 px-3 rounded-xl text-sm hover:bg-[var(--glass-bg)] transition-colors" style={{ color: 'var(--color-text-muted)' }}>Resources</Link>
             {isAuthenticated ? (

@@ -701,12 +701,23 @@
     pointer-events: auto;
     filter: blur(2px);
   }
+  .stack-card.left:hover {
+    transform: translateX(-250px) translateZ(-50px) rotateY(10deg) scale(1.08);
+    opacity: 0.90;
+    filter: none;
+    z-index: 8;
+  }
 
   .stack-card.active {
     transform: translateX(0) translateZ(0) rotateY(0deg);
     opacity: 1;
     z-index: 10;
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 40px var(--active-glow);
+  }
+  .stack-card.active:hover {
+    transform: translateX(0) translateZ(50px) rotateY(0deg) scale(1.06);
+    box-shadow: 0 35px 80px rgba(0, 0, 0, 1), 0 0 50px rgba(255, 255, 255, 0.12);
+    z-index: 12;
   }
 
   .stack-card.right {
@@ -715,6 +726,12 @@
     z-index: 5;
     pointer-events: auto;
     filter: blur(2px);
+  }
+  .stack-card.right:hover {
+    transform: translateX(250px) translateZ(-50px) rotateY(-10deg) scale(1.08);
+    opacity: 0.90;
+    filter: none;
+    z-index: 8;
   }
 
   /* ── Section Divider ── */

@@ -39,32 +39,30 @@ export default function TechGyroscope() {
         <motion.ellipse
           cx="50"
           cy="50"
-          rx="44"
-          ry="12"
-          stroke="var(--radar-stroke-1)"
-          strokeWidth="1.2"
+          initial={{ rx: 44, ry: 12 }}
           animate={{ 
             rotate: [15, 20, 15],
             ry: [12, 16, 12]
           }}
           transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
           style={{ transformOrigin: '50px 50px' }}
+          stroke="var(--radar-stroke-1)"
+          strokeWidth="1.2"
         />
 
         {/* 5. Giant Tilted Monochromatic Inner Ring */}
         <motion.ellipse
           cx="50"
           cy="50"
-          rx="10"
-          ry="44"
-          stroke="var(--radar-stroke-2)"
-          strokeWidth="0.8"
+          initial={{ rx: 10, ry: 44 }}
           animate={{ 
             rotate: [-15, -10, -15],
             rx: [10, 14, 10]
           }}
           transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 1 }}
           style={{ transformOrigin: '50px 50px' }}
+          stroke="var(--radar-stroke-2)"
+          strokeWidth="0.8"
         />
 
         {/* 6. Central Rotating Wireframe Globe */}
@@ -76,25 +74,23 @@ export default function TechGyroscope() {
           <motion.ellipse
             cx="50"
             cy="50"
-            rx="22"
-            ry="6"
-            stroke="var(--radar-stroke-2)"
-            strokeWidth="0.5"
+            initial={{ rx: 22, ry: 6 }}
             animate={{ ry: [6, 22, 6] }}
             transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
             style={{ transformOrigin: '50px 50px' }}
+            stroke="var(--radar-stroke-2)"
+            strokeWidth="0.5"
           />
 
           <motion.ellipse
             cx="50"
             cy="50"
-            rx="6"
-            ry="22"
-            stroke="var(--radar-stroke-2)"
-            strokeWidth="0.5"
+            initial={{ rx: 6, ry: 22 }}
             animate={{ rx: [6, 22, 6] }}
             transition={{ duration: 14, repeat: Infinity, ease: "linear" }}
             style={{ transformOrigin: '50px 50px' }}
+            stroke="var(--radar-stroke-2)"
+            strokeWidth="0.5"
           />
 
           <motion.g

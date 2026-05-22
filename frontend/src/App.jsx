@@ -4,6 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Lenis from '@studio-freight/lenis';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import RobotIntro from './components/RobotIntro';
+import LabStatusHUD from './components/LabStatusHUD';
+import RobotCornerWidget from './components/RobotCornerWidget';
 import { useThemeStore } from './store/themeStore';
 
 // Lazy loaded routes
@@ -14,6 +17,9 @@ const MemberDashboard = lazy(() => import('./pages/MemberDashboard'));
 const UserDashboard = lazy(() => import('./pages/UserDashboard'));
 const Forum = lazy(() => import('./pages/Forum'));
 const Resources = lazy(() => import('./pages/Resources'));
+const Achievements = lazy(() => import('./pages/Achievements'));
+const Gallery = lazy(() => import('./pages/Gallery'));
+const Team = lazy(() => import('./pages/Team'));
 
 // Loading fallback
 const PageLoader = () => (
@@ -65,6 +71,9 @@ function App() {
         </div>
 
         <div className="relative z-10 flex flex-col min-h-screen">
+          <RobotIntro />
+          <LabStatusHUD />
+          <RobotCornerWidget />
           <Navbar />
           <main className="flex-grow">
             <Suspense fallback={<PageLoader />}>
@@ -76,6 +85,9 @@ function App() {
                 <Route path="/dashboard/user" element={<UserDashboard />} />
                 <Route path="/forum" element={<Forum />} />
                 <Route path="/resources" element={<Resources />} />
+                <Route path="/achievements" element={<Achievements />} />
+                <Route path="/gallery" element={<Gallery />} />
+                <Route path="/team" element={<Team />} />
               </Routes>
             </Suspense>
           </main>
