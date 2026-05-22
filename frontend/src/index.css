@@ -6,44 +6,44 @@
   :root {
     /* STRICT PITCH BLACK & MONOCHROMATIC EXECUTIVE DARK SYSTEM */
     --color-base: #000000;
-    --color-panel: rgba(0, 0, 0, 0.95);
-    --color-surface: rgba(10, 10, 10, 0.96);
-    --color-surface-2: rgba(16, 16, 16, 0.98);
+    --color-panel: rgba(0, 0, 0, 0.98);
+    --color-surface: rgba(0, 0, 0, 0.98);
+    --color-surface-2: rgba(5, 5, 5, 0.99);
     --color-primary: #ffffff;
     --color-accent: #ffffff;
     --color-secondary: #ffffff;
     --color-text-main: #ffffff;
-    --color-text-muted: #8a99ad;
-    --color-border: rgba(255, 255, 255, 0.08);
-    --color-border-hover: rgba(255, 255, 255, 0.20);
-    --color-glow: transparent;
-    --color-glow-strong: transparent;
-    --glass-bg: rgba(0, 0, 0, 0.94);
-    --glass-bg-hover: rgba(12, 12, 12, 0.98);
+    --color-text-muted: #cbd5e1; /* Starker, whiter muted color for solid high contrast */
+    --color-border: rgba(255, 255, 255, 0.12); /* Slightly brighter glass borders */
+    --color-border-hover: rgba(255, 255, 255, 0.30);
+    --color-glow: rgba(255, 255, 255, 0.08); /* Grey/white radial patches */
+    --color-glow-strong: rgba(255, 255, 255, 0.18);
+    --glass-bg: rgba(0, 0, 0, 0.75); /* Beautiful, highly translucent glassmorphic backdrop */
+    --glass-bg-hover: rgba(10, 10, 10, 0.85);
     --glass-blur: 48px;
-    --nav-bg: rgba(0, 0, 0, 0.96);
+    --nav-bg: rgba(0, 0, 0, 0.82);
     --dropdown-bg: #000000;
     --card-shadow: 0 30px 60px rgba(0,0,0,0.98), inset 0 1px 0 rgba(255,255,255,0.06);
     --card-shadow-hover: 0 40px 80px rgba(0,0,0,1), inset 0 1px 0 rgba(255,255,255,0.10);
-    --input-bg: rgba(255,255,255,0.02);
+    --input-bg: rgba(255,255,255,0.04);
     --section-heading: #ffffff;
-    --section-subtext: rgba(255,255,255,0.4);
-    --feature-card-bg: rgba(0, 0, 0, 0.96);
-    --feature-card-border: rgba(255, 255, 255, 0.06);
+    --section-subtext: rgba(255,255,255,0.7);
+    --feature-card-bg: rgba(0, 0, 0, 0.75);
+    --feature-card-border: rgba(255, 255, 255, 0.12);
     --feature-title: #ffffff;
-    --feature-desc: rgba(255,255,255,0.6);
-    --feature-arrow: rgba(255,255,255,0.20);
-    --wave-color-1: rgba(255, 255, 255, 0.04);
-    --wave-color-2: rgba(255, 255, 255, 0.01);
-    --radar-stroke-1: rgba(255, 255, 255, 0.25);
-    --radar-stroke-2: rgba(255, 255, 255, 0.15);
-    --radar-stroke-3: rgba(255, 255, 255, 0.08);
-    --radar-stroke-4: rgba(255, 255, 255, 0.04);
+    --feature-desc: rgba(255,255,255,0.85);
+    --feature-arrow: rgba(255, 255, 255, 0.40);
+    --wave-color-1: rgba(255, 255, 255, 0.06);
+    --wave-color-2: rgba(255, 255, 255, 0.02);
+    --radar-stroke-1: rgba(255, 255, 255, 0.35);
+    --radar-stroke-2: rgba(255, 255, 255, 0.20);
+    --radar-stroke-3: rgba(255, 255, 255, 0.12);
+    --radar-stroke-4: rgba(255, 255, 255, 0.06);
     --radar-fill: rgba(255, 255, 255, 0.3);
-    --active-glow: rgba(255, 255, 255, 0.02);
-    --bubble-grad-1: rgba(255, 255, 255, 0.04);
-    --bubble-grad-2: rgba(255, 255, 255, 0.005);
-    --bubble-border: rgba(255, 255, 255, 0.03);
+    --active-glow: rgba(255, 255, 255, 0.04);
+    --bubble-grad-1: rgba(255, 255, 255, 0.06);
+    --bubble-grad-2: rgba(255, 255, 255, 0.01);
+    --bubble-border: rgba(255, 255, 255, 0.08);
   }
 
   .light {
@@ -90,22 +90,43 @@
   }
 
   body {
-    background-color: var(--color-base);
-    background-image: linear-gradient(to bottom, var(--color-base), var(--color-base));
-    background-attachment: fixed;
-    color: var(--color-text-main);
+    background-color: var(--color-base) !important;
+    background-image: none !important;
+    color: var(--color-text-main) !important;
+    font-size: 1.12rem !important; /* Globally increased font scale */
+    line-height: 1.75 !important;
     @apply transition-colors duration-500 font-sans min-h-screen;
   }
 
+  /* Global stark white headings scoped under dark mode */
+  h1, h2, h3, h4, h5, h6 {
+    color: #ffffff !important;
+  }
+  .light h1, .light h2, .light h3, .light h4, .light h5, .light h6 {
+    color: var(--color-text-main) !important;
+  }
+
+  /* Upgraded robust typography scale */
+  .text-xs { font-size: 0.88rem !important; }
+  .text-sm { font-size: 0.98rem !important; }
+  .text-base { font-size: 1.12rem !important; }
+  .text-lg { font-size: 1.28rem !important; }
+  .text-xl { font-size: 1.48rem !important; }
+  .text-2xl { font-size: 1.78rem !important; }
+  .text-3xl { font-size: 2.15rem !important; }
+  .text-4xl { font-size: 2.65rem !important; }
+  .text-5xl { font-size: 3.45rem !important; }
+  .text-6xl { font-size: 4.25rem !important; }
+
   .light body {
-    background-color: #f8fafc;
+    background-color: #f8fafc !important;
     /* Soft off-white premium monochromatic gradient accents */
     background-image: 
       radial-gradient(circle at 0% 0%, rgba(100, 116, 139, 0.05) 0%, transparent 40%),
       radial-gradient(circle at 100% 100%, rgba(148, 163, 184, 0.04) 0%, transparent 45%),
       radial-gradient(circle at 50% 30%, rgba(203, 213, 225, 0.03) 0%, transparent 50%),
-      linear-gradient(to bottom, #f8fafc, #fafafa);
-    background-attachment: fixed;
+      linear-gradient(to bottom, #f8fafc, #fafafa) !important;
+    background-attachment: fixed !important;
   }
 
   ::selection {
@@ -743,10 +764,15 @@
 
   /* ── Radial Glow Backgrounds ── */
   .bg-glow {
-    background: radial-gradient(circle, var(--color-glow-strong) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 40%, transparent 70%) !important;
   }
   .bg-glow-strong {
-    background: radial-gradient(circle, var(--radar-stroke-2) 0%, var(--radar-stroke-4) 40%, transparent 70%);
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 45%, transparent 70%) !important;
+  }
+  .bg-grey-patch {
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.02) 50%, transparent 70%) !important;
+    filter: blur(80px) !important;
+    pointer-events: none;
   }
 }
 

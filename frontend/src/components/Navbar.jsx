@@ -186,22 +186,26 @@ export default function Navbar() {
             initial={{ opacity: 0, y: -10, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.98 }}
-            className="md:hidden mt-2 border rounded-2xl p-4 space-y-1 backdrop-blur-2xl"
-            style={{ background: 'var(--dropdown-bg)', borderColor: 'var(--color-border)' }}
+            className="md:hidden absolute top-full left-0 right-0 mt-3 border rounded-3xl p-5 space-y-2 backdrop-blur-3xl shadow-2xl z-50"
+            style={{ 
+              background: isDark ? 'rgba(0, 0, 0, 0.96)' : 'rgba(255, 255, 255, 0.96)', 
+              borderColor: 'var(--color-border)',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)'
+            }}
           >
-            <Link to="/" onClick={() => setMobileOpen(false)} className="block py-2.5 px-3 rounded-xl text-sm hover:bg-[var(--glass-bg)] transition-colors" style={{ color: 'var(--color-text-muted)' }}>Home</Link>
-            <Link to="/achievements" onClick={() => setMobileOpen(false)} className="block py-2.5 px-3 rounded-xl text-sm hover:bg-[var(--glass-bg)] transition-colors" style={{ color: 'var(--color-text-muted)' }}>Achievements</Link>
-            <Link to="/team" onClick={() => setMobileOpen(false)} className="block py-2.5 px-3 rounded-xl text-sm hover:bg-[var(--glass-bg)] transition-colors" style={{ color: 'var(--color-text-muted)' }}>Team</Link>
-            <Link to="/gallery" onClick={() => setMobileOpen(false)} className="block py-2.5 px-3 rounded-xl text-sm hover:bg-[var(--glass-bg)] transition-colors" style={{ color: 'var(--color-text-muted)' }}>Gallery</Link>
-            <Link to="/forum" onClick={() => setMobileOpen(false)} className="block py-2.5 px-3 rounded-xl text-sm hover:bg-[var(--glass-bg)] transition-colors" style={{ color: 'var(--color-text-muted)' }}>Forum</Link>
-            <Link to="/resources" onClick={() => setMobileOpen(false)} className="block py-2.5 px-3 rounded-xl text-sm hover:bg-[var(--glass-bg)] transition-colors" style={{ color: 'var(--color-text-muted)' }}>Resources</Link>
+            <Link to="/" onClick={() => setMobileOpen(false)} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Home</Link>
+            <Link to="/achievements" onClick={() => setMobileOpen(false)} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Achievements</Link>
+            <Link to="/team" onClick={() => setMobileOpen(false)} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Team</Link>
+            <Link to="/gallery" onClick={() => setMobileOpen(false)} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Gallery</Link>
+            <Link to="/forum" onClick={() => setMobileOpen(false)} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Forum</Link>
+            <Link to="/resources" onClick={() => setMobileOpen(false)} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Resources</Link>
             {isAuthenticated ? (
               <>
-                <Link to={`/dashboard/${user?.role}`} onClick={() => setMobileOpen(false)} className="block py-2.5 px-3 rounded-xl text-sm hover:bg-[var(--glass-bg)] transition-colors" style={{ color: 'var(--color-text-muted)' }}>Dashboard</Link>
-                <button onClick={() => { setMobileOpen(false); handleLogout(); }} className="block py-2.5 px-3 rounded-xl text-sm w-full text-left hover:bg-[var(--glass-bg)] transition-colors" style={{ color: 'var(--color-text-muted)' }}>Sign Out</button>
+                <Link to={`/dashboard/${user?.role}`} onClick={() => setMobileOpen(false)} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Dashboard</Link>
+                <button onClick={() => { setMobileOpen(false); handleLogout(); }} className="block py-3 px-4 rounded-xl text-base font-bold w-full text-left hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Sign Out</button>
               </>
             ) : (
-              <Link to="/login" onClick={() => setMobileOpen(false)} className="block py-2.5 px-3 rounded-xl text-sm hover:bg-[var(--glass-bg)] transition-colors" style={{ color: 'var(--color-text-muted)' }}>Sign In</Link>
+              <Link to="/login" onClick={() => setMobileOpen(false)} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Sign In</Link>
             )}
           </motion.div>
         )}
