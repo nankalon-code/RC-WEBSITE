@@ -28,20 +28,20 @@ export function Card({ children, className, hover = true, glow = false, ...props
       )}
       {...props}
     >
-      {/* Tactile Hover Laser Scan Spotlight Overlay (strictly monochromatic subtle silver at 5.5% opacity max) */}
+      {/* Tactile Hover Laser Scan Spotlight Overlay (strictly monochromatic subtle silver/slate at theme-adaptive opacity) */}
       <div 
         className="absolute inset-0 opacity-0 pointer-events-none transition-opacity duration-500 z-0" 
         style={{
           opacity: isHovered ? 1 : 0,
-          background: `radial-gradient(300px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), rgba(255, 255, 255, 0.055), transparent 80%)`
+          background: `radial-gradient(300px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), var(--hover-glow, rgba(255, 255, 255, 0.055)), transparent 80%)`
         }}
       />
 
-      {/* 📐 Dynamic Corner-Clamp HUD Brackets (slides inward to lock-in the corners on hover) */}
-      <div className="absolute top-4 left-4 w-3.5 h-3.5 border-t-[1.5px] border-l-[1.5px] border-white/0 pointer-events-none transition-all duration-500 group-hover:top-3 group-hover:left-3 group-hover:border-white/25 z-20" />
-      <div className="absolute top-4 right-4 w-3.5 h-3.5 border-t-[1.5px] border-r-[1.5px] border-white/0 pointer-events-none transition-all duration-500 group-hover:top-3 group-hover:right-3 group-hover:border-white/25 z-20" />
-      <div className="absolute bottom-4 left-4 w-3.5 h-3.5 border-b-[1.5px] border-l-[1.5px] border-white/0 pointer-events-none transition-all duration-500 group-hover:bottom-3 group-hover:left-3 group-hover:border-white/25 z-20" />
-      <div className="absolute bottom-4 right-4 w-3.5 h-3.5 border-b-[1.5px] border-r-[1.5px] border-white/0 pointer-events-none transition-all duration-500 group-hover:bottom-3 group-hover:right-3 group-hover:border-white/25 z-20" />
+      {/* 📐 Dynamic Corner-Clamp HUD Brackets (slides inward to lock-in the corners on hover; adaptive to light/dark themes) */}
+      <div className="absolute top-4 left-4 w-3.5 h-3.5 border-t-[1.5px] border-l-[1.5px] border-[transparent] pointer-events-none transition-all duration-500 group-hover:top-3 group-hover:left-3 group-hover:border-[var(--color-border-hover)] z-20" />
+      <div className="absolute top-4 right-4 w-3.5 h-3.5 border-t-[1.5px] border-r-[1.5px] border-[transparent] pointer-events-none transition-all duration-500 group-hover:top-3 group-hover:right-3 group-hover:border-[var(--color-border-hover)] z-20" />
+      <div className="absolute bottom-4 left-4 w-3.5 h-3.5 border-b-[1.5px] border-l-[1.5px] border-[transparent] pointer-events-none transition-all duration-500 group-hover:bottom-3 group-hover:left-3 group-hover:border-[var(--color-border-hover)] z-20" />
+      <div className="absolute bottom-4 right-4 w-3.5 h-3.5 border-b-[1.5px] border-r-[1.5px] border-[transparent] pointer-events-none transition-all duration-500 group-hover:bottom-3 group-hover:right-3 group-hover:border-[var(--color-border-hover)] z-20" />
 
       {/* Top edge highlight */}
       <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[var(--color-border-hover)] to-transparent opacity-60 z-10" />

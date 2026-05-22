@@ -40,6 +40,7 @@ export default function Navbar() {
         <div className="hidden md:flex items-center space-x-5 text-sm font-medium">
           <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-accent transition-colors text-muted-var">Home</Link>
           <a href="/#about" className="hover:text-accent transition-colors text-muted-var">About</a>
+          <a href="/#events" className="hover:text-accent transition-colors text-muted-var">Events</a>
           <Link to="/achievements" className="hover:text-accent transition-colors text-muted-var">Achievements</Link>
           <Link to="/team" className="hover:text-accent transition-colors text-muted-var">Team</Link>
           <Link to="/gallery" className="hover:text-accent transition-colors text-muted-var">Gallery</Link>
@@ -194,6 +195,7 @@ export default function Navbar() {
             }}
           >
             <Link to="/" onClick={() => setMobileOpen(false)} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Home</Link>
+            <a href="/#events" onClick={() => setMobileOpen(false)} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Events</a>
             <Link to="/achievements" onClick={() => setMobileOpen(false)} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Achievements</Link>
             <Link to="/team" onClick={() => setMobileOpen(false)} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Team</Link>
             <Link to="/gallery" onClick={() => setMobileOpen(false)} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Gallery</Link>

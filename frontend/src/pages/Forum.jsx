@@ -279,7 +279,7 @@ export default function Forum() {
                       onChange={(e) => setTeamName(e.target.value)}
                       required
                       type="text"
-                      className="w-full bg-zinc-950/80 border border-white/10 rounded-xl px-4 py-3 text-sm outline-none text-white focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500/20 transition-all placeholder-zinc-500"
+                      className="w-full bg-input-bg border border-var rounded-xl px-4 py-3 text-sm outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500"
                       placeholder="Your team name"
                     />
                   </div>
@@ -310,33 +310,33 @@ export default function Forum() {
                               <div className="grid grid-cols-2 gap-3">
                                   <div className="space-y-1">
                                       <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">Name</label>
-                                      <input required type="text" placeholder="Full Name" value={m.name} onChange={e => updateMember(i, 'name', e.target.value)} className="w-full bg-zinc-950/80 border border-white/10 rounded-lg px-3 py-2 text-xs outline-none text-white focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500/20 transition-all placeholder-zinc-500" />
+                                      <input required type="text" placeholder="Full Name" value={m.name} onChange={e => updateMember(i, 'name', e.target.value)} className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500" />
                                   </div>
                                   <div className="space-y-1">
                                       <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">Email</label>
-                                      <input required type="email" placeholder="email@address.com" value={m.email} onChange={e => updateMember(i, 'email', e.target.value)} className="w-full bg-zinc-950/80 border border-white/10 rounded-lg px-3 py-2 text-xs outline-none text-white focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500/20 transition-all placeholder-zinc-500" />
+                                      <input required type="email" placeholder="email@address.com" value={m.email} onChange={e => updateMember(i, 'email', e.target.value)} className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500" />
                                   </div>
                               </div>
                               
                               <div className="grid grid-cols-2 gap-3">
                                   <div className="space-y-1">
                                       <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">Roll Number</label>
-                                      <input required type="text" placeholder="Roll / Student ID" value={m.student_id} onChange={e => updateMember(i, 'student_id', e.target.value)} className="w-full bg-zinc-950/80 border border-white/10 rounded-lg px-3 py-2 text-xs outline-none text-white focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500/20 transition-all placeholder-zinc-500" />
+                                      <input required type="text" placeholder="Roll / Student ID" value={m.student_id} onChange={e => updateMember(i, 'student_id', e.target.value)} className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500" />
                                   </div>
                                   <div className="space-y-1">
                                       <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">Branch</label>
-                                      <input required type="text" placeholder="e.g. CSE, ECE, Robotics" value={m.branch} onChange={e => updateMember(i, 'branch', e.target.value)} className="w-full bg-zinc-950/80 border border-white/10 rounded-lg px-3 py-2 text-xs outline-none text-white focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500/20 transition-all placeholder-zinc-500" />
+                                      <input required type="text" placeholder="e.g. CSE, ECE, Robotics" value={m.branch} onChange={e => updateMember(i, 'branch', e.target.value)} className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500" />
                                   </div>
                               </div>
                               
                               <div className="grid grid-cols-2 gap-3">
                                   <div className="space-y-1">
                                       <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">GitHub Profile</label>
-                                      <input required type="url" placeholder="https://github.com/..." value={m.github} onChange={e => updateMember(i, 'github', e.target.value)} className="w-full bg-zinc-950/80 border border-white/10 rounded-lg px-3 py-2 text-xs outline-none text-white focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500/20 transition-all placeholder-zinc-500" />
+                                      <input required type="url" placeholder="https://github.com/..." value={m.github} onChange={e => updateMember(i, 'github', e.target.value)} className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500" />
                                   </div>
                                   <div className="space-y-1">
                                       <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">LinkedIn Profile</label>
-                                      <input required type="url" placeholder="https://linkedin.com/in/..." value={m.linkedin} onChange={e => updateMember(i, 'linkedin', e.target.value)} className="w-full bg-zinc-950/80 border border-white/10 rounded-lg px-3 py-2 text-xs outline-none text-white focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500/20 transition-all placeholder-zinc-500" />
+                                      <input required type="url" placeholder="https://linkedin.com/in/..." value={m.linkedin} onChange={e => updateMember(i, 'linkedin', e.target.value)} className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500" />
                                   </div>
                               </div>
                           </div>

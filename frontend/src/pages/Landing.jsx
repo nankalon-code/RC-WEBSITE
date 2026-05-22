@@ -199,14 +199,14 @@ export default function Landing() {
   ));
 
   return (
-    <div className="w-full relative overflow-hidden text-primary-var bg-black">
+    <div className="w-full relative overflow-hidden text-primary-var bg-[var(--color-base)]">
       {/* Subtle executive greyish spotlight glow in background (exactly like gray patch inspiration image) */}
       <div className="absolute top-[2%] left-[45%] -translate-x-1/2 w-[1000px] h-[1000px] rounded-full blur-[180px] opacity-[0.38] pointer-events-none z-0"
-        style={{ background: 'radial-gradient(circle, rgba(255, 255, 255, 0.14) 0%, rgba(200, 200, 200, 0.04) 45%, transparent 80%)' }} />
+        style={{ background: 'radial-gradient(circle, rgba(255, 255, 255, 0.35) 0%, rgba(200, 200, 200, 0.08) 50%, transparent 80%)' }} />
       <div className="absolute top-[35%] right-[-10%] w-[900px] h-[900px] rounded-full blur-[160px] opacity-[0.25] pointer-events-none z-0"
-        style={{ background: 'radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, rgba(200, 200, 200, 0.03) 50%, transparent 80%)' }} />
+        style={{ background: 'radial-gradient(circle, rgba(255, 255, 255, 0.28) 0%, rgba(200, 200, 200, 0.06) 55%, transparent 80%)' }} />
       <div className="absolute bottom-[10%] left-[-5%] w-[1000px] h-[1000px] rounded-full blur-[180px] opacity-[0.32] pointer-events-none z-0"
-        style={{ background: 'radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(200, 200, 200, 0.05) 45%, transparent 80%)' }} />
+        style={{ background: 'radial-gradient(circle, rgba(255, 255, 255, 0.38) 0%, rgba(200, 200, 200, 0.10) 45%, transparent 80%)' }} />
 
       {/* ── MINIMAL GLASSMORPHISM HERO ── */}
       <section ref={heroRef} className="relative min-h-screen pt-36 pb-20 mx-auto overflow-hidden flex items-center justify-center">
@@ -217,7 +217,7 @@ export default function Landing() {
           className="w-full relative z-10 flex items-center justify-center min-h-[60vh] px-6 md:px-12 lg:px-16"
         >
           <Tilt tiltMaxAngleX={3} tiltMaxAngleY={3} scale={1.01} transitionSpeed={2000} className="w-full">
-            <div className="relative w-full max-w-7xl mx-auto rounded-3xl p-8 md:p-16 lg:p-20 overflow-hidden transition-all duration-500 group border border-white/20 hover:border-white/60 backdrop-blur-2xl bg-black/80 shadow-[0_0_50px_rgba(255,255,255,0.02)] hover:shadow-[0_0_60px_rgba(255,255,255,0.12)]">
+            <div className="relative w-full max-w-7xl mx-auto rounded-3xl p-8 md:p-16 lg:p-20 overflow-hidden transition-all duration-500 group border border-[var(--color-border)] hover:border-[var(--color-border-hover)] backdrop-blur-2xl bg-[var(--glass-bg)] hover:bg-[var(--glass-bg-hover)] shadow-2xl">
               
               {/* Background geometric grid markers inside panel */}
               <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] pointer-events-none" />

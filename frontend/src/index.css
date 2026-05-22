@@ -44,6 +44,7 @@
     --bubble-grad-1: rgba(255, 255, 255, 0.06);
     --bubble-grad-2: rgba(255, 255, 255, 0.01);
     --bubble-border: rgba(255, 255, 255, 0.08);
+    --hover-glow: rgba(255, 255, 255, 0.055);
   }
 
   .light {
@@ -87,6 +88,7 @@
     --bubble-grad-1: rgba(100, 116, 139, 0.08);
     --bubble-grad-2: rgba(148, 163, 184, 0.02);
     --bubble-border: rgba(15, 23, 42, 0.10);
+    --hover-glow: rgba(15, 23, 42, 0.045);
   }
 
   body {
