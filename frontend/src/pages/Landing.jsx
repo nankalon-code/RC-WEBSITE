@@ -220,7 +220,7 @@ export default function Landing() {
             <div className="relative w-full max-w-7xl mx-auto rounded-3xl p-8 md:p-16 lg:p-20 overflow-hidden transition-all duration-500 group border border-[var(--color-border)] hover:border-[var(--color-border-hover)] backdrop-blur-2xl bg-[var(--glass-bg)] hover:bg-[var(--glass-bg-hover)] shadow-2xl">
               
               {/* Background geometric grid markers inside panel */}
-              <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] pointer-events-none" />
+              <div className="absolute inset-0 bg-grid-pattern opacity-[0.07] pointer-events-none" />
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center w-full">
                 

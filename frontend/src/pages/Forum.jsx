@@ -194,10 +194,11 @@ export default function Forum() {
 
                   <div className="mt-auto pt-4 border-t border-var">
                     {isLocked ? (
-                      <div className="flex items-center space-x-2 text-muted-var">
-                        <span className="text-xs font-bold uppercase tracking-wider">
-                          Locked by {idea.locked_by_team}
+                      <div className="flex items-center space-x-2 text-muted-var/60 font-bold uppercase tracking-widest text-xs select-none">
+                        <span className="relative flex h-2 w-2 mr-1">
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-white/20"></span>
                         </span>
+                        <span>Locked by {idea.locked_by_team}</span>
                       </div>
                     ) : !isAuthenticated ? (
                       <div className="flex items-center space-x-2 text-accent/80 font-bold uppercase tracking-widest text-xs group-hover:text-accent transition-all duration-300">

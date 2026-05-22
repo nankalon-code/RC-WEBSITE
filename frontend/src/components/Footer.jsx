@@ -39,17 +39,15 @@ export default function Footer() {
                   <Github size={20} />
                 </a>
               )}
-              {content.club_linkedin && (
-                <a href={content.club_linkedin} target="_blank" rel="noreferrer" className="text-muted-var hover:text-accent transition-colors">
-                  <Linkedin size={20} />
-                </a>
-              )}
+              <a href={content.club_linkedin || "https://www.linkedin.com/company/robo-club/"} target="_blank" rel="noreferrer" className="text-muted-var hover:text-accent transition-colors">
+                <Linkedin size={20} />
+              </a>
               {content.club_instagram && (
                 <a href={content.club_instagram} target="_blank" rel="noreferrer" className="text-muted-var hover:text-accent transition-colors">
                   <Instagram size={20} />
                 </a>
               )}
-              <a href={`mailto:${content.contact_email || 'contact@robotics.club'}`} className="text-muted-var hover:text-accent transition-colors">
+              <a href={`mailto:${content.contact_email || 'roboticsclub.rtukota@gmail.com'}`} className="text-muted-var hover:text-accent transition-colors">
                 <Mail size={20} />
               </a>
             </div>

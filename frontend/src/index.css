@@ -817,3 +817,11 @@
   border-color: var(--color-border-hover) !important;
 }
 
+/* Crisp CAD Technical Engineering Grid Background pattern */
+.bg-grid-pattern {
+  background-image: 
+    linear-gradient(to right, var(--color-border) 1.2px, transparent 1.2px),
+    linear-gradient(to bottom, var(--color-border) 1.2px, transparent 1.2px);
+  background-size: 32px 32px;
+}
+
