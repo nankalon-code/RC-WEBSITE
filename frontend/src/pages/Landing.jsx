@@ -200,13 +200,13 @@ export default function Landing() {
 
   return (
     <div className="w-full relative overflow-hidden text-primary-var bg-black">
-      {/* Subtle executive greyish spotlight glow in background */}
-      <div className="absolute top-[5%] left-1/2 -translate-x-1/2 w-[1200px] h-[1200px] rounded-full blur-[200px] opacity-[0.08] pointer-events-none z-0"
-        style={{ background: 'radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, transparent 70%)' }} />
-      <div className="absolute top-[40%] left-[10%] w-[900px] h-[900px] rounded-full blur-[180px] opacity-[0.06] pointer-events-none z-0"
-        style={{ background: 'radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%)' }} />
-      <div className="absolute bottom-[20%] right-[5%] w-[900px] h-[900px] rounded-full blur-[160px] opacity-[0.06] pointer-events-none z-0"
-        style={{ background: 'radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%)' }} />
+      {/* Subtle executive greyish spotlight glow in background (exactly like gray patch inspiration image) */}
+      <div className="absolute top-[2%] left-[45%] -translate-x-1/2 w-[1000px] h-[1000px] rounded-full blur-[180px] opacity-[0.38] pointer-events-none z-0"
+        style={{ background: 'radial-gradient(circle, rgba(255, 255, 255, 0.14) 0%, rgba(200, 200, 200, 0.04) 45%, transparent 80%)' }} />
+      <div className="absolute top-[35%] right-[-10%] w-[900px] h-[900px] rounded-full blur-[160px] opacity-[0.25] pointer-events-none z-0"
+        style={{ background: 'radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, rgba(200, 200, 200, 0.03) 50%, transparent 80%)' }} />
+      <div className="absolute bottom-[10%] left-[-5%] w-[1000px] h-[1000px] rounded-full blur-[180px] opacity-[0.32] pointer-events-none z-0"
+        style={{ background: 'radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(200, 200, 200, 0.05) 45%, transparent 80%)' }} />
 
       {/* ── MINIMAL GLASSMORPHISM HERO ── */}
       <section ref={heroRef} className="relative min-h-screen pt-36 pb-20 mx-auto overflow-hidden flex items-center justify-center">
@@ -304,12 +304,16 @@ export default function Landing() {
 
       {/* ── FEATURES BENTO GRID (Chic & Elegant Style) ── */}
       <section id="features" className="py-32 px-6 lg:px-16 max-w-7xl mx-auto relative z-10">
-        <div className="grid lg:grid-cols-12 gap-12 items-start">
-          {/* Left Column (Chic Title & Motif) */}
-          <div className="lg:col-span-4 flex flex-col justify-between h-full min-h-[300px]">
+        {/* Soft, beautiful grey patch inspiration spotlight layer */}
+        <div className="absolute top-1/4 right-0 w-[550px] h-[550px] rounded-full blur-[140px] opacity-[0.30] pointer-events-none z-0"
+          style={{ background: 'radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, rgba(200, 200, 200, 0.04) 50%, transparent 80%)' }} />
+        
+        <div className="grid lg:grid-cols-12 gap-12 items-start relative z-10">
+          {/* Left Column (Chic Title & Motif with expanded grid spacing to robustly eliminate overlaps) */}
+          <div className="lg:col-span-5 flex flex-col justify-between h-full min-h-[300px]">
             <div>
               <span className="text-xs font-bold text-section-sub uppercase tracking-[0.25em] block mb-4">Build with Precision</span>
-              <h2 className="text-5xl md:text-6xl font-display font-bold text-section-heading uppercase leading-none tracking-tight">
+              <h2 className="text-4xl md:text-5xl font-display font-bold text-section-heading uppercase leading-none tracking-tight">
                 Features
               </h2>
               <p className="text-muted-var text-sm leading-relaxed mt-6 max-w-xs font-light">
@@ -322,7 +326,7 @@ export default function Landing() {
           </div>
 
           {/* Right Bento Grid */}
-          <div className="lg:col-span-8 grid md:grid-cols-2 gap-6">
+          <div className="lg:col-span-7 grid md:grid-cols-2 gap-6">
             {[
               {
                 icon: Cpu,
