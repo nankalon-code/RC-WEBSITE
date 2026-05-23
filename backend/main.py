@@ -753,7 +753,7 @@ def test_email(to_email: str):
             url = "https://api.brevo.com/v3/smtp/email"
             headers = {
                 "Accept": "application/json",
-                "Api-Key": BREVO_API_KEY,
+                "api-key": BREVO_API_KEY,
                 "Content-Type": "application/json"
             }
             sender_email = SMTP_EMAIL if SMTP_EMAIL else CLUB_EMAIL
