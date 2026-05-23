@@ -66,34 +66,7 @@ robotics-club/
 
 ---
 
-## ⚙️ Environment Variables Configuration
 
-To run both applications smoothly, configure the following `.env` configurations:
-
-### Frontend (`/frontend/.env`)
-```env
-VITE_API_URL=http://localhost:8000
-```
-*(Point this to your hosted backend URL when deploying live!)*
-
-### Backend (`/backend/.env`)
-```env
-# Server
-SECRET_KEY=your-super-strong-secret-key-phrase
-DATABASE_URL=sqlite:///./core_robotics.db
-ALLOWED_ORIGINS=http://localhost:5173
-
-# Default Seeding (Created on Startup)
-ADMIN_EMAIL=admin@robotics.club
-ADMIN_PASSWORD=admin123
-ADMIN_NAME=Platform Administrator
-
-# SMTP Email Settings
-SMTP_EMAIL=roboticsclub.rtukota@gmail.com
-SMTP_PASSWORD=your-app-specific-smtp-password
-```
-
----
 
 ## 🚀 Setup & Installation
 
