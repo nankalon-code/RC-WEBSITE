@@ -17,7 +17,78 @@ SMTP_PORT = 587
 CLUB_EMAIL = os.environ.get("ADMIN_EMAIL", "roboticsclub.rtukota@gmail.com")
 
 
+BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "")
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
+
+
 def send_email(to_emails: list[str], subject: str, body_html: str):
+    # ── Option 1: HTTPS REST API (Port 443) via Resend ───────────────────
+    # Highly recommended for cloud platforms (Railway/Render) where SMTP is blocked
+    if RESEND_API_KEY:
+        import urllib.request
+        import json
+        try:
+            url = "https://api.resend.com/emails"
+            headers = {
+                "Authorization": f"Bearer {RESEND_API_KEY}",
+                "Content-Type": "application/json"
+            }
+            # Resend requires verified custom domains. Defaults to onboarding@resend.dev
+            from_email = os.environ.get("RESEND_FROM_EMAIL", "onboarding@resend.dev")
+            payload = {
+                "from": from_email,
+                "to": to_emails,
+                "subject": subject,
+                "html": body_html
+            }
+            
+            req = urllib.request.Request(
+                url, 
+                data=json.dumps(payload).encode("utf-8"), 
+                headers=headers, 
+                method="POST"
+            )
+            logger.info(f"Attempting email dispatch via Resend HTTPS API (Port 443)...")
+            with urllib.request.urlopen(req, timeout=12) as response:
+                response.read()
+                logger.info(f"[EMAIL SENT via RESEND HTTPS] {subject} → {', '.join(to_emails)}")
+            return
+        except Exception as e_resend:
+            logger.error(f"[RESEND API FAILED] {e_resend}. Trying alternative paths...")
+
+    # ── Option 2: HTTPS REST API (Port 443) via Brevo ────────────────────
+    if BREVO_API_KEY:
+        import urllib.request
+        import json
+        try:
+            url = "https://api.brevo.com/v3/smtp/email"
+            headers = {
+                "Accept": "application/json",
+                "Api-Key": BREVO_API_KEY,
+                "Content-Type": "application/json"
+            }
+            sender_email = SMTP_EMAIL if SMTP_EMAIL else CLUB_EMAIL
+            payload = {
+                "sender": {"email": sender_email, "name": "Robotics Club RTU Kota"},
+                "to": [{"email": email} for email in to_emails],
+                "subject": subject,
+                "htmlContent": body_html
+            }
+            
+            req = urllib.request.Request(
+                url, 
+                data=json.dumps(payload).encode("utf-8"), 
+                headers=headers, 
+                method="POST"
+            )
+            logger.info(f"Attempting email dispatch via Brevo HTTPS API (Port 443)...")
+            with urllib.request.urlopen(req, timeout=12) as response:
+                response.read()
+                logger.info(f"[EMAIL SENT via BREVO HTTPS] {subject} → {', '.join(to_emails)}")
+            return
+        except Exception as e_brevo:
+            logger.error(f"[BREVO API FAILED] {e_brevo}. Falling back to standard SMTP...")
+
     if not SMTP_EMAIL or not SMTP_PASSWORD:
         logger.info(f"[EMAIL MOCK] TO: {', '.join(to_emails)} | SUBJECT: {subject}")
         return
