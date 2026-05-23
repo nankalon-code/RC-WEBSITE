@@ -10,15 +10,15 @@ env_path = Path(__file__).parent / ".env"
 load_dotenv(dotenv_path=env_path)
 logger = logging.getLogger(__name__)
 
-SMTP_EMAIL = os.environ.get("SMTP_EMAIL", "")
-SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")
+SMTP_EMAIL = os.environ.get("SMTP_EMAIL", "").strip()
+SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "").strip()
 SMTP_HOST = "smtp.gmail.com"
 SMTP_PORT = 587
-CLUB_EMAIL = os.environ.get("ADMIN_EMAIL", "roboticsclub.rtukota@gmail.com")
+CLUB_EMAIL = os.environ.get("ADMIN_EMAIL", "roboticsclub.rtukota@gmail.com").strip()
 
 
-BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "")
-RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
+BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "").strip()
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "").strip()
 
 
 def send_email(to_emails: list[str], subject: str, body_html: str):

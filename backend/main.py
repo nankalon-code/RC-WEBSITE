@@ -746,17 +746,18 @@ def test_email(to_email: str):
     
     # ── Test Brevo HTTPS API First ─────────────────────────────────────
     if BREVO_API_KEY:
-        steps.append("Brevo API Key detected. Testing HTTPS REST API dispatch (Port 443)...")
+        key_clean = BREVO_API_KEY.strip()
+        steps.append(f"Brevo API Key detected (Length: {len(key_clean)} chars, Starts with: '{key_clean[:12]}...', Ends with: '...{key_clean[-4:] if len(key_clean) > 4 else ''}')")
         import urllib.request
         import json
         try:
             url = "https://api.brevo.com/v3/smtp/email"
             headers = {
                 "Accept": "application/json",
-                "api-key": BREVO_API_KEY,
+                "api-key": key_clean,
                 "Content-Type": "application/json"
             }
-            sender_email = SMTP_EMAIL if SMTP_EMAIL else CLUB_EMAIL
+            sender_email = SMTP_EMAIL.strip() if SMTP_EMAIL else CLUB_EMAIL.strip()
             payload = {
                 "sender": {"email": sender_email, "name": "Robotics Club RTU Kota (Diagnostic)"},
                 "to": [{"email": to_email}],
