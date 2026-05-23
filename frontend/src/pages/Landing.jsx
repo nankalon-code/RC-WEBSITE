@@ -156,7 +156,17 @@ export default function Landing() {
   const location = useLocation();
 
   useEffect(() => {
-    if (location.hash) {
+    if (location.state?.scrollToSection) {
+      const id = location.state.scrollToSection;
+      const element = document.getElementById(id);
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      }
+      // Clean up the location state so it doesn't trigger scroll again on refresh
+      window.history.replaceState({}, document.title);
+    } else if (location.hash) {
       const id = location.hash.replace('#', '');
       const element = document.getElementById(id);
       if (element) element.scrollIntoView({ behavior: 'smooth' });
@@ -184,7 +194,7 @@ export default function Landing() {
     }
   };
 
-  const fadeUp = { initial: { opacity: 0, y: 30 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: '-80px' }, transition: { duration: 0.7 } };
+  const fadeUp = { initial: { opacity: 0, y: 30 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, amount: 0.05 }, transition: { duration: 0.7 } };
 
   // Generate particles
   const particles = Array.from({ length: 30 }).map((_, i) => (
@@ -275,11 +285,12 @@ export default function Landing() {
                         Explore Projects
                       </button>
                     </Link>
-                    <a href="#about">
-                      <button className="px-8 py-4 rounded-full border border-[var(--color-border)] hover:border-[var(--color-border-hover)] text-[var(--color-text-main)] font-medium text-sm tracking-wider bg-[var(--color-surface)] hover:bg-[var(--color-surface-2)] transition-all">
-                        Learn More
-                      </button>
-                    </a>
+                    <button
+                      onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
+                      className="px-8 py-4 rounded-full border border-[var(--color-border)] hover:border-[var(--color-border-hover)] text-[var(--color-text-main)] font-medium text-sm tracking-wider bg-[var(--color-surface)] hover:bg-[var(--color-surface-2)] transition-all"
+                    >
+                      Learn More
+                    </button>
                   </motion.div>
 
                 </div>

@@ -30,7 +30,7 @@ export default function LabStatusHUD() {
     <motion.div
       initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 3.5, duration: 0.5 }}
-      className="fixed bottom-6 left-6 z-40 font-mono text-[10px] tracking-widest select-none"
+      className="hidden md:block fixed bottom-6 left-6 z-40 font-mono text-[10px] tracking-widest select-none"
     >
       <div
         className="rounded-xl overflow-hidden cursor-pointer border border-white/20 backdrop-blur-3xl shadow-[0_0_30px_rgba(255,255,255,0.03),_inset_0_0_12px_rgba(255,255,255,0.02)]"

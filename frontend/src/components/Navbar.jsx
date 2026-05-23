@@ -11,6 +11,7 @@ export default function Navbar() {
   const [isNotificationsOpen, setNotificationsOpen] = useState(false);
   const [isMobileOpen, setMobileOpen] = useState(false);
   const [announcements, setAnnouncements] = useState([]);
+  const [hasNewNotifications, setHasNewNotifications] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user, isAuthenticated, logout, init } = useAuthStore();
   const { theme, toggle: toggleTheme } = useThemeStore();
@@ -18,7 +19,19 @@ export default function Navbar() {
 
   useEffect(() => { init(); }, [init]);
   useEffect(() => {
-    apiFetch('/announcements').then((d) => setAnnouncements(d.slice(0, 5))).catch(() => {});
+    apiFetch('/announcements').then((d) => {
+      const sliced = d.slice(0, 5);
+      setAnnouncements(sliced);
+      
+      const lastChecked = localStorage.getItem('lastCheckedNotifications');
+      if (!lastChecked) {
+        setHasNewNotifications(sliced.length > 0);
+      } else {
+        const checkedTime = new Date(lastChecked).getTime();
+        const hasUnread = sliced.some(ann => new Date(ann.timestamp).getTime() > checkedTime);
+        setHasNewNotifications(hasUnread);
+      }
+    }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -30,6 +43,17 @@ export default function Navbar() {
   const handleLogout = () => { logout(); navigate('/'); };
   const isDark = theme === 'dark';
 
+  const handleScrollToSection = (sectionId) => {
+    if (window.location.pathname === '/') {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      navigate('/', { state: { scrollToSection: sectionId } });
+    }
+  };
+
   return (
     <nav className="fixed top-4 left-1/2 -translate-x-1/2 w-[94%] max-w-6xl z-50">
       <div className={`navbar-glass ${scrolled ? 'scrolled' : ''} flex items-center justify-between px-5 py-2.5 transition-all duration-500`}>
@@ -39,8 +63,8 @@ export default function Navbar() {
 
         <div className="hidden md:flex items-center space-x-5 text-sm font-medium">
           <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-accent transition-colors text-muted-var">Home</Link>
-          <a href="/#about" className="hover:text-accent transition-colors text-muted-var">About</a>
-          <a href="/#events" className="hover:text-accent transition-colors text-muted-var">Events</a>
+          <span onClick={() => handleScrollToSection('about')} className="hover:text-accent transition-colors text-muted-var cursor-pointer">About</span>
+          <span onClick={() => handleScrollToSection('events')} className="hover:text-accent transition-colors text-muted-var cursor-pointer">Events</span>
           <Link to="/achievements" className="hover:text-accent transition-colors text-muted-var">Achievements</Link>
           <Link to="/team" className="hover:text-accent transition-colors text-muted-var">Team</Link>
           <Link to="/gallery" className="hover:text-accent transition-colors text-muted-var">Gallery</Link>
@@ -77,12 +101,18 @@ export default function Navbar() {
           {/* Notifications */}
           <div className="relative">
             <button
-              onClick={() => setNotificationsOpen(!isNotificationsOpen)}
+              onClick={() => {
+                setNotificationsOpen(!isNotificationsOpen);
+                if (!isNotificationsOpen) {
+                  localStorage.setItem('lastCheckedNotifications', new Date().toISOString());
+                  setHasNewNotifications(false);
+                }
+              }}
               className="w-8 h-8 rounded-full flex items-center justify-center opacity-60 hover:opacity-100 transition-all hover:bg-[var(--glass-bg-hover)]"
               style={{ color: 'var(--color-text-main)', border: '1px solid var(--color-border)' }}
             >
               <Bell size={13} />
-              {announcements.length > 0 && (
+              {hasNewNotifications && (
                 <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full" style={{ background: 'var(--color-primary)' }} />
               )}
             </button>
@@ -195,7 +225,8 @@ export default function Navbar() {
             }}
           >
             <Link to="/" onClick={() => setMobileOpen(false)} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Home</Link>
-            <a href="/#events" onClick={() => setMobileOpen(false)} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Events</a>
+            <span onClick={() => { setMobileOpen(false); handleScrollToSection('about'); }} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors cursor-pointer animate-pulse-subtle" style={{ color: 'var(--color-text-main)' }}>About</span>
+            <span onClick={() => { setMobileOpen(false); handleScrollToSection('events'); }} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors cursor-pointer" style={{ color: 'var(--color-text-main)' }}>Events</span>
             <Link to="/achievements" onClick={() => setMobileOpen(false)} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Achievements</Link>
             <Link to="/team" onClick={() => setMobileOpen(false)} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Team</Link>
             <Link to="/gallery" onClick={() => setMobileOpen(false)} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Gallery</Link>

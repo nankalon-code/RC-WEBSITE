@@ -30,7 +30,7 @@ export default function RobotCornerWidget() {
     <motion.div
       initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 4, duration: 0.5 }}
-      className="fixed bottom-6 right-6 z-40 flex flex-col items-center"
+      className="hidden md:flex fixed bottom-6 right-6 z-40 flex-col items-center"
     >
       {/* Speech bubble */}
       <AnimatePresence>

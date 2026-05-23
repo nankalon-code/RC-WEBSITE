@@ -145,8 +145,7 @@ export default function Forum() {
               <motion.div
                 key={idea.id}
                 initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-50px' }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: (index % 3) * 0.05, duration: 0.5 }}
                 whileHover={!isLocked ? { y: -6, transition: { duration: 0.2 } } : {}}
                 className="relative group h-full"
@@ -248,7 +247,7 @@ export default function Forum() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="relative w-full max-w-xl bg-panel-var border border-var rounded-2xl p-8 shadow-2xl z-10 my-auto"
+              className="relative w-full max-w-xl bg-panel-var border border-var rounded-2xl p-6 sm:p-8 shadow-2xl z-10 md:my-auto my-4"
               data-lenis-prevent
             >
               <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[var(--color-accent)] to-transparent" />

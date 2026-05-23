@@ -20,10 +20,15 @@ from auth import (
     get_current_user, get_current_user_from_refresh,
     require_admin, require_member,
 )
-from email_service import send_registration_email, send_announcement_email, send_contact_email
+from email_service import (
+    send_registration_email, send_announcement_email, send_contact_email,
+    send_welcome_user_email, send_member_promotion_email
+)
 from seed_data import SEED_IDEAS
 
-load_dotenv()
+from pathlib import Path
+env_path = Path(__file__).parent / ".env"
+load_dotenv(dotenv_path=env_path)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -104,13 +109,19 @@ def seed_db():
             ("stat_members", "150"),
             ("stat_stacks", "6"),
             ("stat_wins", "5"),
-            ("contact_email", "robotics@club.edu"),
+            ("contact_email", "roboticsclub.rtukota@gmail.com"),
             ("club_github", "https://github.com/robotics-club"),
             ("club_linkedin", ""),
             ("club_instagram", ""),
         ]
         for k, v in defaults:
             db.add(models.SiteContent(key=k, value=v))
+        db.commit()
+
+    # Self-healing migration for contact email setting
+    existing_contact = db.query(models.SiteContent).filter(models.SiteContent.key == "contact_email").first()
+    if existing_contact and existing_contact.value == "robotics@club.edu":
+        existing_contact.value = "roboticsclub.rtukota@gmail.com"
         db.commit()
 
     # Display members
@@ -166,7 +177,7 @@ def health():
 
 @api.post("/auth/register", response_model=schemas.Token)
 @limiter.limit("5/minute")
-def register(request: Request, response: Response, data: schemas.UserCreate, db: Session = Depends(get_db)):
+def register(request: Request, response: Response, data: schemas.UserCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     if db.query(models.User).filter(models.User.email == data.email).first():
         raise HTTPException(status_code=400, detail="Email already registered")
     user = models.User(
@@ -185,6 +196,8 @@ def register(request: Request, response: Response, data: schemas.UserCreate, db:
         models.TeamMemberLink.user_id: user.id
     })
     db.commit()
+    
+    background_tasks.add_task(send_welcome_user_email, user.email, user.name)
     
     token = create_access_token({"sub": str(user.id), "role": user.role})
     refresh = create_refresh_token({"sub": str(user.id), "role": user.role})
@@ -251,7 +264,7 @@ def list_users(db: Session = Depends(get_db), admin: models.User = Depends(requi
 
 
 @api.put("/admin/users/{user_id}/role")
-def update_user_role(user_id: int, role: str, db: Session = Depends(get_db), admin: models.User = Depends(require_admin)):
+def update_user_role(user_id: int, role: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db), admin: models.User = Depends(require_admin)):
     if role not in ("admin", "member", "user"):
         raise HTTPException(status_code=400, detail="Invalid role")
     if role == "admin" and admin.id != 1:
@@ -259,8 +272,11 @@ def update_user_role(user_id: int, role: str, db: Session = Depends(get_db), adm
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    old_role = user.role
     user.role = role
     db.commit()
+    if role == "member" and old_role != "member":
+        background_tasks.add_task(send_member_promotion_email, user.email, user.name)
     return {"status": "ok", "user_id": user_id, "new_role": role}
 
 
@@ -372,7 +388,7 @@ def register_team(req: schemas.TeamRegisterRequest, background_tasks: Background
     db.commit(); db.refresh(idea)
 
     background_tasks.add_task(
-        send_registration_email, member_emails, req.team_name, idea.title, idea.deadline or "TBA", idea.description
+        send_registration_email, member_emails, registration.id, req.team_name, idea.title, idea.description
     )
     return idea
 
