@@ -135,7 +135,7 @@ def seed_db():
             ("Autonomous Humanoid Assembly", "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=80&w=600", "Students calibrating a dual-arm humanoid robot.", 1),
             ("Swarm Drone Flight Test", "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&q=80&w=600", "Quadcopters performing synchronized outdoor mapping.", 2),
             ("Micro-Soldering Workshop", "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=600", "Core member showing SMD soldering technique to freshmen.", 3),
-            ("Rover Chassis 3D Print", "https://images.unsplash.com/photo-1615840287214-7fe58a8f3685?auto=format&fit=crop&q=80&w=600", "Printing lightweight TPU carbon-fiber wheels.", 4),
+            ("Rover Chassis 3D Print", "https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?auto=format&fit=crop&q=80&w=600", "Printing lightweight TPU carbon-fiber wheels.", 4),
             ("AI Core Vision Terminal", "https://images.unsplash.com/photo-1555255707-c07966088b7b?auto=format&fit=crop&q=80&w=600", "Deep learning models classifying objects in real-time.", 5),
             ("Laying out a 4-Layer PCB", "https://images.unsplash.com/photo-1601524909162-be87252be298?auto=format&fit=crop&q=80&w=600", "Routing critical differential pairs on a high-speed controller board.", 6),
             ("Mars Rover Obstacle Trial", "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?auto=format&fit=crop&q=80&w=600", "The ARES rover navigating a rock yard simulation.", 7),
@@ -162,6 +162,15 @@ def seed_db():
             db.add(models.GalleryItem(image_url=url, caption=caption, description=desc, order=order))
         db.commit()
         logger.info("Seeded 25 highly aesthetic gallery photos.")
+
+    # Self-healing gallery image migration for existing databases
+    try:
+        broken_url = "https://images.unsplash.com/photo-1615840287214-7fe58a8f3685?auto=format&fit=crop&q=80&w=600"
+        new_url = "https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?auto=format&fit=crop&q=80&w=600"
+        db.query(models.GalleryItem).filter(models.GalleryItem.caption == "Rover Chassis 3D Print", models.GalleryItem.image_url == broken_url).update({models.GalleryItem.image_url: new_url})
+        db.commit()
+    except Exception as e_migration:
+        logger.error(f"Gallery self-healing migration failed: {e_migration}")
 
     # Ideas
     if db.query(models.Idea).count() == 0:
