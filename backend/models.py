@@ -100,9 +100,22 @@ class Achievement(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
+    project_name = Column(String, nullable=True)
+    award_place = Column(String, nullable=True)
+    image_url = Column(String, nullable=True)
     description = Column(Text, nullable=True)
     date = Column(String, nullable=True)
     category = Column(String, nullable=True)
+
+
+class GalleryItem(Base):
+    __tablename__ = "gallery_items"
+
+    id = Column(Integer, primary_key=True, index=True)
+    image_url = Column(String, nullable=False)
+    caption = Column(String, nullable=True)
+    description = Column(Text, nullable=True)
+    order = Column(Integer, default=0)
 
 
 class SiteContent(Base):
