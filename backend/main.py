@@ -740,20 +740,57 @@ def delete_resource(rid: int, db: Session = Depends(get_db), admin: models.User 
 
 @api.get("/test-email")
 def test_email(to_email: str):
-    from email_service import SMTP_EMAIL, SMTP_PASSWORD
+    from email_service import SMTP_EMAIL, SMTP_PASSWORD, BREVO_API_KEY, CLUB_EMAIL
+    
+    steps = []
+    
+    # ── Test Brevo HTTPS API First ─────────────────────────────────────
+    if BREVO_API_KEY:
+        steps.append("Brevo API Key detected. Testing HTTPS REST API dispatch (Port 443)...")
+        import urllib.request
+        import json
+        try:
+            url = "https://api.brevo.com/v3/smtp/email"
+            headers = {
+                "Accept": "application/json",
+                "Api-Key": BREVO_API_KEY,
+                "Content-Type": "application/json"
+            }
+            sender_email = SMTP_EMAIL if SMTP_EMAIL else CLUB_EMAIL
+            payload = {
+                "sender": {"email": sender_email, "name": "Robotics Club RTU Kota (Diagnostic)"},
+                "to": [{"email": to_email}],
+                "subject": "Robotics Club SMTP Brevo HTTPS Diagnostic",
+                "htmlContent": "<p>Robotics SMTP Diagnostic Successful via Brevo HTTPS REST API!</p>"
+            }
+            
+            req = urllib.request.Request(
+                url, 
+                data=json.dumps(payload).encode("utf-8"), 
+                headers=headers, 
+                method="POST"
+            )
+            with urllib.request.urlopen(req, timeout=12) as response:
+                res_data = response.read()
+                steps.append(f"Brevo HTTP API Succeeded. Response: {res_data.decode('utf-8')}")
+            return {"status": "success", "protocol": "HTTPS REST API (Brevo)", "trace": steps}
+        except Exception as e_brevo:
+            steps.append(f"Brevo HTTPS API Failed: {str(e_brevo)}")
+            steps.append("Falling back to raw TCP SMTP tests...")
+
     if not SMTP_EMAIL or not SMTP_PASSWORD:
         return {
             "status": "error", 
-            "message": "SMTP_EMAIL or SMTP_PASSWORD is not configured as environment variables!",
-            "hint": "Make sure you set these two keys exactly in your Railway dashboard variables."
+            "message": "No valid mail dispatch keys configured (SMTP or Brevo API).",
+            "trace": steps,
+            "hint": "Ensure you set BREVO_API_KEY or SMTP_EMAIL & SMTP_PASSWORD in your environment."
         }
     
     import smtplib
     from email.mime.text import MIMEText
     from email.mime.multipart import MIMEMultipart
     
-    steps = []
-    steps.append(f"Diagnostics started for sender: {SMTP_EMAIL}")
+    steps.append(f"SMTP Diagnostics started for sender: {SMTP_EMAIL}")
     
     # Attempt 1: Port 587 (TLS)
     try:
