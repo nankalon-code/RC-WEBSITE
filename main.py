@@ -20,10 +20,15 @@ from auth import (
     get_current_user, get_current_user_from_refresh,
     require_admin, require_member,
 )
-from email_service import send_registration_email, send_announcement_email, send_contact_email
+from email_service import (
+    send_registration_email, send_announcement_email, send_contact_email,
+    send_welcome_user_email, send_member_promotion_email
+)
 from seed_data import SEED_IDEAS
 
-load_dotenv()
+from pathlib import Path
+env_path = Path(__file__).parent / ".env"
+load_dotenv(dotenv_path=env_path)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -43,6 +48,7 @@ ALLOWED_ORIGINS = [o.strip() for o in _origins_env.split(",")]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -60,11 +66,28 @@ api = APIRouter(prefix="/api/v1")
 def seed_db():
     db = next(get_db())
 
-    # Admin
-    if db.query(models.User).count() == 0:
-        admin_email = os.environ.get("ADMIN_EMAIL", "admin@robotics.club")
-        admin_pass = os.environ.get("ADMIN_PASSWORD", "admin123")
-        admin_name = os.environ.get("ADMIN_NAME", "Admin")
+    # Self-healing migrations for achievements and gallery
+    try:
+        db.execute("SELECT project_name FROM achievements LIMIT 1")
+    except Exception:
+        db.rollback()
+        logger.info("Column 'project_name' not found in 'achievements' table. Recreating 'achievements' table...")
+        models.Achievement.__table__.drop(bind=engine, checkfirst=True)
+        models.Achievement.__table__.create(bind=engine, checkfirst=True)
+
+    # Admin Seeding / Syncing from Environment Variables
+    admin_email = os.environ.get("ADMIN_EMAIL", "admin@robotics.club")
+    admin_pass = os.environ.get("ADMIN_PASSWORD", "admin123")
+    admin_name = os.environ.get("ADMIN_NAME", "Admin")
+
+    existing_admin = db.query(models.User).filter(models.User.email == admin_email).first()
+    if existing_admin:
+        existing_admin.hashed_password = hash_password(admin_pass)
+        existing_admin.name = admin_name
+        existing_admin.role = "admin"
+        db.commit()
+        logger.info(f"Synchronized and updated admin: {admin_email}")
+    else:
         db.add(models.User(
             email=admin_email,
             hashed_password=hash_password(admin_pass),
@@ -72,7 +95,73 @@ def seed_db():
             role="admin",
         ))
         db.commit()
-        logger.info("Seeded default admin.")
+        logger.info(f"Seeded new admin: {admin_email}")
+
+    # Achievements Seeding
+    if db.query(models.Achievement).count() == 0:
+        db.add(models.Achievement(
+            title="1st Prize - RoboCon National Championship",
+            project_name="Autonomous Search & Rescue Swarm",
+            award_place="1st Place (National Champion)",
+            image_url="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=80&w=800",
+            description="Our swarm robotics team won first prize at the RoboCon National Finals. The team designed and deployed a fleet of 5 autonomous drones and rovers that collaborated to map and locate targets in a simulated disaster zone.",
+            date="2026-04-12",
+            category="Swarm Robotics"
+        ))
+        db.add(models.Achievement(
+            title="Best Innovation Award - MIT TechFest",
+            project_name="Haptic Cybernetic Prosthetic Hand",
+            award_place="Innovation Gold Medalist",
+            image_url="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=800",
+            description="Designed a low-cost, smart prosthetic hand utilizing EMG muscle sensors and micro-haptic motors, giving the wearer realistic sensory feedback. Awarded Best Innovation among 200+ global teams.",
+            date="2026-02-18",
+            category="Biomedical Robotics"
+        ))
+        db.add(models.Achievement(
+            title="2nd Runner Up - Global Rover Challenge",
+            project_name="ARES Mars Rover Prototype",
+            award_place="3rd Place Overall",
+            image_url="https://images.unsplash.com/photo-1534723328310-e82dad3ee43f?auto=format&fit=crop&q=80&w=800",
+            description="The ARES Rover completed simulated extra-terrestrial navigation, soil analysis, and maintenance operations on high-altitude rugged terrain, placing 3rd in the global rover challenge.",
+            date="2025-11-05",
+            category="Space Robotics"
+        ))
+        db.commit()
+        logger.info("Seeded achievements.")
+
+    # Gallery Seeding (25 premium highly-aesthetic stock images)
+    if db.query(models.GalleryItem).count() == 0:
+        gallery_photos = [
+            ("Autonomous Humanoid Assembly", "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=80&w=600", "Students calibrating a dual-arm humanoid robot.", 1),
+            ("Swarm Drone Flight Test", "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&q=80&w=600", "Quadcopters performing synchronized outdoor mapping.", 2),
+            ("Micro-Soldering Workshop", "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=600", "Core member showing SMD soldering technique to freshmen.", 3),
+            ("Rover Chassis 3D Print", "https://images.unsplash.com/photo-1615840287214-7fe58a8f3685?auto=format&fit=crop&q=80&w=600", "Printing lightweight TPU carbon-fiber wheels.", 4),
+            ("AI Core Vision Terminal", "https://images.unsplash.com/photo-1555255707-c07966088b7b?auto=format&fit=crop&q=80&w=600", "Deep learning models classifying objects in real-time.", 5),
+            ("Laying out a 4-Layer PCB", "https://images.unsplash.com/photo-1601524909162-be87252be298?auto=format&fit=crop&q=80&w=600", "Routing critical differential pairs on a high-speed controller board.", 6),
+            ("Mars Rover Obstacle Trial", "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?auto=format&fit=crop&q=80&w=600", "The ARES rover navigating a rock yard simulation.", 7),
+            ("Holographic Interface Test", "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&q=80&w=600", "Visualizing spatial points cloud inside virtual reality.", 8),
+            ("Late Night Hackathon Session", "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=600", "Coding team optimizing ROS2 navigation nodes.", 9),
+            ("Robotic Arm Sorting Trial", "https://images.unsplash.com/photo-1616401784845-180882ba9ba8?auto=format&fit=crop&q=80&w=600", "Calibration of a 6-axis industrial arm with vision.", 10),
+            ("Sensor Integration Phase", "https://images.unsplash.com/photo-1517059224940-d4af9eec41b7?auto=format&fit=crop&q=80&w=600", "Interfacing LiDAR with an NVIDIA Jetson Nano.", 11),
+            ("Pneumatics System Assembly", "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&q=80&w=600", "Connecting air valves for custom mechanical actuators.", 12),
+            ("Cybernetic Hand Showcase", "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=600", "Testing tactile touch sensors on fingers.", 13),
+            ("Freshman Boot Camp", "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=600", "Introduction to Arduino coding and motor drivers.", 14),
+            ("Telemetry Dashboard View", "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=600", "Live data streaming from autonomous drone swarm.", 15),
+            ("Robotics Club Lab Space", "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?auto=format&fit=crop&q=80&w=600", "Overview of our active building workshop.", 16),
+            ("Precision Oscilloscope Tuning", "https://images.unsplash.com/photo-1581092921461-eab62e97a780?auto=format&fit=crop&q=80&w=600", "Analyzing SPI signal timings on motor encoder boards.", 17),
+            ("LiDAR Navigation Map", "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&q=80&w=600", "A beautiful point-cloud map generated by the rover.", 18),
+            ("Deep Brainstorming Session", "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=600", "Club leaders discussing the architecture of swarm intelligence.", 19),
+            ("Hydraulic Pressure Test", "https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&q=80&w=600", "Testing high-pressure heavy-duty lifting cylinders.", 20),
+            ("Autonomous Rover Outdoors", "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=600", "GPS waypoint navigation testing on lawn terrain.", 21),
+            ("Computer Vision Eye Setup", "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=600", "Stereoscopic camera mount on active pan-tilt head.", 22),
+            ("Soldering Iron Close-up", "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=600", "Beautiful shot of heat rising from soldering tip.", 23),
+            ("Haptic Feedback Gloves", "https://images.unsplash.com/photo-1593508512255-86ab42a8e620?auto=format&fit=crop&q=80&w=600", "Calibrating smart gloves for tele-robotic surgery.", 24),
+            ("Club Graduation Ceremony", "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=600", "Celebrating our senior members' placement in top labs.", 25)
+        ]
+        for caption, url, desc, order in gallery_photos:
+            db.add(models.GalleryItem(image_url=url, caption=caption, description=desc, order=order))
+        db.commit()
+        logger.info("Seeded 25 highly aesthetic gallery photos.")
 
     # Ideas
     if db.query(models.Idea).count() == 0:
@@ -94,13 +183,19 @@ def seed_db():
             ("stat_members", "150"),
             ("stat_stacks", "6"),
             ("stat_wins", "5"),
-            ("contact_email", "robotics@club.edu"),
+            ("contact_email", "roboticsclub.rtukota@gmail.com"),
             ("club_github", "https://github.com/robotics-club"),
             ("club_linkedin", ""),
             ("club_instagram", ""),
         ]
         for k, v in defaults:
             db.add(models.SiteContent(key=k, value=v))
+        db.commit()
+
+    # Self-healing migration for contact email setting
+    existing_contact = db.query(models.SiteContent).filter(models.SiteContent.key == "contact_email").first()
+    if existing_contact and existing_contact.value == "robotics@club.edu":
+        existing_contact.value = "roboticsclub.rtukota@gmail.com"
         db.commit()
 
     # Display members
@@ -156,7 +251,7 @@ def health():
 
 @api.post("/auth/register", response_model=schemas.Token)
 @limiter.limit("5/minute")
-def register(request: Request, response: Response, data: schemas.UserCreate, db: Session = Depends(get_db)):
+def register(request: Request, response: Response, data: schemas.UserCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     if db.query(models.User).filter(models.User.email == data.email).first():
         raise HTTPException(status_code=400, detail="Email already registered")
     user = models.User(
@@ -175,6 +270,8 @@ def register(request: Request, response: Response, data: schemas.UserCreate, db:
         models.TeamMemberLink.user_id: user.id
     })
     db.commit()
+    
+    background_tasks.add_task(send_welcome_user_email, user.email, user.name)
     
     token = create_access_token({"sub": str(user.id), "role": user.role})
     refresh = create_refresh_token({"sub": str(user.id), "role": user.role})
@@ -241,7 +338,7 @@ def list_users(db: Session = Depends(get_db), admin: models.User = Depends(requi
 
 
 @api.put("/admin/users/{user_id}/role")
-def update_user_role(user_id: int, role: str, db: Session = Depends(get_db), admin: models.User = Depends(require_admin)):
+def update_user_role(user_id: int, role: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db), admin: models.User = Depends(require_admin)):
     if role not in ("admin", "member", "user"):
         raise HTTPException(status_code=400, detail="Invalid role")
     if role == "admin" and admin.id != 1:
@@ -249,8 +346,11 @@ def update_user_role(user_id: int, role: str, db: Session = Depends(get_db), adm
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    old_role = user.role
     user.role = role
     db.commit()
+    if role == "member" and old_role != "member":
+        background_tasks.add_task(send_member_promotion_email, user.email, user.name)
     return {"status": "ok", "user_id": user_id, "new_role": role}
 
 
@@ -362,7 +462,7 @@ def register_team(req: schemas.TeamRegisterRequest, background_tasks: Background
     db.commit(); db.refresh(idea)
 
     background_tasks.add_task(
-        send_registration_email, member_emails, req.team_name, idea.title, idea.deadline or "TBA", idea.description
+        send_registration_email, member_emails, registration.id, req.team_name, idea.title, idea.description
     )
     return idea
 
@@ -482,9 +582,54 @@ def create_achievement(data: schemas.AchievementCreate, db: Session = Depends(ge
     return a
 
 
+@api.put("/achievements/{aid}", response_model=schemas.AchievementOut)
+def update_achievement(aid: int, data: schemas.AchievementCreate, db: Session = Depends(get_db), admin: models.User = Depends(require_admin)):
+    a = db.query(models.Achievement).filter(models.Achievement.id == aid).first()
+    if not a:
+        raise HTTPException(status_code=404, detail="Achievement not found")
+    for k, v in data.model_dump().items():
+        setattr(a, k, v)
+    db.commit(); db.refresh(a)
+    return a
+
+
 @api.delete("/achievements/{aid}")
 def delete_achievement(aid: int, db: Session = Depends(get_db), admin: models.User = Depends(require_admin)):
     db.query(models.Achievement).filter(models.Achievement.id == aid).delete()
+    db.commit()
+    return {"status": "ok"}
+
+
+# ─────────────────────────────────────────────────────────────
+#  GALLERY
+# ─────────────────────────────────────────────────────────────
+
+@api.get("/gallery", response_model=list[schemas.GalleryItemOut])
+def get_gallery(db: Session = Depends(get_db)):
+    return db.query(models.GalleryItem).order_by(models.GalleryItem.order.asc(), models.GalleryItem.id.asc()).all()
+
+
+@api.post("/gallery", response_model=schemas.GalleryItemOut)
+def create_gallery_item(data: schemas.GalleryItemCreate, db: Session = Depends(get_db), admin: models.User = Depends(require_admin)):
+    g = models.GalleryItem(**data.model_dump())
+    db.add(g); db.commit(); db.refresh(g)
+    return g
+
+
+@api.put("/gallery/{gid}", response_model=schemas.GalleryItemOut)
+def update_gallery_item(gid: int, data: schemas.GalleryItemCreate, db: Session = Depends(get_db), admin: models.User = Depends(require_admin)):
+    g = db.query(models.GalleryItem).filter(models.GalleryItem.id == gid).first()
+    if not g:
+        raise HTTPException(status_code=404, detail="Gallery item not found")
+    for k, v in data.model_dump().items():
+        setattr(g, k, v)
+    db.commit(); db.refresh(g)
+    return g
+
+
+@api.delete("/gallery/{gid}")
+def delete_gallery_item(gid: int, db: Session = Depends(get_db), admin: models.User = Depends(require_admin)):
+    db.query(models.GalleryItem).filter(models.GalleryItem.id == gid).delete()
     db.commit()
     return {"status": "ok"}
 

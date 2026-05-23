@@ -5,14 +5,16 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
 
-load_dotenv()
+from pathlib import Path
+env_path = Path(__file__).parent / ".env"
+load_dotenv(dotenv_path=env_path)
 logger = logging.getLogger(__name__)
 
 SMTP_EMAIL = os.environ.get("SMTP_EMAIL", "")
 SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")
 SMTP_HOST = "smtp.gmail.com"
 SMTP_PORT = 587
-CLUB_EMAIL = os.environ.get("ADMIN_EMAIL", "robotics@club.edu")
+CLUB_EMAIL = os.environ.get("ADMIN_EMAIL", "roboticsclub.rtukota@gmail.com")
 
 
 def send_email(to_emails: list[str], subject: str, body_html: str):
@@ -34,37 +36,102 @@ def send_email(to_emails: list[str], subject: str, body_html: str):
         logger.error(f"[EMAIL FAILED] {e}")
 
 
-def send_registration_email(to_emails: list[str], team_name: str, idea_title: str, deadline: str, idea_desc: str = ""):
-    subject = f"Robotics Club — Team '{team_name}' Registration Confirmed"
+def send_registration_email(to_emails: list[str], team_id: int, team_name: str, idea_title: str, idea_desc: str = ""):
+    subject = f"Robotics Club — Project '{idea_title}' Locked Successfully"
     body = f"""
-    <div style="font-family:sans-serif;padding:32px;background:#0a0a0f;color:#e0e0e0;max-width:600px;margin:auto;border-radius:12px;">
+    <div style="font-family:sans-serif;padding:32px;background:#0a0a0f;color:#e0e0e0;max-width:600px;margin:auto;border-radius:12px;border:1px solid #1f2937;">
       <div style="border-bottom:1px solid #222;padding-bottom:16px;margin-bottom:24px;">
-        <h1 style="color:#00d4ff;font-size:24px;margin:0;">Registration Confirmed</h1>
+        <h1 style="color:#00d4ff;font-size:24px;margin:0;">Project Locked Confirmed</h1>
       </div>
-      <p>Congratulations, <strong style="color:#fff;">{team_name}</strong>!</p>
-      <p>Your team has successfully registered for the following project:</p>
+      <p>Congratulations, members of <strong style="color:#fff;">{team_name}</strong>!</p>
+      <p>Your team has successfully locked and registered for the following project idea on the Robotics Club Forum:</p>
+      
       <div style="background:#111;border:1px solid #222;border-radius:8px;padding:20px;margin:20px 0;">
         <h2 style="color:#fff;margin:0 0 8px;">{idea_title}</h2>
-        <p style="color:#888;font-size:14px;margin:0;">{idea_desc[:200]}{"..." if len(idea_desc) > 200 else ""}</p>
+        <p style="color:#888;font-size:14px;margin:0;">{idea_desc}</p>
       </div>
+
       <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
-        <tr><td style="color:#888;padding:8px 0;border-bottom:1px solid #1a1a1a;">Deadline</td>
-            <td style="color:#fff;padding:8px 0;border-bottom:1px solid #1a1a1a;text-align:right;"><strong>{deadline}</strong></td></tr>
+        <tr>
+          <td style="color:#888;padding:8px 0;border-bottom:1px solid #1a1a1a;">Team ID</td>
+          <td style="color:#fff;padding:8px 0;border-bottom:1px solid #1a1a1a;text-align:right;"><strong>#{team_id}</strong></td>
+        </tr>
+        <tr>
+          <td style="color:#888;padding:8px 0;border-bottom:1px solid #1a1a1a;">Team Name</td>
+          <td style="color:#fff;padding:8px 0;border-bottom:1px solid #1a1a1a;text-align:right;"><strong>{team_name}</strong></td>
+        </tr>
+        <tr>
+          <td style="color:#888;padding:8px 0;border-bottom:1px solid #1a1a1a;">Project Deadline</td>
+          <td style="color:#00d4ff;padding:8px 0;border-bottom:1px solid #1a1a1a;text-align:right;"><strong>A deadline for your project will be informed soon</strong></td>
+        </tr>
       </table>
+
       <div style="background:#0d1a1f;border:1px solid #00d4ff22;border-radius:8px;padding:20px;margin-bottom:24px;">
-        <h3 style="color:#00d4ff;margin:0 0 12px;font-size:16px;">GitHub Submission Requirements</h3>
+        <h3 style="color:#00d4ff;margin:0 0 12px;font-size:16px;">Next Steps</h3>
         <ul style="color:#aaa;font-size:14px;margin:0;padding-left:20px;line-height:1.8;">
-          <li>Create a public GitHub repository for your project</li>
-          <li>Submit the repo URL in your User Dashboard before the deadline</li>
-          <li>Include a <code style="background:#111;padding:2px 6px;border-radius:4px;">README.md</code> with setup instructions</li>
-          <li>Tag your final submission commit as <code style="background:#111;padding:2px 6px;border-radius:4px;">v1.0-submission</code></li>
+          <li>Create a public GitHub repository for your project collaboration.</li>
+          <li>Submit the repo URL in your User Dashboard to track progress.</li>
+          <li>A detailed timeline and intermediate check-in dates will be sent by the coordination team shortly.</li>
         </ul>
       </div>
+      
       <hr style="border-color:#1a1a1a;margin:24px 0;">
-      <p style="color:#555;font-size:12px;margin:0;">Robotics Club Platform — This is an automated confirmation email.</p>
+      <p style="color:#555;font-size:12px;margin:0;">Robotics Club Platform — This is an automated notification.</p>
     </div>
     """
     send_email(to_emails, subject, body)
+
+
+def send_welcome_user_email(to_email: str, name: str):
+    subject = "Welcome to the Robotics Club Platform!"
+    body = f"""
+    <div style="font-family:sans-serif;padding:32px;background:#0a0a0f;color:#e0e0e0;max-width:600px;margin:auto;border-radius:12px;border:1px solid #1f2937;">
+      <div style="border-bottom:1px solid #222;padding-bottom:16px;margin-bottom:24px;">
+        <h1 style="color:#00d4ff;font-size:24px;margin:0;">Welcome aboard, {name}!</h1>
+      </div>
+      <p>Thank you for joining the Robotics Club platform!</p>
+      <p>Your account has been registered successfully. Here is what you can do on the platform right now:</p>
+      
+      <div style="background:#111;border:1px solid #222;border-radius:8px;padding:20px;margin:20px 0;">
+        <ul style="color:#aaa;font-size:14px;margin:0;padding-left:20px;line-height:1.8;">
+          <li>Browse through 50+ curated project ideas on the <strong>Forum</strong>.</li>
+          <li>Form a team of 2 to 4 students.</li>
+          <li>Lock your favorite available project and start building!</li>
+        </ul>
+      </div>
+
+      <p>If you have applied to become an official Core Member of the club, your request is currently under review by our administration. Once assigned as a Member, you will receive full access and a congratulatory notification!</p>
+
+      <hr style="border-color:#1a1a1a;margin:24px 0;">
+      <p style="color:#555;font-size:12px;margin:0;">Robotics Club Platform — This is an automated welcome email.</p>
+    </div>
+    """
+    send_email([to_email], subject, body)
+
+
+def send_member_promotion_email(to_email: str, name: str):
+    subject = "Congratulations! You are now a Core Member of the Robotics Club"
+    body = f"""
+    <div style="font-family:sans-serif;padding:32px;background:#0a0a0f;color:#e0e0e0;max-width:600px;margin:auto;border-radius:12px;border:1px solid #1f2937;">
+      <div style="border-bottom:1px solid #222;padding-bottom:16px;margin-bottom:24px;">
+        <h1 style="color:#22c55e;font-size:24px;margin:0;">Congratulations, {name}! 🎉</h1>
+      </div>
+      <p>We are absolutely thrilled to inform you that you have been promoted and assigned as an official <strong>Core Member</strong> of the Robotics Club!</p>
+      
+      <div style="background:#0d1f14;border:1px solid #22c55e22;border-radius:8px;padding:20px;margin:20px 0;">
+        <p style="color:#22c55e;font-size:16px;margin:0 0 8px;font-weight:bold;">Welcome to the Core Engineering Team</p>
+        <p style="color:#aaa;font-size:14px;margin:0;line-height:1.6;">
+          As a Core Member, you now have enhanced access to our laboratory resources, direct guidance from our coordinators, and participation in exclusive national contests.
+        </p>
+      </div>
+
+      <p>Log in to your dashboard to view your new Member layout, track your attendance, update project repositories, and access exclusive learning resources.</p>
+
+      <hr style="border-color:#1a1a1a;margin:24px 0;">
+      <p style="color:#555;font-size:12px;margin:0;">Robotics Club Platform — Core Member Announcement.</p>
+    </div>
+    """
+    send_email([to_email], subject, body)
 
 
 def send_announcement_email(to_emails: list[str], title: str, message: str):

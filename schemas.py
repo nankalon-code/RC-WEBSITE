@@ -180,12 +180,33 @@ class AnnouncementOut(BaseModel):
 
 class AchievementCreate(BaseModel):
     title: str
+    project_name: Optional[str] = None
+    award_place: Optional[str] = None
+    image_url: Optional[str] = None
     description: Optional[str] = None
     date: Optional[str] = None
     category: Optional[str] = None
 
 
 class AchievementOut(AchievementCreate):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+
+# ─────────────────────────────────────────
+#  Gallery
+# ─────────────────────────────────────────
+
+class GalleryItemCreate(BaseModel):
+    image_url: str
+    caption: Optional[str] = None
+    description: Optional[str] = None
+    order: Optional[int] = 0
+
+
+class GalleryItemOut(GalleryItemCreate):
     id: int
 
     class Config:
