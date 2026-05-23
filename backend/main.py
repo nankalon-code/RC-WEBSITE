@@ -735,6 +735,76 @@ def delete_resource(rid: int, db: Session = Depends(get_db), admin: models.User 
 
 
 # ─────────────────────────────────────────────────────────────
+#  DIAGNOSTICS & TESTING
+# ─────────────────────────────────────────────────────────────
+
+@api.get("/test-email")
+def test_email(to_email: str):
+    from email_service import SMTP_EMAIL, SMTP_PASSWORD
+    if not SMTP_EMAIL or not SMTP_PASSWORD:
+        return {
+            "status": "error", 
+            "message": "SMTP_EMAIL or SMTP_PASSWORD is not configured as environment variables!",
+            "hint": "Make sure you set these two keys exactly in your Railway dashboard variables."
+        }
+    
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+    
+    steps = []
+    steps.append(f"Diagnostics started for sender: {SMTP_EMAIL}")
+    
+    # Attempt 1: Port 587 (TLS)
+    try:
+        steps.append("Attempting TLS handshake on smtp.gmail.com:587...")
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = "Robotics Club SMTP TLS Diagnostic Test"
+        msg["From"] = SMTP_EMAIL
+        msg["To"] = to_email
+        msg.attach(MIMEText("<p>Robotics SMTP Diagnostic Successful via TLS!</p>", "html"))
+        
+        with smtplib.SMTP("smtp.gmail.com", 587, timeout=10) as server:
+            server.starttls()
+            steps.append("TLS handshake success. Attempting login...")
+            server.login(SMTP_EMAIL, SMTP_PASSWORD)
+            steps.append("Login success. Attempting to dispatch message...")
+            server.sendmail(SMTP_EMAIL, [to_email], msg.as_string())
+            steps.append("Message dispatched successfully via TLS!")
+            
+        return {"status": "success", "protocol": "TLS (Port 587)", "trace": steps}
+    except Exception as e_tls:
+        steps.append(f"TLS Failed with error: {str(e_tls)}")
+        
+    # Attempt 2: Fallback to Port 465 (SSL)
+    try:
+        steps.append("Falling back to SSL handshake on smtp.gmail.com:465...")
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = "Robotics Club SMTP SSL Diagnostic Test"
+        msg["From"] = SMTP_EMAIL
+        msg["To"] = to_email
+        msg.attach(MIMEText("<p>Robotics SMTP Diagnostic Successful via SSL!</p>", "html"))
+        
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=10) as server:
+            steps.append("SSL connected. Attempting login...")
+            server.login(SMTP_EMAIL, SMTP_PASSWORD)
+            steps.append("Login success. Attempting to dispatch message...")
+            server.sendmail(SMTP_EMAIL, [to_email], msg.as_string())
+            steps.append("Message dispatched successfully via SSL!")
+            
+        return {"status": "success", "protocol": "SSL (Port 465)", "trace": steps}
+    except Exception as e_ssl:
+        steps.append(f"SSL Failed with error: {str(e_ssl)}")
+        
+    return {
+        "status": "error",
+        "message": "Both TLS (587) and SSL (465) connection attempts failed.",
+        "trace": steps,
+        "hint": "Check if your SMTP_PASSWORD is your Google 16-digit App Password, and NOT your normal login password. Standard passwords will throw authentication errors."
+    }
+
+
+# ─────────────────────────────────────────────────────────────
 #  MOUNT ROUTER
 # ─────────────────────────────────────────────────────────────
 
