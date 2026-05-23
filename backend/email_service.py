@@ -21,19 +21,39 @@ def send_email(to_emails: list[str], subject: str, body_html: str):
     if not SMTP_EMAIL or not SMTP_PASSWORD:
         logger.info(f"[EMAIL MOCK] TO: {', '.join(to_emails)} | SUBJECT: {subject}")
         return
+    
+    # Attempt 1: Port 587 with TLS
     try:
         msg = MIMEMultipart("alternative")
         msg["Subject"] = subject
         msg["From"] = SMTP_EMAIL
         msg["To"] = ", ".join(to_emails)
         msg.attach(MIMEText(body_html, "html"))
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
+        
+        logger.info(f"Attempting email dispatch via TLS (smtp.gmail.com:587)...")
+        with smtplib.SMTP("smtp.gmail.com", 587, timeout=12) as server:
             server.starttls()
             server.login(SMTP_EMAIL, SMTP_PASSWORD)
             server.sendmail(SMTP_EMAIL, to_emails, msg.as_string())
-        logger.info(f"[EMAIL SENT] {subject} → {', '.join(to_emails)}")
-    except Exception as e:
-        logger.error(f"[EMAIL FAILED] {e}")
+        logger.info(f"[EMAIL SENT via TLS] {subject} → {', '.join(to_emails)}")
+        return
+    except Exception as e_tls:
+        logger.warning(f"TLS email dispatch failed: {e_tls}. Retrying via SSL (smtp.gmail.com:465)...")
+        
+    # Attempt 2: Fallback to Port 465 with SSL
+    try:
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"] = SMTP_EMAIL
+        msg["To"] = ", ".join(to_emails)
+        msg.attach(MIMEText(body_html, "html"))
+        
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=12) as server:
+            server.login(SMTP_EMAIL, SMTP_PASSWORD)
+            server.sendmail(SMTP_EMAIL, to_emails, msg.as_string())
+        logger.info(f"[EMAIL SENT via SSL] {subject} → {', '.join(to_emails)}")
+    except Exception as e_ssl:
+        logger.error(f"[EMAIL FAILED COMPLETELY] Both TLS & SSL failed. SSL Error: {e_ssl}")
 
 
 def send_registration_email(to_emails: list[str], team_id: int, team_name: str, idea_title: str, idea_desc: str = ""):
