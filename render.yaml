@@ -5,7 +5,7 @@ services:
   - type: web
     name: robotics-backend
     runtime: python
-    rootDirectory: backend  # Directs Render to build and run inside the backend folder
+    rootDir: backend  # Directs Render to build and run inside the backend folder
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
