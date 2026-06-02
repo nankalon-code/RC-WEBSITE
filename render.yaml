@@ -17,7 +17,7 @@ services:
         generateValue: true
 
       - key: DATABASE_URL
-        sync: true # Enter your permanently free Neon or Supabase PostgreSQL connection string
+        sync: false # Prompts you in the secure Render Dashboard; NEVER committed to Git!
 
       # CORS Configuration: Comma-separated list of allowed frontend origins.
       # You should update this to your production Vercel frontend URL once deployed.
