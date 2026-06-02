@@ -10,30 +10,121 @@ env_path = Path(__file__).parent / ".env"
 load_dotenv(dotenv_path=env_path)
 logger = logging.getLogger(__name__)
 
-SMTP_EMAIL = os.environ.get("SMTP_EMAIL", "")
-SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")
+SMTP_EMAIL = os.environ.get("SMTP_EMAIL", "").strip()
+SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "").strip()
 SMTP_HOST = "smtp.gmail.com"
 SMTP_PORT = 587
-CLUB_EMAIL = os.environ.get("ADMIN_EMAIL", "roboticsclub.rtukota@gmail.com")
+CLUB_EMAIL = os.environ.get("ADMIN_EMAIL", "roboticsclub.rtukota@gmail.com").strip()
+
+
+BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "").strip()
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "").strip()
 
 
 def send_email(to_emails: list[str], subject: str, body_html: str):
+    # ── Option 1: HTTPS REST API (Port 443) via Resend ───────────────────
+    # Highly recommended for cloud platforms (Railway/Render) where SMTP is blocked
+    if RESEND_API_KEY:
+        import urllib.request
+        import json
+        try:
+            url = "https://api.resend.com/emails"
+            headers = {
+                "Authorization": f"Bearer {RESEND_API_KEY}",
+                "Content-Type": "application/json"
+            }
+            # Resend requires verified custom domains. Defaults to onboarding@resend.dev
+            from_email = os.environ.get("RESEND_FROM_EMAIL", "onboarding@resend.dev")
+            payload = {
+                "from": from_email,
+                "to": to_emails,
+                "subject": subject,
+                "html": body_html
+            }
+            
+            req = urllib.request.Request(
+                url, 
+                data=json.dumps(payload).encode("utf-8"), 
+                headers=headers, 
+                method="POST"
+            )
+            logger.info(f"Attempting email dispatch via Resend HTTPS API (Port 443)...")
+            with urllib.request.urlopen(req, timeout=12) as response:
+                response.read()
+                logger.info(f"[EMAIL SENT via RESEND HTTPS] {subject} → {', '.join(to_emails)}")
+            return
+        except Exception as e_resend:
+            logger.error(f"[RESEND API FAILED] {e_resend}. Trying alternative paths...")
+
+    # ── Option 2: HTTPS REST API (Port 443) via Brevo ────────────────────
+    if BREVO_API_KEY:
+        import urllib.request
+        import json
+        try:
+            url = "https://api.brevo.com/v3/smtp/email"
+            headers = {
+                "Accept": "application/json",
+                "api-key": BREVO_API_KEY,
+                "Content-Type": "application/json"
+            }
+            sender_email = SMTP_EMAIL if SMTP_EMAIL else CLUB_EMAIL
+            payload = {
+                "sender": {"email": sender_email, "name": "Robotics Club RTU Kota"},
+                "to": [{"email": email} for email in to_emails],
+                "subject": subject,
+                "htmlContent": body_html
+            }
+            
+            req = urllib.request.Request(
+                url, 
+                data=json.dumps(payload).encode("utf-8"), 
+                headers=headers, 
+                method="POST"
+            )
+            logger.info(f"Attempting email dispatch via Brevo HTTPS API (Port 443)...")
+            with urllib.request.urlopen(req, timeout=12) as response:
+                response.read()
+                logger.info(f"[EMAIL SENT via BREVO HTTPS] {subject} → {', '.join(to_emails)}")
+            return
+        except Exception as e_brevo:
+            logger.error(f"[BREVO API FAILED] {e_brevo}. Falling back to standard SMTP...")
+
     if not SMTP_EMAIL or not SMTP_PASSWORD:
         logger.info(f"[EMAIL MOCK] TO: {', '.join(to_emails)} | SUBJECT: {subject}")
         return
+    
+    # Attempt 1: Port 587 with TLS
     try:
         msg = MIMEMultipart("alternative")
         msg["Subject"] = subject
         msg["From"] = SMTP_EMAIL
         msg["To"] = ", ".join(to_emails)
         msg.attach(MIMEText(body_html, "html"))
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
+        
+        logger.info(f"Attempting email dispatch via TLS (smtp.gmail.com:587)...")
+        with smtplib.SMTP("smtp.gmail.com", 587, timeout=12) as server:
             server.starttls()
             server.login(SMTP_EMAIL, SMTP_PASSWORD)
             server.sendmail(SMTP_EMAIL, to_emails, msg.as_string())
-        logger.info(f"[EMAIL SENT] {subject} → {', '.join(to_emails)}")
-    except Exception as e:
-        logger.error(f"[EMAIL FAILED] {e}")
+        logger.info(f"[EMAIL SENT via TLS] {subject} → {', '.join(to_emails)}")
+        return
+    except Exception as e_tls:
+        logger.warning(f"TLS email dispatch failed: {e_tls}. Retrying via SSL (smtp.gmail.com:465)...")
+        
+    # Attempt 2: Fallback to Port 465 with SSL
+    try:
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"] = SMTP_EMAIL
+        msg["To"] = ", ".join(to_emails)
+        msg.attach(MIMEText(body_html, "html"))
+        
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=12) as server:
+            server.login(SMTP_EMAIL, SMTP_PASSWORD)
+            server.sendmail(SMTP_EMAIL, to_emails, msg.as_string())
+        logger.info(f"[EMAIL SENT via SSL] {subject} → {', '.join(to_emails)}")
+    except Exception as e_ssl:
+        logger.error(f"[EMAIL FAILED COMPLETELY] Both TLS & SSL failed. SSL Error: {e_ssl}")
 
 
 def send_registration_email(to_emails: list[str], team_id: int, team_name: str, idea_title: str, idea_desc: str = ""):

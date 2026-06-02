@@ -135,7 +135,7 @@ def seed_db():
             ("Autonomous Humanoid Assembly", "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=80&w=600", "Students calibrating a dual-arm humanoid robot.", 1),
             ("Swarm Drone Flight Test", "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&q=80&w=600", "Quadcopters performing synchronized outdoor mapping.", 2),
             ("Micro-Soldering Workshop", "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=600", "Core member showing SMD soldering technique to freshmen.", 3),
-            ("Rover Chassis 3D Print", "https://images.unsplash.com/photo-1615840287214-7fe58a8f3685?auto=format&fit=crop&q=80&w=600", "Printing lightweight TPU carbon-fiber wheels.", 4),
+            ("Rover Chassis 3D Print", "https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?auto=format&fit=crop&q=80&w=600", "Printing lightweight TPU carbon-fiber wheels.", 4),
             ("AI Core Vision Terminal", "https://images.unsplash.com/photo-1555255707-c07966088b7b?auto=format&fit=crop&q=80&w=600", "Deep learning models classifying objects in real-time.", 5),
             ("Laying out a 4-Layer PCB", "https://images.unsplash.com/photo-1601524909162-be87252be298?auto=format&fit=crop&q=80&w=600", "Routing critical differential pairs on a high-speed controller board.", 6),
             ("Mars Rover Obstacle Trial", "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?auto=format&fit=crop&q=80&w=600", "The ARES rover navigating a rock yard simulation.", 7),
@@ -162,6 +162,15 @@ def seed_db():
             db.add(models.GalleryItem(image_url=url, caption=caption, description=desc, order=order))
         db.commit()
         logger.info("Seeded 25 highly aesthetic gallery photos.")
+
+    # Self-healing gallery image migration for existing databases
+    try:
+        broken_url = "https://images.unsplash.com/photo-1615840287214-7fe58a8f3685?auto=format&fit=crop&q=80&w=600"
+        new_url = "https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?auto=format&fit=crop&q=80&w=600"
+        db.query(models.GalleryItem).filter(models.GalleryItem.caption == "Rover Chassis 3D Print", models.GalleryItem.image_url == broken_url).update({models.GalleryItem.image_url: new_url})
+        db.commit()
+    except Exception as e_migration:
+        logger.error(f"Gallery self-healing migration failed: {e_migration}")
 
     # Ideas
     if db.query(models.Idea).count() == 0:
@@ -732,6 +741,114 @@ def delete_resource(rid: int, db: Session = Depends(get_db), admin: models.User 
     db.query(models.Resource).filter(models.Resource.id == rid).delete()
     db.commit()
     return {"status": "ok"}
+
+
+# ─────────────────────────────────────────────────────────────
+#  DIAGNOSTICS & TESTING
+# ─────────────────────────────────────────────────────────────
+
+@api.get("/test-email")
+def test_email(to_email: str):
+    from email_service import SMTP_EMAIL, SMTP_PASSWORD, BREVO_API_KEY, CLUB_EMAIL
+    
+    steps = []
+    
+    # ── Test Brevo HTTPS API First ─────────────────────────────────────
+    if BREVO_API_KEY:
+        key_clean = BREVO_API_KEY.strip()
+        steps.append(f"Brevo API Key detected (Length: {len(key_clean)} chars, Starts with: '{key_clean[:12]}...', Ends with: '...{key_clean[-4:] if len(key_clean) > 4 else ''}')")
+        import urllib.request
+        import json
+        try:
+            url = "https://api.brevo.com/v3/smtp/email"
+            headers = {
+                "Accept": "application/json",
+                "api-key": key_clean,
+                "Content-Type": "application/json"
+            }
+            sender_email = SMTP_EMAIL.strip() if SMTP_EMAIL else CLUB_EMAIL.strip()
+            payload = {
+                "sender": {"email": sender_email, "name": "Robotics Club RTU Kota (Diagnostic)"},
+                "to": [{"email": to_email}],
+                "subject": "Robotics Club SMTP Brevo HTTPS Diagnostic",
+                "htmlContent": "<p>Robotics SMTP Diagnostic Successful via Brevo HTTPS REST API!</p>"
+            }
+            
+            req = urllib.request.Request(
+                url, 
+                data=json.dumps(payload).encode("utf-8"), 
+                headers=headers, 
+                method="POST"
+            )
+            with urllib.request.urlopen(req, timeout=12) as response:
+                res_data = response.read()
+                steps.append(f"Brevo HTTP API Succeeded. Response: {res_data.decode('utf-8')}")
+            return {"status": "success", "protocol": "HTTPS REST API (Brevo)", "trace": steps}
+        except Exception as e_brevo:
+            steps.append(f"Brevo HTTPS API Failed: {str(e_brevo)}")
+            steps.append("Falling back to raw TCP SMTP tests...")
+
+    if not SMTP_EMAIL or not SMTP_PASSWORD:
+        return {
+            "status": "error", 
+            "message": "No valid mail dispatch keys configured (SMTP or Brevo API).",
+            "trace": steps,
+            "hint": "Ensure you set BREVO_API_KEY or SMTP_EMAIL & SMTP_PASSWORD in your environment."
+        }
+    
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+    
+    steps.append(f"SMTP Diagnostics started for sender: {SMTP_EMAIL}")
+    
+    # Attempt 1: Port 587 (TLS)
+    try:
+        steps.append("Attempting TLS handshake on smtp.gmail.com:587...")
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = "Robotics Club SMTP TLS Diagnostic Test"
+        msg["From"] = SMTP_EMAIL
+        msg["To"] = to_email
+        msg.attach(MIMEText("<p>Robotics SMTP Diagnostic Successful via TLS!</p>", "html"))
+        
+        with smtplib.SMTP("smtp.gmail.com", 587, timeout=10) as server:
+            server.starttls()
+            steps.append("TLS handshake success. Attempting login...")
+            server.login(SMTP_EMAIL, SMTP_PASSWORD)
+            steps.append("Login success. Attempting to dispatch message...")
+            server.sendmail(SMTP_EMAIL, [to_email], msg.as_string())
+            steps.append("Message dispatched successfully via TLS!")
+            
+        return {"status": "success", "protocol": "TLS (Port 587)", "trace": steps}
+    except Exception as e_tls:
+        steps.append(f"TLS Failed with error: {str(e_tls)}")
+        
+    # Attempt 2: Fallback to Port 465 (SSL)
+    try:
+        steps.append("Falling back to SSL handshake on smtp.gmail.com:465...")
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = "Robotics Club SMTP SSL Diagnostic Test"
+        msg["From"] = SMTP_EMAIL
+        msg["To"] = to_email
+        msg.attach(MIMEText("<p>Robotics SMTP Diagnostic Successful via SSL!</p>", "html"))
+        
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=10) as server:
+            steps.append("SSL connected. Attempting login...")
+            server.login(SMTP_EMAIL, SMTP_PASSWORD)
+            steps.append("Login success. Attempting to dispatch message...")
+            server.sendmail(SMTP_EMAIL, [to_email], msg.as_string())
+            steps.append("Message dispatched successfully via SSL!")
+            
+        return {"status": "success", "protocol": "SSL (Port 465)", "trace": steps}
+    except Exception as e_ssl:
+        steps.append(f"SSL Failed with error: {str(e_ssl)}")
+        
+    return {
+        "status": "error",
+        "message": "Both TLS (587) and SSL (465) connection attempts failed.",
+        "trace": steps,
+        "hint": "Check if your SMTP_PASSWORD is your Google 16-digit App Password, and NOT your normal login password. Standard passwords will throw authentication errors."
+    }
 
 
 # ─────────────────────────────────────────────────────────────
