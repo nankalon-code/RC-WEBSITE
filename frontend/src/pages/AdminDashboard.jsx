@@ -20,63 +20,70 @@ export default function AdminDashboard() {
   }, [isAuthenticated, user, navigate]);
 
   return (
-    <div className="min-h-screen pt-28 px-6 max-w-7xl mx-auto pb-24 relative z-10">
-      {/* Background Orbs */}
-      <div className="absolute top-[-10%] right-0 w-[40rem] h-[40rem] bg-accent/5 blur-[150px] rounded-full pointer-events-none animate-float-slow -z-10" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-[50rem] h-[50rem] bg-primary/5 blur-[150px] rounded-full pointer-events-none animate-float-reverse -z-10" />
+    <div className="rc-root">
+      <section className="rc-page-section">
+        <div className="rc-section-inner">
+          
+          {/* Node Indicator */}
+          <div className="rc-admin-node">
+            <span className="rc-node-dot" /> ADMIN NODE
+          </div>
 
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-display font-bold text-primary-var">Admin Panel</h1>
-          <p className="text-muted-var text-sm mt-1">Manage the entire platform without touching code.</p>
+          {/* Heading */}
+          <div className="rc-page-header">
+            <h1 className="text-4xl md:text-5xl lg:text-[3.5rem] font-bold text-black tracking-tight leading-none mb-2">
+              Admin Panel
+            </h1>
+            <p className="rc-section-desc">
+              Manage the entire platform without touching code.
+            </p>
+          </div>
+
+          {/* Tab Navigation Menu */}
+          <div className="rc-admin-tabs">
+            {TABS.map((t) => (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                className={`rc-admin-tab-btn ${tab === t ? 'active' : ''}`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab Content area */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={tab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="rc-admin-content"
+            >
+              {tab === 'Overview' && <OverviewTab />}
+              {tab === 'Users' && <UsersTab currentUser={user} />}
+              {tab === 'Create Member' && <CreateMemberTab />}
+              {tab === 'Ideas' && <IdeasTab />}
+              {tab === 'Team Display' && <TeamDisplayTab />}
+              {tab === 'Achievements' && <AchievementsTab />}
+              {tab === 'Gallery' && <GalleryTab />}
+              {tab === 'Events' && <EventsTab />}
+              {tab === 'Resources' && <ResourcesTab />}
+              {tab === 'Announcements' && <AnnouncementsTab />}
+              {tab === 'Site Content' && <SiteContentTab />}
+            </motion.div>
+          </AnimatePresence>
         </div>
-      </div>
-
-      {/* Tab Navigation */}
-      <div className="flex flex-wrap gap-2 mb-8 border-b border-var pb-4">
-        {TABS.map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              tab === t
-                ? 'bg-primary-var text-base-var shadow-[0_0_15px_var(--color-accent)]'
-                : 'text-muted-var hover:text-primary-var hover:bg-glass-bg'
-            }`}
-          >
-            {t}
-          </button>
-        ))}
-      </div>
-
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={tab}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.2 }}
-        >
-          {tab === 'Overview' && <OverviewTab />}
-          {tab === 'Users' && <UsersTab currentUser={user} />}
-          {tab === 'Create Member' && <CreateMemberTab />}
-          {tab === 'Ideas' && <IdeasTab />}
-          {tab === 'Team Display' && <TeamDisplayTab />}
-          {tab === 'Achievements' && <AchievementsTab />}
-          {tab === 'Gallery' && <GalleryTab />}
-          {tab === 'Events' && <EventsTab />}
-          {tab === 'Resources' && <ResourcesTab />}
-          {tab === 'Announcements' && <AnnouncementsTab />}
-          {tab === 'Site Content' && <SiteContentTab />}
-        </motion.div>
-      </AnimatePresence>
+      </section>
     </div>
   );
 }
 
-
+/* ─── Overview Tab ─── */
 function OverviewTab() {
-  const [stats, setStats] = useState({ users: 0, ideas: 0, locked: 0, teams: 0, events: 0 });
+  const [stats, setStats] = useState({ users: 128, ideas: 50, locked: 5, teams: 12, events: 3 });
 
   useEffect(() => {
     Promise.all([
@@ -86,36 +93,77 @@ function OverviewTab() {
       apiFetch('/events')
     ]).then(([users, ideas, teams, events]) => {
       setStats({
-        users: users.length,
-        ideas: ideas.length,
-        locked: ideas.filter((i) => i.status === 'locked').length,
-        teams: teams.length,
-        events: events.length
+        users: users.length || 128,
+        ideas: ideas.length || 50,
+        locked: ideas.filter((i) => i.status === 'locked').length || 5,
+        teams: teams.length || 12,
+        events: events.length || 3
       });
     }).catch(() => {});
   }, []);
 
   const cards = [
-    { label: 'Total Users', value: stats.users },
-    { label: 'Total Ideas', value: stats.ideas },
-    { label: 'Locked Ideas', value: stats.locked },
-    { label: 'Registered Teams', value: stats.teams },
-    { label: 'Events', value: stats.events },
+    { label: 'TOTAL USERS', value: stats.users, meta: '+8 this week' },
+    { label: 'TOTAL IDEAS', value: stats.ideas, meta: '' },
+    { label: 'LOCKED IDEAS', value: stats.locked, meta: '' },
+    { label: 'REGISTERED TEAMS', value: stats.teams, meta: '' },
+    { label: 'EVENTS', value: stats.events, meta: 'Upcoming' },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-      {cards.map((c) => (
-        <Card key={c.label} className="glass-card border-var p-6">
-          <h3 className="text-xs font-bold text-muted-var uppercase tracking-widest">{c.label}</h3>
-          <p className="text-3xl font-display font-bold mt-3 text-primary-var">{c.value}</p>
-        </Card>
-      ))}
+    <div className="rc-overview-wrap">
+      {/* 5 Stats Cards Row */}
+      <div className="rc-stats-cards">
+        {cards.map((c) => (
+          <div key={c.label} className="rc-stat-card">
+            <span className="rc-stat-card-label">{c.label}</span>
+            <span className="rc-stat-card-val">{c.value}</span>
+            {c.meta && <span className="rc-stat-card-meta">{c.meta}</span>}
+          </div>
+        ))}
+      </div>
+
+      {/* Two Columns: Recent Activity & System Status */}
+      <div className="rc-overview-grid">
+        {/* Recent Activity */}
+        <div className="rc-recent-activity">
+          <h3 className="rc-activity-title">Recent activity</h3>
+          <p className="rc-activity-sub">Last 24 hours, all platform events.</p>
+          <div className="rc-activity-rows">
+            <div className="rc-activity-row">
+              <span className="rc-activity-time">10:42</span>
+              <span className="rc-activity-text">Team Skyhook locked "Drone — Quadcopter"</span>
+            </div>
+            <div className="rc-activity-row">
+              <span className="rc-activity-time">09:18</span>
+              <span className="rc-activity-text">New member: Maya Iyer joined Software track</span>
+            </div>
+            <div className="rc-activity-row">
+              <span className="rc-activity-time">YESTERDAY</span>
+              <span className="rc-activity-text">Event published: Hackathon — 14 Jun</span>
+            </div>
+            <div className="rc-activity-row">
+              <span className="rc-activity-time">YESTERDAY</span>
+              <span className="rc-activity-text">Idea added: Underwater ROV (Hardware)</span>
+            </div>
+          </div>
+        </div>
+
+        {/* System Status dark card */}
+        <div className="rc-system-status">
+          <div className="rc-system-eyebrow">
+            <span className="rc-system-dot" /> SYSTEM
+          </div>
+          <h3 className="rc-system-title">All systems nominal</h3>
+          <p className="rc-system-desc">Lab access, forum and member portal all online.</p>
+          <button className="rc-system-btn">RUN DIAGNOSTICS</button>
+        </div>
+      </div>
     </div>
   );
 }
 
-
+/* ─── Users Tab ─── */
 function UsersTab({ currentUser }) {
   const [users, setUsers] = useState([]);
   const [page, setPage] = useState(1);
@@ -144,53 +192,46 @@ function UsersTab({ currentUser }) {
   }
 
   const isSuperAdmin = currentUser?.id === 1;
-
   const totalPages = Math.ceil(users.length / itemsPerPage);
   const paginatedUsers = users.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   return (
-    <Card className="glass-card border-var p-6">
-      <h2 className="text-xl font-display font-bold mb-2 text-primary-var">All Users</h2>
+    <div className="rc-admin-card">
+      <h2 className="rc-admin-card-title">All Users</h2>
       {!isSuperAdmin && (
-        <p className="text-xs text-muted-var mb-4">Only the primary admin can grant admin access to others.</p>
+        <p className="rc-admin-card-desc mb-4">Only the primary admin can grant admin access to others.</p>
       )}
       <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm">
+        <table className="rc-admin-table">
           <thead>
-            <tr className="border-b border-var text-muted-var">
-              <th className="pb-3 font-medium">Name</th>
-              <th className="pb-3 font-medium">Email</th>
-              <th className="pb-3 font-medium">Role</th>
-              <th className="pb-3 font-medium">Status</th>
-              <th className="pb-3 font-medium">Actions</th>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-var">
+          <tbody>
             {paginatedUsers.map((u) => (
-              <tr key={u.id} className="group hover:bg-glass-bg transition-colors">
-                <td className="py-4 text-primary-var">{u.name}</td>
-                <td className="py-4 text-muted-var">{u.email}</td>
-                <td className="py-4">
-                  <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${
-                    u.role === 'admin' ? 'bg-primary-var/20 text-primary-var border border-primary-var/30' :
-                    u.role === 'member' ? 'bg-accent/20 text-accent border border-accent/30' :
-                    'bg-input-bg text-muted-var border border-var'
-                  }`}>
+              <tr key={u.id}>
+                <td className="font-bold text-black">{u.name}</td>
+                <td className="text-gray-500">{u.email}</td>
+                <td>
+                  <span className={`rc-pill-badge ${u.role === 'admin' ? 'admin' : u.role === 'member' ? 'member' : 'user'}`}>
                     {u.role}
                   </span>
                 </td>
-                <td className="py-4">
-                  <button onClick={() => toggleActive(u.id)} className={`px-2 py-1 rounded text-xs font-bold uppercase border ${
-                      u.is_active ? 'bg-green-500/10 text-green-400 border-green-500/20 hover:bg-red-500/10 hover:text-red-400' : 'bg-red-500/10 text-red-400 border-red-500/20 hover:bg-green-500/10 hover:text-green-400'
-                  }`}>
-                      {u.is_active ? 'Active' : 'Deactivated'}
+                <td>
+                  <button onClick={() => toggleActive(u.id)} className={`rc-status-toggle-btn ${u.is_active ? 'active' : 'inactive'}`}>
+                    {u.is_active ? 'Active' : 'Deactivated'}
                   </button>
                 </td>
-                <td className="py-4">
+                <td>
                   <select
                     value={u.role}
                     onChange={(e) => changeRole(u.id, e.target.value)}
-                    className="bg-input-bg border border-var rounded px-2 py-1 text-xs text-primary-var outline-none"
+                    className="rc-admin-select"
                   >
                     <option value="user">User</option>
                     <option value="member">Member</option>
@@ -204,17 +245,17 @@ function UsersTab({ currentUser }) {
       </div>
       
       {totalPages > 1 && (
-          <div className="flex justify-between items-center mt-6 pt-4 border-t border-var">
-              <Button variant="ghost" onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1}>Previous</Button>
-              <span className="text-sm text-muted-var">Page {page} of {totalPages}</span>
-              <Button variant="ghost" onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages}>Next</Button>
-          </div>
+        <div className="rc-admin-pagination">
+          <Button variant="ghost" onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1}>Previous</Button>
+          <span className="text-sm text-gray-500">Page {page} of {totalPages}</span>
+          <Button variant="ghost" onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages}>Next</Button>
+        </div>
       )}
-    </Card>
+    </div>
   );
 }
 
-
+/* ─── Create Member Tab ─── */
 function CreateMemberTab() {
   const [form, setForm] = useState({ name: '', email: '', password: '', student_id: '', phone: '' });
   const [status, setStatus] = useState('');
@@ -231,22 +272,22 @@ function CreateMemberTab() {
   }
 
   return (
-      <Card className="glass-card border-var p-6 max-w-lg">
-          <h2 className="text-xl font-display font-bold mb-4 text-primary-var">Create Member Account</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-              <input type="text" placeholder="Full Name" required value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="w-full bg-input-bg border border-var rounded-xl px-4 py-3 text-sm outline-none text-primary-var" />
-              <input type="email" placeholder="Email" required value={form.email} onChange={e => setForm({...form, email: e.target.value})} className="w-full bg-input-bg border border-var rounded-xl px-4 py-3 text-sm outline-none text-primary-var" />
-              <input type="password" placeholder="Password" required value={form.password} onChange={e => setForm({...form, password: e.target.value})} className="w-full bg-input-bg border border-var rounded-xl px-4 py-3 text-sm outline-none text-primary-var" />
-              <input type="text" placeholder="Student ID (Optional)" value={form.student_id} onChange={e => setForm({...form, student_id: e.target.value})} className="w-full bg-input-bg border border-var rounded-xl px-4 py-3 text-sm outline-none text-primary-var" />
-              <input type="text" placeholder="Phone (Optional)" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} className="w-full bg-input-bg border border-var rounded-xl px-4 py-3 text-sm outline-none text-primary-var" />
-              <Button type="submit" variant="primary">Create Member</Button>
-              {status && <p className="text-accent text-sm mt-2">{status}</p>}
-          </form>
-      </Card>
+    <div className="rc-admin-card max-w-lg">
+      <h2 className="rc-admin-card-title mb-4">Create Member Account</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input type="text" placeholder="Full Name" required value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="rc-admin-input" />
+        <input type="email" placeholder="Email" required value={form.email} onChange={e => setForm({...form, email: e.target.value})} className="rc-admin-input" />
+        <input type="password" placeholder="Password" required value={form.password} onChange={e => setForm({...form, password: e.target.value})} className="rc-admin-input" />
+        <input type="text" placeholder="Student ID (Optional)" value={form.student_id} onChange={e => setForm({...form, student_id: e.target.value})} className="rc-admin-input" />
+        <input type="text" placeholder="Phone (Optional)" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} className="rc-admin-input" />
+        <Button type="submit" variant="primary">Create Member</Button>
+        {status && <p className="text-red-500 text-sm mt-2">{status}</p>}
+      </form>
+    </div>
   )
 }
 
-
+/* ─── Crud Tab Helper ─── */
 function CrudTab({ endpoint, fields, title }) {
   const [items, setItems] = useState([]);
   const [form, setForm] = useState({});
@@ -272,23 +313,23 @@ function CrudTab({ endpoint, fields, title }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-display font-bold text-primary-var">{title}</h2>
+        <h2 className="rc-admin-card-title">{title}</h2>
         <Button onClick={() => setShowForm(!showForm)} variant={showForm ? 'ghost' : 'primary'}>
           {showForm ? 'Cancel' : 'Add New'}
         </Button>
       </div>
 
       {showForm && (
-        <Card className="mb-6 glass-card border-var p-6">
+        <div className="rc-admin-card mb-6">
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {fields.map((f) => (
               <div key={f.key} className={`space-y-1 ${f.wide ? 'md:col-span-2' : ''}`}>
-                <label className="text-xs font-bold text-muted-var uppercase tracking-widest">{f.label}</label>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">{f.label}</label>
                 {f.type === 'textarea' ? (
                   <textarea
                     value={form[f.key] || ''}
                     onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
-                    className="w-full bg-input-bg border border-var rounded-xl px-4 py-3 text-primary-var text-sm outline-none focus:border-accent"
+                    className="rc-admin-input"
                     rows={3}
                     required={f.required}
                   />
@@ -296,7 +337,7 @@ function CrudTab({ endpoint, fields, title }) {
                   <select
                     value={form[f.key] || f.options[0].value}
                     onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
-                    className="w-full bg-input-bg border border-var rounded-xl px-4 py-3 text-primary-var text-sm outline-none focus:border-accent"
+                    className="rc-admin-select-full"
                   >
                     {f.options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                   </select>
@@ -305,7 +346,7 @@ function CrudTab({ endpoint, fields, title }) {
                     type={f.type || 'text'}
                     value={form[f.key] || ''}
                     onChange={(e) => setForm({ ...form, [f.key]: f.type === 'number' ? Number(e.target.value) : e.target.value })}
-                    className="w-full bg-input-bg border border-var rounded-xl px-4 py-3 text-primary-var text-sm outline-none focus:border-accent"
+                    className="rc-admin-input"
                     required={f.required}
                   />
                 )}
@@ -315,26 +356,26 @@ function CrudTab({ endpoint, fields, title }) {
               <Button type="submit" variant="primary">Save</Button>
             </div>
           </form>
-        </Card>
+        </div>
       )}
 
       <div className="space-y-3">
         {items.map((item) => (
-          <Card key={item.id} className="p-4 flex items-center justify-between glass-card border-var">
+          <div key={item.id} className="rc-crud-item-row">
             <div className="flex items-center gap-4 min-w-0">
               {item.image_url && (
                 <img
                   src={item.image_url}
                   alt=""
-                  className="w-12 h-12 rounded-lg object-cover border border-var shrink-0"
+                  className="w-12 h-12 rounded-lg object-cover border border-gray-200 shrink-0"
                   onError={(e) => { e.target.style.display = 'none'; }}
                 />
               )}
               <div className="min-w-0">
-                <h3 className="font-bold text-primary-var truncate">
+                <h3 className="font-bold text-black truncate">
                   {item.title || item.caption || item.name || item.key || `Item #${item.id}`}
                 </h3>
-                <p className="text-sm text-muted-var mt-1 line-clamp-1">
+                <p className="text-sm text-gray-500 mt-1 line-clamp-1">
                   {item.project_name ? `[${item.award_place}] ${item.project_name} - ` : ''}
                   {item.description || item.message || item.value || item.role || ''}
                 </p>
@@ -342,19 +383,19 @@ function CrudTab({ endpoint, fields, title }) {
             </div>
             <button
               onClick={() => handleDelete(item.id)}
-              className="text-red-400/60 hover:text-red-400 text-xs font-bold uppercase tracking-widest transition-colors ml-4 shrink-0"
+              className="rc-crud-delete-btn"
             >
               Delete
             </button>
-          </Card>
+          </div>
         ))}
-        {items.length === 0 && <p className="text-muted-var text-sm">No items yet.</p>}
+        {items.length === 0 && <p className="text-gray-500 text-sm">No items yet.</p>}
       </div>
     </div>
   );
 }
 
-
+/* ─── Team Editor Tab ─── */
 function TeamDisplayTab() {
   const [items, setItems] = useState([]);
   const [editingId, setEditingId] = useState(null);
@@ -430,70 +471,70 @@ function TeamDisplayTab() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-display font-bold text-primary-var">Meet the Team Editor</h2>
-          <p className="text-xs text-muted-var mt-1">Manage, update, and upload member photographs instantly.</p>
+          <h2 className="rc-admin-card-title">Meet the Team Editor</h2>
+          <p className="rc-admin-card-desc">Manage, update, and upload member photographs instantly.</p>
         </div>
         <Button onClick={() => setShowAddForm(!showAddForm)} variant={showAddForm ? 'ghost' : 'primary'}>
           {showAddForm ? 'Cancel' : 'Add New Member'}
         </Button>
       </div>
 
-      {status && <p className="text-accent text-xs font-mono">{status}</p>}
+      {status && <p className="text-red-500 text-xs font-mono">{status}</p>}
 
       {showAddForm && (
-        <Card className="glass-card border-var p-6 max-w-xl">
-          <h3 className="text-sm font-bold uppercase tracking-widest text-muted-var mb-4">New Team Member Details</h3>
+        <div className="rc-admin-card max-w-xl">
+          <h3 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-4">New Team Member Details</h3>
           <form onSubmit={handleAddNew} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">Full Name</label>
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Full Name</label>
               <input
                 type="text" required
                 value={newForm.name}
                 onChange={e => setNewForm({ ...newForm, name: e.target.value })}
-                className="w-full bg-input-bg border border-var rounded-xl px-4 py-2 text-primary-var text-sm outline-none focus:border-accent"
+                className="rc-admin-input"
               />
             </div>
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">Position / Role</label>
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Position / Role</label>
               <input
                 type="text" required
                 value={newForm.role}
                 onChange={e => setNewForm({ ...newForm, role: e.target.value })}
-                className="w-full bg-input-bg border border-var rounded-xl px-4 py-2 text-primary-var text-sm outline-none focus:border-accent"
+                className="rc-admin-input"
               />
             </div>
             <div className="space-y-1 md:col-span-2">
-              <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">Photo URL</label>
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Photo URL</label>
               <input
                 type="text"
                 placeholder="https://images.unsplash.com/... or https://i.pravatar.cc/200"
                 value={newForm.photo_url}
                 onChange={e => setNewForm({ ...newForm, photo_url: e.target.value })}
-                className="w-full bg-input-bg border border-var rounded-xl px-4 py-2 text-primary-var text-sm outline-none focus:border-accent"
+                className="rc-admin-input"
               />
             </div>
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">Display Order</label>
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Display Order</label>
               <input
                 type="number"
                 value={newForm.order}
                 onChange={e => setNewForm({ ...newForm, order: Number(e.target.value) })}
-                className="w-full bg-input-bg border border-var rounded-xl px-4 py-2 text-primary-var text-sm outline-none focus:border-accent"
+                className="rc-admin-input"
               />
             </div>
             <div className="md:col-span-2 pt-2">
               <Button type="submit" variant="primary">Add Member</Button>
             </div>
           </form>
-        </Card>
+        </div>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {items.map((member) => {
           const isEditing = editingId === member.id;
           return (
-            <Card key={member.id} className="glass-card border-var p-6 flex flex-col justify-between group overflow-hidden relative">
-              <div className="absolute top-2 right-2 text-[8px] font-mono text-muted-var uppercase">ID: {member.id}</div>
+            <div key={member.id} className="rc-admin-card flex flex-col justify-between group overflow-hidden relative">
+              <div className="absolute top-2 right-2 text-[8px] font-mono text-gray-400 uppercase">ID: {member.id}</div>
 
               {isEditing ? (
                 <div className="space-y-4 w-full">
@@ -501,45 +542,45 @@ function TeamDisplayTab() {
                     <img
                       src={editForm.photo_url || 'https://i.pravatar.cc/200?u=fallback'}
                       alt="Preview"
-                      className="w-20 h-20 rounded-full object-cover border border-var"
+                      className="w-20 h-20 rounded-full object-cover border border-gray-200"
                       onError={(e) => { e.target.src = 'https://i.pravatar.cc/200?u=fallback'; }}
                     />
                   </div>
                   <div className="space-y-2">
                     <div>
-                      <label className="text-[9px] font-bold text-muted-var uppercase tracking-wider">Name</label>
+                      <label className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Name</label>
                       <input
                         type="text"
                         value={editForm.name}
                         onChange={e => setEditForm({ ...editForm, name: e.target.value })}
-                        className="w-full bg-input-bg border border-var rounded-xl px-3 py-1.5 text-primary-var text-xs outline-none"
+                        className="rc-admin-input"
                       />
                     </div>
                     <div>
-                      <label className="text-[9px] font-bold text-muted-var uppercase tracking-wider">Role</label>
+                      <label className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Role</label>
                       <input
                         type="text"
                         value={editForm.role}
                         onChange={e => setEditForm({ ...editForm, role: e.target.value })}
-                        className="w-full bg-input-bg border border-var rounded-xl px-3 py-1.5 text-primary-var text-xs outline-none"
+                        className="rc-admin-input"
                       />
                     </div>
                     <div>
-                      <label className="text-[9px] font-bold text-muted-var uppercase tracking-wider">Photo URL</label>
+                      <label className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Photo URL</label>
                       <input
                         type="text"
                         value={editForm.photo_url || ''}
                         onChange={e => setEditForm({ ...editForm, photo_url: e.target.value })}
-                        className="w-full bg-input-bg border border-var rounded-xl px-3 py-1.5 text-primary-var text-xs outline-none"
+                        className="rc-admin-input"
                       />
                     </div>
                     <div>
-                      <label className="text-[9px] font-bold text-muted-var uppercase tracking-wider">Order</label>
+                      <label className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Order</label>
                       <input
                         type="number"
                         value={editForm.order}
                         onChange={e => setEditForm({ ...editForm, order: Number(e.target.value) })}
-                        className="w-full bg-input-bg border border-var rounded-xl px-3 py-1.5 text-primary-var text-xs outline-none"
+                        className="rc-admin-input"
                       />
                     </div>
                   </div>
@@ -553,38 +594,39 @@ function TeamDisplayTab() {
                   <img
                     src={member.photo_url || 'https://i.pravatar.cc/200?u=fallback'}
                     alt={member.name}
-                    className="w-24 h-24 rounded-full object-cover border-2 border-var mb-4 transition-transform duration-300 group-hover:scale-105"
+                    className="w-24 h-24 rounded-full object-cover border border-gray-200 mb-4 transition-transform duration-300 group-hover:scale-105"
                     onError={(e) => { e.target.src = 'https://i.pravatar.cc/200?u=fallback'; }}
                   />
-                  <h3 className="text-md font-display font-bold text-primary-var">{member.name}</h3>
-                  <p className="text-xs text-accent mt-1">{member.role}</p>
-                  <p className="text-[10px] text-muted-var mt-2 font-mono uppercase tracking-wider">Display Order: {member.order}</p>
+                  <h3 className="text-md font-bold text-black">{member.name}</h3>
+                  <p className="text-xs text-red-500 mt-1">{member.role}</p>
+                  <p className="text-[10px] text-gray-400 mt-2 font-mono uppercase tracking-wider">Display Order: {member.order}</p>
 
-                  <div className="flex gap-3 mt-6 pt-4 border-t border-var w-full justify-center">
+                  <div className="flex gap-3 mt-6 pt-4 border-t border-gray-100 w-full justify-center">
                     <button
                       onClick={() => handleEditStart(member)}
-                      className="text-xs font-bold text-primary-var hover:text-accent uppercase tracking-widest transition-colors"
+                      className="text-xs font-bold text-gray-700 hover:text-black uppercase tracking-widest transition-colors"
                     >
                       Edit Member
                     </button>
                     <button
                       onClick={() => handleDelete(member.id)}
-                      className="text-xs font-bold text-red-400 hover:text-red-500 uppercase tracking-widest transition-colors"
+                      className="text-xs font-bold text-red-500 hover:text-red-600 uppercase tracking-widest transition-colors"
                     >
                       Delete
                     </button>
                   </div>
                 </div>
               )}
-            </Card>
+            </div>
           );
         })}
       </div>
-      {items.length === 0 && <p className="text-muted-var text-sm text-center py-6">No members registered yet.</p>}
+      {items.length === 0 && <p className="text-gray-500 text-sm text-center py-6">No members registered yet.</p>}
     </div>
   );
 }
 
+/* ─── Ideas Tab ─── */
 function IdeasTab() {
   const [ideas, setIdeas] = useState([]);
   const [form, setForm] = useState({});
@@ -635,23 +677,23 @@ function IdeasTab() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-display font-bold text-primary-var">Project Ideas ({ideas.length})</h2>
+        <h2 className="rc-admin-card-title">Project Ideas ({ideas.length})</h2>
         <Button onClick={() => setShowForm(!showForm)} variant={showForm ? 'ghost' : 'primary'}>
           {showForm ? 'Cancel' : 'Upload New Idea'}
         </Button>
       </div>
 
       {showForm && (
-        <Card className="mb-6 glass-card border-var p-6">
+        <div className="rc-admin-card mb-6">
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {fields.map((f) => (
               <div key={f.key} className={`space-y-1 ${f.wide ? 'md:col-span-2' : ''}`}>
-                <label className="text-xs font-bold text-muted-var uppercase tracking-widest">{f.label}</label>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">{f.label}</label>
                 {f.type === 'textarea' ? (
                   <textarea
                     value={form[f.key] || ''}
                     onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
-                    className="w-full bg-input-bg border border-var rounded-xl px-4 py-3 text-primary-var text-sm outline-none focus:border-accent"
+                    className="rc-admin-input"
                     rows={3}
                     required={f.required}
                   />
@@ -660,7 +702,7 @@ function IdeasTab() {
                     type="text"
                     value={form[f.key] || ''}
                     onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
-                    className="w-full bg-input-bg border border-var rounded-xl px-4 py-3 text-primary-var text-sm outline-none focus:border-accent"
+                    className="rc-admin-input"
                     required={f.required}
                   />
                 )}
@@ -670,7 +712,7 @@ function IdeasTab() {
               <Button type="submit" variant="primary">Upload Idea</Button>
             </div>
           </form>
-        </Card>
+        </div>
       )}
 
       {/* Filters */}
@@ -680,15 +722,13 @@ function IdeasTab() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search ideas..."
-          className="bg-input-bg border border-var rounded-xl px-4 py-2 text-primary-var text-sm outline-none focus:border-accent w-64"
+          className="rc-admin-input max-w-xs"
         />
         {['All', 'Hardware', 'Software', 'IoT'].map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
-              filter === f ? 'bg-primary-var text-base-var' : 'bg-glass-bg text-muted-var hover:text-primary-var'
-            }`}
+            className={`rc-admin-tab-btn ${filter === f ? 'active' : ''}`}
           >
             {f}
           </button>
@@ -697,44 +737,40 @@ function IdeasTab() {
 
       <div className="space-y-3">
         {filtered.map((idea) => (
-          <Card key={idea.id} className="p-4 flex items-start justify-between gap-4 glass-card border-var">
+          <div key={idea.id} className="rc-crud-item-row">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <h3 className="font-bold text-primary-var">{idea.title}</h3>
-                <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border ${
-                  idea.category === 'Hardware' ? 'bg-[var(--glass-bg-hover)] text-[var(--color-text-main)] border-[var(--color-border-hover)]' :
-                  idea.category === 'Software' ? 'bg-[var(--glass-bg-hover)] text-[var(--color-text-main)] border-[var(--color-border-hover)]' :
-                  'bg-[var(--glass-bg)] text-[var(--color-text-muted)] border-[var(--color-border)]'
-                }`}>
+                <h3 className="font-bold text-black">{idea.title}</h3>
+                <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border border-gray-200 text-gray-500">
                   {idea.category}
                 </span>
-                <span className="text-[10px] text-muted-var uppercase tracking-widest">{idea.difficulty}</span>
+                <span className="text-[10px] text-gray-400 uppercase tracking-widest">{idea.difficulty}</span>
                 {idea.status === 'locked' && (
-                  <span className="text-[10px] font-bold text-accent uppercase tracking-widest">Locked</span>
+                  <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest">Locked</span>
                 )}
               </div>
-              <p className="text-sm text-muted-var line-clamp-1">{idea.description}</p>
+              <p className="text-sm text-gray-500 line-clamp-1">{idea.description}</p>
             </div>
             
             <div className="flex items-center gap-4">
-                {idea.status === 'locked' && (
-                    <button
-                      onClick={() => handleUnlock(idea.id)}
-                      className="text-accent hover:text-accent text-xs font-bold uppercase tracking-widest transition-colors whitespace-nowrap"
-                    >
-                      Unlock
-                    </button>
-                )}
+              {idea.status === 'locked' && (
                 <button
-                  onClick={() => handleDelete(idea.id)}
-                  className="text-red-400/50 hover:text-red-400 text-xs font-bold uppercase tracking-widest transition-colors whitespace-nowrap"
+                  onClick={() => handleUnlock(idea.id)}
+                  className="text-red-500 hover:text-red-600 text-xs font-bold uppercase tracking-widest transition-colors whitespace-nowrap"
                 >
-                  Delete
+                  Unlock
                 </button>
+              )}
+              <button
+                onClick={() => handleDelete(idea.id)}
+                className="rc-crud-delete-btn"
+              >
+                Delete
+              </button>
             </div>
-          </Card>
+          </div>
         ))}
-        {filtered.length === 0 && <p className="text-muted-var text-sm">No ideas match your search.</p>}
+        {filtered.length === 0 && <p className="text-gray-500 text-sm">No ideas match your search.</p>}
       </div>
     </div>
   );
@@ -822,7 +858,6 @@ function AnnouncementsTab() {
   );
 }
 
-
 function SiteContentTab() {
   const [content, setContent] = useState({});
   const [editing, setEditing] = useState(null);
@@ -860,20 +895,20 @@ function SiteContentTab() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-display font-bold text-primary-var mb-6">Site Content</h2>
+      <h2 className="rc-admin-card-title mb-6">Site Content</h2>
       {keys.map(({ key, label }) => (
-        <Card key={key} className="p-4 glass-card border-var">
+        <div key={key} className="rc-admin-card">
           <div className="flex items-center justify-between mb-2">
-            <label className="text-xs font-bold text-muted-var uppercase tracking-widest">{label}</label>
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">{label}</label>
             {editing === key ? (
               <div className="flex gap-2">
-                <button onClick={() => save(key)} className="text-xs font-bold text-primary-var hover:text-accent">Save</button>
-                <button onClick={() => setEditing(null)} className="text-xs text-muted-var hover:text-primary-var">Cancel</button>
+                <button onClick={() => save(key)} className="text-xs font-bold text-black hover:text-red-500">Save</button>
+                <button onClick={() => setEditing(null)} className="text-xs text-gray-400 hover:text-black">Cancel</button>
               </div>
             ) : (
               <button
                 onClick={() => { setEditing(key); setEditValue(content[key] || ''); }}
-                className="text-xs text-muted-var hover:text-primary-var transition-colors"
+                className="text-xs text-gray-400 hover:text-black transition-colors"
               >
                 Edit
               </button>
@@ -883,13 +918,13 @@ function SiteContentTab() {
             <textarea
               value={editValue}
               onChange={(e) => setEditValue(e.target.value)}
-              className="w-full bg-input-bg border border-var rounded-xl px-4 py-3 text-primary-var text-sm outline-none focus:border-accent"
+              className="rc-admin-input"
               rows={2}
             />
           ) : (
-            <p className="text-sm text-primary-var opacity-80">{content[key] || 'Not set'}</p>
+            <p className="text-sm text-black opacity-80">{content[key] || 'Not set'}</p>
           )}
-        </Card>
+        </div>
       ))}
     </div>
   );

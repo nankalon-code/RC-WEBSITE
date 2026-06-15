@@ -88,137 +88,120 @@ export default function Forum() {
   };
 
   return (
-    <div className="min-h-screen pt-32 pb-24 px-6 w-full relative flex flex-col items-center overflow-x-hidden">
-      
-      {/* Header */}
-      <div className="text-center mb-12 w-full max-w-4xl mx-auto relative z-10">
-        <motion.div initial={{ width: 0 }} animate={{ width: 60 }} className="h-[2px] mx-auto mb-8 bg-accent" />
-        <motion.h1
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-5xl md:text-7xl font-display font-extrabold tracking-tight mb-6 text-primary-var uppercase"
-        >
-          Project <span className="text-gradient">Forum</span>
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="text-lg text-muted-var max-w-xl mx-auto mb-10 font-light leading-relaxed"
-        >
-          50 awesome robotics projects. Pick your favorite, lock it with your team, and start building!
-        </motion.p>
+    <div className="rc-forum-section">
+      <div className="rc-forum-inner">
+        {/* Header */}
+        <div className="rc-forum-header">
+          <div className="rc-forum-title-wrap">
+            <div className="rc-forum-tag">
+              003 / 006 <span className="rc-forum-tag-sec">· PROJECT FORUM</span>
+            </div>
+            <h1 className="rc-forum-title">
+              {ideas.length} robotics projects. <em>Lock yours.</em>
+            </h1>
+            <p className="rc-forum-desc">
+              Browse, filter and reserve a build. Each idea can be locked by one team — first come, first served.
+            </p>
+          </div>
 
-        {/* Search + Filters */}
-        <div className="flex flex-col gap-6 items-center justify-center">
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search projects, tech stacks..."
-            className="w-full max-w-lg bg-[var(--input-bg)] backdrop-blur-xl border border-[var(--color-border)] rounded-full px-6 py-4 text-primary-var text-sm outline-none focus:border-accent shadow-inner transition-all"
-          />
-          <div className="flex flex-wrap justify-center gap-2">
+          <div className="rc-forum-stats">
+            <div className="rc-forum-stat-card">
+              <span className="rc-forum-stat-key">TOTAL</span>
+              <span className="rc-forum-stat-val">{ideas.length}</span>
+            </div>
+            <div className="rc-forum-stat-card">
+              <span className="rc-forum-stat-key">AVAILABLE</span>
+              <span className="rc-forum-stat-val">
+                {ideas.filter((i) => i.status === 'available').length}
+              </span>
+            </div>
+            <div className="rc-forum-stat-card">
+              <span className="rc-forum-stat-key">LOCKED</span>
+              <span className="rc-forum-stat-val locked">
+                {ideas.filter((i) => i.status === 'locked').length}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Controls (Filters + Search) */}
+        <div className="rc-forum-controls">
+          <div className="rc-forum-filters">
             {['All', 'Hardware', 'Software', 'IoT', 'Available', 'Taken'].map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${
-                  filter === f
-                    ? 'bg-primary-var text-base-var shadow-[0_0_15px_var(--color-accent)]'
-                    : 'bg-glass-bg text-muted-var hover:text-primary-var hover:bg-glass-bg-hover border border-var'
-                }`}
+                className={`rc-forum-filter-btn ${filter === f ? 'active' : ''}`}
               >
                 {f}
               </button>
             ))}
           </div>
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search projects, tags..."
+            className="rc-forum-search"
+          />
         </div>
-      </div>
 
-      {/* Grid */}
-      <div className="w-full max-w-[1400px] mx-auto">
+        {/* Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filtered.map((idea, index) => {
             const isLocked = idea.status === 'locked';
+            const ideaIndex = String(index + 1).padStart(2, '0');
+            const techTags = idea.tech_stack ? idea.tech_stack.split(',').map((t) => t.trim()) : [];
+
             return (
               <motion.div
                 key={idea.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: (index % 3) * 0.05, duration: 0.5 }}
-                whileHover={!isLocked ? { y: -6, transition: { duration: 0.2 } } : {}}
-                className="relative group h-full"
+                className="relative"
               >
-                <div
-                  onClick={() => {
-                    if (!isLocked) {
-                      if (isAuthenticated) {
-                        setSelectedIdea(idea);
-                      } else {
-                        navigate('/login');
-                      }
-                    }
-                  }}
-                  className={`h-full rounded-2xl overflow-hidden cursor-pointer backdrop-blur-xl border transition-all duration-300 flex flex-col p-6
-                    ${
-                      isLocked
-                        ? 'bg-glass-bg border-var opacity-50 pointer-events-none'
-                        : 'glass-card glass-card-hover'
-                    }`}
-                >
-                  <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[var(--color-accent)] to-transparent opacity-30" />
-
-                  <div className="flex justify-between items-start mb-4">
-                    <span className={`text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full border ${categoryColor(idea.category)}`}>
-                      {idea.category}
+                <div className="rc-forum-card">
+                  <div className="rc-forum-card-top">
+                    <span className="rc-forum-card-category">
+                      <span className="rc-forum-card-index">#{ideaIndex}</span> · {idea.category}
                     </span>
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-muted-var bg-input-bg px-2 py-1 rounded border border-var">
-                      {idea.difficulty}
+                    <span className="rc-forum-card-status">
+                      <span className={`rc-forum-card-dot ${isLocked ? 'locked' : 'open'}`} />
+                      {isLocked ? 'Locked' : 'Open'}
                     </span>
                   </div>
 
-                  <h3 className="text-lg font-bold mb-2 text-primary-var leading-tight">
-                    {idea.title}
-                  </h3>
-                  <p className="text-sm text-muted-var line-clamp-3 mb-4 leading-relaxed flex-grow">
-                    {idea.description}
-                  </p>
+                  <h3 className="rc-forum-card-title">{idea.title}</h3>
+                  <p className="rc-forum-card-desc">{idea.description}</p>
 
-                  {idea.tech_stack && (
-                    <p className="text-xs text-accent mb-4 line-clamp-1 font-mono">
-                      {idea.tech_stack}
-                    </p>
+                  {techTags.length > 0 && (
+                    <div className="rc-forum-card-tags">
+                      {techTags.map((tag, ti) => (
+                        <span key={ti} className="rc-forum-card-tag">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   )}
 
-                  <div className="mt-auto pt-4 border-t border-var">
+                  <div className="rc-forum-card-footer">
+                    <span className="rc-forum-card-diff">{idea.difficulty}</span>
                     {isLocked ? (
-                      <div className="flex items-center space-x-2 text-muted-var/60 font-bold uppercase tracking-widest text-xs select-none">
-                        <span className="relative flex h-2 w-2 mr-1">
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-white/20"></span>
-                        </span>
-                        <span>Locked by {idea.locked_by_team}</span>
-                      </div>
-                    ) : !isAuthenticated ? (
-                      <div className="flex items-center space-x-2 text-accent/80 font-bold uppercase tracking-widest text-xs group-hover:text-accent transition-all duration-300">
-                        {/* Glowing amber/accent dot indicating login is required */}
-                        <span className="relative flex h-2 w-2 mr-1">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
-                        </span>
-                        <span>Login to Register</span>
-                        <span>&rarr;</span>
-                      </div>
+                      <span className="rc-forum-card-team">Team: {idea.locked_by_team}</span>
                     ) : (
-                      <div className="flex items-center space-x-2 text-muted-var font-bold uppercase tracking-widest text-xs group-hover:text-accent transition-colors">
-                        {/* Glowing green dot for available */}
-                        <span className="relative flex h-2 w-2 mr-1">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                        </span>
-                        <span>Register Team</span>
-                        <span>&rarr;</span>
-                      </div>
+                      <button
+                        onClick={() => {
+                          if (isAuthenticated) {
+                            setSelectedIdea(idea);
+                          } else {
+                            navigate('/login');
+                          }
+                        }}
+                        className="rc-forum-card-btn"
+                      >
+                        Lock idea &rarr;
+                      </button>
                     )}
                   </div>
                 </div>
@@ -226,6 +209,7 @@ export default function Forum() {
             );
           })}
         </div>
+
         {filtered.length === 0 && (
           <p className="text-center text-muted-var text-sm mt-12">No projects match your search.</p>
         )}
@@ -250,13 +234,13 @@ export default function Forum() {
               className="relative w-full max-w-xl bg-panel-var border border-var rounded-2xl p-6 sm:p-8 shadow-2xl z-10 md:my-auto my-4"
               data-lenis-prevent
             >
-              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[var(--color-accent)] to-transparent" />
+              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#ff3b30] to-transparent" />
 
               <h2 className="text-2xl font-display font-bold mb-2 text-primary-var">
                 {selectedIdea.title}
               </h2>
               <div className="flex items-center space-x-3 mb-4">
-                <span className={`text-xs font-bold uppercase tracking-widest px-2 py-1 rounded-full border ${categoryColor(selectedIdea.category)}`}>
+                <span className="text-xs font-bold uppercase tracking-widest px-2 py-1 rounded-full border border-var">
                   {selectedIdea.category}
                 </span>
                 <span className="text-xs text-muted-var font-bold uppercase tracking-widest">
@@ -283,64 +267,64 @@ export default function Forum() {
                       placeholder="Your team name"
                     />
                   </div>
-                  
+
                   <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                          <label className="text-xs font-bold text-muted-var tracking-widest uppercase">
-                            Team Members (2-4)
-                          </label>
-                          {members.length < 4 && (
-                              <button type="button" onClick={addMemberField} className="text-xs text-accent hover:underline">
-                                  + Add Member
-                              </button>
+                    <div className="flex justify-between items-center">
+                      <label className="text-xs font-bold text-muted-var tracking-widest uppercase">
+                        Team Members (2-4)
+                      </label>
+                      {members.length < 4 && (
+                        <button type="button" onClick={addMemberField} className="text-xs text-accent hover:underline">
+                          + Add Member
+                        </button>
+                      )}
+                    </div>
+
+                    {members.map((m, i) => (
+                      <div key={i} className="p-4 bg-surface-var border border-var rounded-xl space-y-3 relative">
+                        <div className="flex justify-between items-center border-b border-var pb-2">
+                          <span className="text-xs font-bold text-accent uppercase tracking-wider">Member #{i + 1}</span>
+                          {members.length > 2 && (
+                            <button type="button" onClick={() => removeMemberField(i)} className="text-red-500 hover:text-red-400 text-xs">
+                              Remove
+                            </button>
                           )}
-                      </div>
-                      
-                      {members.map((m, i) => (
-                          <div key={i} className="p-4 bg-surface-var border border-var rounded-xl space-y-3 relative">
-                              <div className="flex justify-between items-center border-b border-var pb-2">
-                                  <span className="text-xs font-bold text-accent uppercase tracking-wider">Member #{i + 1}</span>
-                                  {members.length > 2 && (
-                                      <button type="button" onClick={() => removeMemberField(i)} className="text-red-500 hover:text-red-400 text-xs">
-                                          Remove
-                                      </button>
-                                  )}
-                              </div>
-                              
-                              <div className="grid grid-cols-2 gap-3">
-                                  <div className="space-y-1">
-                                      <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">Name</label>
-                                      <input required type="text" placeholder="Full Name" value={m.name} onChange={e => updateMember(i, 'name', e.target.value)} className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500" />
-                                  </div>
-                                  <div className="space-y-1">
-                                      <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">Email</label>
-                                      <input required type="email" placeholder="email@address.com" value={m.email} onChange={e => updateMember(i, 'email', e.target.value)} className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500" />
-                                  </div>
-                              </div>
-                              
-                              <div className="grid grid-cols-2 gap-3">
-                                  <div className="space-y-1">
-                                      <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">Roll Number</label>
-                                      <input required type="text" placeholder="Roll / Student ID" value={m.student_id} onChange={e => updateMember(i, 'student_id', e.target.value)} className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500" />
-                                  </div>
-                                  <div className="space-y-1">
-                                      <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">Branch</label>
-                                      <input required type="text" placeholder="e.g. CSE, ECE, Robotics" value={m.branch} onChange={e => updateMember(i, 'branch', e.target.value)} className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500" />
-                                  </div>
-                              </div>
-                              
-                              <div className="grid grid-cols-2 gap-3">
-                                  <div className="space-y-1">
-                                      <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">GitHub Profile</label>
-                                      <input required type="url" placeholder="https://github.com/..." value={m.github} onChange={e => updateMember(i, 'github', e.target.value)} className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500" />
-                                  </div>
-                                  <div className="space-y-1">
-                                      <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">LinkedIn Profile</label>
-                                      <input required type="url" placeholder="https://linkedin.com/in/..." value={m.linkedin} onChange={e => updateMember(i, 'linkedin', e.target.value)} className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500" />
-                                  </div>
-                              </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">Name</label>
+                            <input required type="text" placeholder="Full Name" value={m.name} onChange={(e) => updateMember(i, 'name', e.target.value)} className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500" />
                           </div>
-                      ))}
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">Email</label>
+                            <input required type="email" placeholder="email@address.com" value={m.email} onChange={(e) => updateMember(i, 'email', e.target.value)} className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500" />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">Roll Number</label>
+                            <input required type="text" placeholder="Roll / Student ID" value={m.student_id} onChange={(e) => updateMember(i, 'student_id', e.target.value)} className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500" />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">Branch</label>
+                            <input required type="text" placeholder="e.g. CSE, ECE, Robotics" value={m.branch} onChange={(e) => updateMember(i, 'branch', e.target.value)} className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500" />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">GitHub Profile</label>
+                            <input required type="url" placeholder="https://github.com/..." value={m.github} onChange={(e) => updateMember(i, 'github', e.target.value)} className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500" />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">LinkedIn Profile</label>
+                            <input required type="url" placeholder="https://linkedin.com/in/..." value={m.linkedin} onChange={(e) => updateMember(i, 'linkedin', e.target.value)} className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500" />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
 
                   <div className="flex space-x-4 pt-2">

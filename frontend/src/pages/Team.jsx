@@ -85,7 +85,7 @@ export default function Team() {
               {/* Photo */}
               <div className="aspect-square overflow-hidden bg-black">
                 <img src={m.photo_url || `https://i.pravatar.cc/300?u=${m.id}`}
-                  alt={m.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-105" />
+                  alt={m.name} className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105" />
               </div>
 
               {/* Info */}

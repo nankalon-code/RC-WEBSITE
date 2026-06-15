@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { apiFetch } from '../utils/api';
-import { Card } from '../components/ui/Card';
-import { Book, Code, ExternalLink, Download } from 'lucide-react';
 
 export default function Resources() {
   const [resources, setResources] = useState([]);
@@ -11,7 +9,7 @@ export default function Resources() {
   useEffect(() => {
     apiFetch('/resources')
       .then((data) => {
-        setResources(data);
+        setResources(data || []);
         setLoading(false);
       })
       .catch((err) => {
@@ -20,63 +18,107 @@ export default function Resources() {
       });
   }, []);
 
-  const getIcon = (type) => {
-    switch(type) {
-      case 'document': return <Book size={20} className="text-primary-var" />;
-      case 'code': return <Code size={20} className="text-accent" />;
-      default: return <ExternalLink size={20} className="text-secondary" />;
+  // Custom static categorization based on the mockups to match the layout perfectly, 
+  // falling back to api data categories if available.
+  const categories = [
+    {
+      title: 'Getting started',
+      items: [
+        { title: 'Arduino in 10 minutes', type: 'TUTORIAL · PDF', link: '#' },
+        { title: 'Soldering, properly', type: 'WORKSHOP VIDEO', link: '#' },
+        { title: 'Reading a datasheet', type: 'CHEATSHEET', link: '#' }
+      ]
+    },
+    {
+      title: 'Software',
+      items: [
+        { title: 'ROS2 cheatsheet', type: 'PDF', link: '#' },
+        { title: 'OpenCV starter repo', type: 'GITHUB', link: '#' },
+        { title: 'PID tuning notebook', type: 'JUPYTER', link: '#' }
+      ]
+    },
+    {
+      title: 'Hardware & IoT',
+      items: [
+        { title: 'Approved vendor list', type: 'SHEET', link: '#' },
+        { title: 'ESP32 reference designs', type: 'KICAD', link: '#' },
+        { title: 'Motor selection guide', type: 'DOC', link: '#' }
+      ]
     }
+  ];
+
+  // If there are resources from the API, we can group/append them dynamically too
+  const groupedResources = {
+    'Getting started': [],
+    'Software': [],
+    'Hardware & IoT': []
   };
 
+  resources.forEach(res => {
+    const cat = res.category || 'Getting started';
+    if (!groupedResources[cat]) {
+      groupedResources[cat] = [];
+    }
+    groupedResources[cat].push({
+      title: res.title,
+      type: res.type ? res.type.toUpperCase() : 'LINK',
+      link: res.link_url || '#'
+    });
+  });
+
+  // Merge API resources with static structure
+  const finalCategories = categories.map(cat => {
+    const apiItems = groupedResources[cat.title] || [];
+    return {
+      title: cat.title,
+      items: apiItems.length > 0 ? apiItems : cat.items
+    };
+  });
+
   return (
-    <div className="min-h-screen pt-32 pb-16 px-6 max-w-7xl mx-auto relative z-10">
-      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-12">
-        <h1 className="text-4xl md:text-5xl font-display font-bold text-primary-var mb-4">Resources Hub</h1>
-        <p className="text-muted-var max-w-2xl">Find all club learning guides, code files, and study resources in one place.</p>
-      </motion.div>
+    <div className="rc-root">
+      <section className="rc-page-section">
+        <div className="rc-section-inner">
+          {/* Header */}
+          <div className="rc-page-header">
+            <span className="rc-tag-sub uppercase tracking-[0.25em] text-red-500 font-mono block mb-2">RESOURCES</span>
+            <h1 className="text-4xl md:text-5xl lg:text-[3.5rem] font-bold text-black tracking-tight leading-none">
+              Curated, battle-tested.
+            </h1>
+          </div>
 
-      {loading ? (
-        <div className="flex justify-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>
+          {/* Grid */}
+          <div className="rc-resources-grid">
+            {finalCategories.map((cat, i) => (
+              <motion.div
+                key={cat.title}
+                className="rc-resource-group"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1, duration: 0.6 }}
+              >
+                <h2 className="rc-resource-group-title">{cat.title}</h2>
+                <div className="rc-resource-items">
+                  {cat.items.map((item, idx) => (
+                    <a
+                      key={idx}
+                      href={item.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rc-resource-item"
+                    >
+                      <span className="rc-resource-item-name">{item.title}</span>
+                      <span className="rc-resource-item-meta">
+                        {item.type} <span className="rc-resource-arrow">→</span>
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
-      ) : resources.length === 0 ? (
-        <div className="text-center py-20 text-muted-var">No resources found.</div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {resources.map((resource, i) => (
-            <motion.div 
-              key={resource.id} 
-              initial={{ opacity: 0, y: 20 }} 
-              animate={{ opacity: 1, y: 0 }} 
-              transition={{ delay: i * 0.1 }}
-            >
-              <a href={resource.link_url} target="_blank" rel="noopener noreferrer" className="block h-full">
-                <Card className="h-full flex flex-col p-6 hover-tilt glass-card-hover cursor-pointer border-var">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-surface-var border border-var flex items-center justify-center shadow-inner">
-                      {getIcon(resource.type)}
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-lg text-primary-var line-clamp-1">{resource.title}</h3>
-                      <span className="text-xs uppercase tracking-widest text-muted-var font-mono">{resource.type}</span>
-                    </div>
-                  </div>
-                  
-                  <p className="text-sm text-muted-var mb-6 flex-grow leading-relaxed">
-                    {resource.description}
-                  </p>
-
-                  <div className="flex justify-end border-t border-var pt-4 mt-auto">
-                    <span className="text-xs font-bold text-accent flex items-center gap-2 hover:underline">
-                      Access Resource <ExternalLink size={14} />
-                    </span>
-                  </div>
-                </Card>
-              </a>
-            </motion.div>
-          ))}
-        </div>
-      )}
+      </section>
     </div>
   );
 }

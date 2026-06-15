@@ -1,20 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, Menu, X, Sun, Moon } from 'lucide-react';
+import { Settings, Bell, Menu, X } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
-import { useThemeStore } from '../store/themeStore';
 import { apiFetch } from '../utils/api';
 
 export default function Navbar() {
-  const [isDropdownOpen, setDropdownOpen] = useState(false);
-  const [isNotificationsOpen, setNotificationsOpen] = useState(false);
   const [isMobileOpen, setMobileOpen] = useState(false);
+  const [isNotificationsOpen, setNotificationsOpen] = useState(false);
+  const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [announcements, setAnnouncements] = useState([]);
-  const [hasNewNotifications, setHasNewNotifications] = useState(false);
+  const [hasNew, setHasNew] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user, isAuthenticated, logout, init } = useAuthStore();
-  const { theme, toggle: toggleTheme } = useThemeStore();
   const navigate = useNavigate();
 
   useEffect(() => { init(); }, [init]);
@@ -22,122 +20,96 @@ export default function Navbar() {
     apiFetch('/announcements').then((d) => {
       const sliced = d.slice(0, 5);
       setAnnouncements(sliced);
-      
-      const lastChecked = localStorage.getItem('lastCheckedNotifications');
-      if (!lastChecked) {
-        setHasNewNotifications(sliced.length > 0);
-      } else {
-        const checkedTime = new Date(lastChecked).getTime();
-        const hasUnread = sliced.some(ann => new Date(ann.timestamp).getTime() > checkedTime);
-        setHasNewNotifications(hasUnread);
+      const last = localStorage.getItem('lastCheckedNotifications');
+      if (!last) { setHasNew(sliced.length > 0); }
+      else {
+        const t = new Date(last).getTime();
+        setHasNew(sliced.some(a => new Date(a.timestamp).getTime() > t));
       }
     }).catch(() => {});
   }, []);
-
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const h = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', h);
+    return () => window.removeEventListener('scroll', h);
   }, []);
 
   const handleLogout = () => { logout(); navigate('/'); };
-  const isDark = theme === 'dark';
 
-  const handleScrollToSection = (sectionId) => {
+  const handleScrollToSection = (id) => {
     if (window.location.pathname === '/') {
-      const element = document.getElementById(sectionId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
     } else {
-      navigate('/', { state: { scrollToSection: sectionId } });
+      navigate('/', { state: { scrollToSection: id } });
     }
+    setMobileOpen(false);
   };
 
   return (
-    <nav className="fixed top-4 left-1/2 -translate-x-1/2 w-[94%] max-w-6xl z-50">
-      <div className={`navbar-glass ${scrolled ? 'scrolled' : ''} flex items-center justify-between px-5 py-2.5 transition-all duration-500`}>
-        <Link to="/" className="text-sm font-display font-black tracking-[0.18em] uppercase" style={{ color: 'var(--color-text-main)' }}>
-          ROBOTICS<span className="text-[var(--color-text-muted)] ml-0.5">CLUB</span>
+    <nav className={`rc-navbar ${scrolled ? 'rc-navbar-scrolled' : ''}`}>
+      <div className="rc-navbar-inner">
+        {/* Brand */}
+        <Link to="/" className="rc-brand">
+          ROBOTICS <span className="rc-brand-accent">CLUB</span>
         </Link>
 
-        <div className="hidden md:flex items-center space-x-5 text-sm font-medium">
-          <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-accent transition-colors text-muted-var">Home</Link>
-          <span onClick={() => handleScrollToSection('about')} className="hover:text-accent transition-colors text-muted-var cursor-pointer">About</span>
-          <span onClick={() => handleScrollToSection('events')} className="hover:text-accent transition-colors text-muted-var cursor-pointer">Events</span>
-          <Link to="/achievements" className="hover:text-accent transition-colors text-muted-var">Achievements</Link>
-          <Link to="/team" className="hover:text-accent transition-colors text-muted-var">Team</Link>
-          <Link to="/gallery" className="hover:text-accent transition-colors text-muted-var">Gallery</Link>
-          <Link to="/forum" className="hover:text-accent transition-colors text-muted-var">Forum</Link>
-          <Link to="/resources" className="hover:text-accent transition-colors text-muted-var">Resources</Link>
-
+        {/* Desktop links */}
+        <div className="rc-nav-links">
+          <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="rc-nav-link">Home</Link>
+          <button onClick={() => handleScrollToSection('about')} className="rc-nav-link">About</button>
+          <button onClick={() => handleScrollToSection('events')} className="rc-nav-link">Events</button>
+          <Link to="/achievements" className="rc-nav-link">Achievements</Link>
+          <Link to="/team" className="rc-nav-link">Team</Link>
+          <Link to="/gallery" className="rc-nav-link">Gallery</Link>
+          <Link to="/forum" className="rc-nav-link">Forum</Link>
+          <Link to="/resources" className="rc-nav-link">Resources</Link>
           {isAuthenticated && user && (
-            <Link to={`/dashboard/${user.role}`} className="hover:text-accent transition-colors text-primary-var font-semibold">Dashboard</Link>
+            <Link to={`/dashboard/${user.role}`} className="rc-nav-link rc-nav-link-bold">Dashboard</Link>
           )}
+        </div>
 
-          {/* Separator */}
-          <div className="h-4 w-px bg-[var(--color-border)]" />
-
-          {/* Theme Toggle */}
-          <button
-            onClick={toggleTheme}
-            className="w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 hover:bg-[var(--glass-bg-hover)]"
-            style={{ border: '1px solid var(--color-border)' }}
-            title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-          >
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={theme}
-                initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
-                animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
-                transition={{ duration: 0.2 }}
-              >
-                {isDark ? <Sun size={13} style={{ color: 'var(--color-text-muted)' }} /> : <Moon size={13} style={{ color: 'var(--color-text-muted)' }} />}
-              </motion.div>
-            </AnimatePresence>
+        {/* Right controls */}
+        <div className="rc-nav-controls">
+          {/* Settings icon */}
+          <button className="rc-icon-btn" title="Settings">
+            <Settings size={14} />
           </button>
 
           {/* Notifications */}
-          <div className="relative">
+          <div className="rc-notif-wrap">
             <button
+              className="rc-icon-btn rc-notif-btn"
               onClick={() => {
                 setNotificationsOpen(!isNotificationsOpen);
                 if (!isNotificationsOpen) {
                   localStorage.setItem('lastCheckedNotifications', new Date().toISOString());
-                  setHasNewNotifications(false);
+                  setHasNew(false);
                 }
               }}
-              className="w-8 h-8 rounded-full flex items-center justify-center opacity-60 hover:opacity-100 transition-all hover:bg-[var(--glass-bg-hover)]"
-              style={{ color: 'var(--color-text-main)', border: '1px solid var(--color-border)' }}
             >
-              <Bell size={13} />
-              {hasNewNotifications && (
-                <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full" style={{ background: 'var(--color-primary)' }} />
-              )}
+              <Bell size={14} />
+              {hasNew && <span className="rc-notif-dot" />}
             </button>
             <AnimatePresence>
               {isNotificationsOpen && (
                 <motion.div
-                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  initial={{ opacity: 0, y: 10, scale: 0.96 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="absolute right-0 mt-3 w-72 border rounded-2xl shadow-2xl overflow-hidden"
-                  style={{ background: 'var(--dropdown-bg)', borderColor: 'var(--color-border)' }}
+                  exit={{ opacity: 0, y: 10, scale: 0.96 }}
+                  transition={{ duration: 0.2 }}
+                  className="rc-dropdown"
                 >
-                  <div className="p-4 flex justify-between items-center" style={{ borderBottom: '1px solid var(--color-border)' }}>
-                    <span className="font-bold text-sm" style={{ color: 'var(--color-text-main)' }}>Notifications</span>
-                  </div>
-                  <div className="max-h-64 overflow-y-auto" style={{ borderColor: 'var(--color-border)' }}>
+                  <div className="rc-dropdown-header">Notifications</div>
+                  <div className="rc-dropdown-body">
                     {announcements.map((ann) => (
-                      <div key={ann.id} className="p-4 cursor-pointer transition-colors hover:bg-[var(--glass-bg)]" style={{ borderBottom: '1px solid var(--color-border)' }}>
-                        <p className="text-xs font-bold mb-1" style={{ color: 'var(--color-text-muted)', opacity: 0.5 }}>{ann.type}</p>
-                        <p className="text-sm" style={{ color: 'var(--color-text-main)', opacity: 0.7 }}>{ann.message}</p>
-                        <p className="text-xs mt-2" style={{ color: 'var(--color-text-muted)', opacity: 0.3 }}>{new Date(ann.timestamp).toLocaleDateString()}</p>
+                      <div key={ann.id} className="rc-dropdown-item">
+                        <div className="rc-dropdown-item-type">{ann.type}</div>
+                        <div className="rc-dropdown-item-msg">{ann.message}</div>
+                        <div className="rc-dropdown-item-date">{new Date(ann.timestamp).toLocaleDateString()}</div>
                       </div>
                     ))}
                     {announcements.length === 0 && (
-                      <div className="p-4 text-sm" style={{ color: 'var(--color-text-muted)', opacity: 0.4 }}>No notifications</div>
+                      <div className="rc-dropdown-empty">No notifications</div>
                     )}
                   </div>
                 </motion.div>
@@ -145,13 +117,12 @@ export default function Navbar() {
             </AnimatePresence>
           </div>
 
-          {/* Auth */}
+          {/* Join / Account */}
           {isAuthenticated ? (
-            <div className="relative">
+            <div className="rc-notif-wrap">
               <button
                 onClick={() => setDropdownOpen(!isDropdownOpen)}
-                className="px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all hover:shadow-lg"
-                style={{ background: 'var(--color-primary)', color: 'var(--color-base)' }}
+                className="rc-btn-join"
               >
                 {user?.name?.split(' ')[0] || 'Account'}
               </button>
@@ -161,25 +132,18 @@ export default function Navbar() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
-                    className="absolute right-0 mt-3 w-44 border rounded-2xl shadow-xl overflow-hidden py-2"
-                    style={{ background: 'var(--dropdown-bg)', borderColor: 'var(--color-border)' }}
+                    className="rc-dropdown"
                   >
-                    <Link to={`/dashboard/${user?.role}`} onClick={() => setDropdownOpen(false)}
-                      className="block px-4 py-2.5 text-sm transition-colors hover:bg-[var(--glass-bg)]" style={{ color: 'var(--color-text-muted)' }}>Dashboard</Link>
-                    <button onClick={() => { setDropdownOpen(false); handleLogout(); }}
-                      className="w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-[var(--glass-bg)]" style={{ color: 'var(--color-text-muted)' }}>Sign Out</button>
+                    <Link to={`/dashboard/${user?.role}`} onClick={() => setDropdownOpen(false)} className="rc-dropdown-item rc-dropdown-link">Dashboard</Link>
+                    <button onClick={() => { setDropdownOpen(false); handleLogout(); }} className="rc-dropdown-item rc-dropdown-link">Sign Out</button>
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
           ) : (
-            <div className="relative">
-              <button
-                onClick={() => setDropdownOpen(!isDropdownOpen)}
-                className="px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all hover:shadow-lg"
-                style={{ background: 'var(--color-primary)', color: 'var(--color-base)' }}
-              >
-                Join Us
+            <div className="rc-notif-wrap">
+              <button onClick={() => setDropdownOpen(!isDropdownOpen)} className="rc-btn-join">
+                Join
               </button>
               <AnimatePresence>
                 {isDropdownOpen && (
@@ -187,58 +151,47 @@ export default function Navbar() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
-                    className="absolute right-0 mt-3 w-44 border rounded-2xl shadow-xl overflow-hidden py-2"
-                    style={{ background: 'var(--dropdown-bg)', borderColor: 'var(--color-border)' }}
+                    className="rc-dropdown"
                   >
-                    <Link to="/login" onClick={() => setDropdownOpen(false)}
-                      className="block px-4 py-2.5 text-sm transition-colors hover:bg-[var(--glass-bg)]" style={{ color: 'var(--color-text-muted)' }}>Join Club</Link>
-                    <Link to="/forum" onClick={() => setDropdownOpen(false)}
-                      className="block px-4 py-2.5 text-sm transition-colors hover:bg-[var(--glass-bg)]" style={{ color: 'var(--color-text-muted)' }}>Join Forum</Link>
+                    <Link to="/login" onClick={() => setDropdownOpen(false)} className="rc-dropdown-item rc-dropdown-link">Join Club</Link>
+                    <Link to="/forum" onClick={() => setDropdownOpen(false)} className="rc-dropdown-item rc-dropdown-link">Join Forum</Link>
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
           )}
-        </div>
 
-        <div className="flex md:hidden items-center gap-3">
-          <button onClick={toggleTheme} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'var(--glass-bg)', border: '1px solid var(--color-border)' }}>
-            {isDark ? <Sun size={14} style={{ color: 'var(--color-text-muted)' }} /> : <Moon size={14} style={{ color: 'var(--color-text-muted)' }} />}
-          </button>
-          <button onClick={() => setMobileOpen(!isMobileOpen)} style={{ color: 'var(--color-text-muted)' }}>
-            {isMobileOpen ? <X size={20} /> : <Menu size={20} />}
+          {/* Mobile toggle */}
+          <button onClick={() => setMobileOpen(!isMobileOpen)} className="rc-mobile-toggle">
+            {isMobileOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
       </div>
 
+      {/* Mobile menu */}
       <AnimatePresence>
         {isMobileOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.98 }}
-            className="md:hidden absolute top-full left-0 right-0 mt-3 border rounded-3xl p-5 space-y-2 backdrop-blur-3xl shadow-2xl z-50"
-            style={{ 
-              background: isDark ? 'rgba(0, 0, 0, 0.96)' : 'rgba(255, 255, 255, 0.96)', 
-              borderColor: 'var(--color-border)',
-              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)'
-            }}
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="rc-mobile-menu"
           >
-            <Link to="/" onClick={() => setMobileOpen(false)} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Home</Link>
-            <span onClick={() => { setMobileOpen(false); handleScrollToSection('about'); }} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors cursor-pointer animate-pulse-subtle" style={{ color: 'var(--color-text-main)' }}>About</span>
-            <span onClick={() => { setMobileOpen(false); handleScrollToSection('events'); }} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors cursor-pointer" style={{ color: 'var(--color-text-main)' }}>Events</span>
-            <Link to="/achievements" onClick={() => setMobileOpen(false)} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Achievements</Link>
-            <Link to="/team" onClick={() => setMobileOpen(false)} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Team</Link>
-            <Link to="/gallery" onClick={() => setMobileOpen(false)} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Gallery</Link>
-            <Link to="/forum" onClick={() => setMobileOpen(false)} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Forum</Link>
-            <Link to="/resources" onClick={() => setMobileOpen(false)} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Resources</Link>
+            <Link to="/" onClick={() => setMobileOpen(false)} className="rc-mobile-link">Home</Link>
+            <button onClick={() => handleScrollToSection('about')} className="rc-mobile-link">About</button>
+            <button onClick={() => handleScrollToSection('events')} className="rc-mobile-link">Events</button>
+            <Link to="/achievements" onClick={() => setMobileOpen(false)} className="rc-mobile-link">Achievements</Link>
+            <Link to="/team" onClick={() => setMobileOpen(false)} className="rc-mobile-link">Team</Link>
+            <Link to="/gallery" onClick={() => setMobileOpen(false)} className="rc-mobile-link">Gallery</Link>
+            <Link to="/forum" onClick={() => setMobileOpen(false)} className="rc-mobile-link">Forum</Link>
+            <Link to="/resources" onClick={() => setMobileOpen(false)} className="rc-mobile-link">Resources</Link>
             {isAuthenticated ? (
               <>
-                <Link to={`/dashboard/${user?.role}`} onClick={() => setMobileOpen(false)} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Dashboard</Link>
-                <button onClick={() => { setMobileOpen(false); handleLogout(); }} className="block py-3 px-4 rounded-xl text-base font-bold w-full text-left hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Sign Out</button>
+                <Link to={`/dashboard/${user?.role}`} onClick={() => setMobileOpen(false)} className="rc-mobile-link">Dashboard</Link>
+                <button onClick={() => { setMobileOpen(false); handleLogout(); }} className="rc-mobile-link">Sign Out</button>
               </>
             ) : (
-              <Link to="/login" onClick={() => setMobileOpen(false)} className="block py-3 px-4 rounded-xl text-base font-bold hover:bg-[var(--glass-bg-hover)] transition-colors" style={{ color: 'var(--color-text-main)' }}>Sign In</Link>
+              <Link to="/login" onClick={() => setMobileOpen(false)} className="rc-mobile-link">Sign In / Join</Link>
             )}
           </motion.div>
         )}

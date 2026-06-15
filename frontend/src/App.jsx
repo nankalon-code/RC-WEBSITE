@@ -6,7 +6,6 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import RobotIntro from './components/RobotIntro';
 import LabStatusHUD from './components/LabStatusHUD';
-import RobotCornerWidget from './components/RobotCornerWidget';
 import { useThemeStore } from './store/themeStore';
 
 // Lazy loaded routes
@@ -73,7 +72,6 @@ function App() {
         <div className="relative z-10 flex flex-col min-h-screen">
           <RobotIntro />
           <LabStatusHUD />
-          <RobotCornerWidget />
           <Navbar />
           <main className="flex-grow">
             <Suspense fallback={<PageLoader />}>
