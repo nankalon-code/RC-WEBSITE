@@ -64,6 +64,7 @@ export default function RobotIntro() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="relative w-full max-w-[340px] px-8 py-10 rounded-3xl border border-white/20 bg-black/95 backdrop-blur-3xl text-center shadow-[0_0_50px_rgba(255,255,255,0.06),_inset_0_0_20px_rgba(255,255,255,0.03)] flex flex-col items-center gap-8 glass-card"
             style={{
+              background: 'rgba(10, 10, 10, 0.95)',
               boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255,255,255,0.08), inset 0 0 1px rgba(255,255,255,0.25)'
             }}
           >
