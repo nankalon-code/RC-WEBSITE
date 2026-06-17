@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Bell, Menu, X, UserCircle2 } from 'lucide-react';
+import { Settings, Bell, Menu, X } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { apiFetch } from '../utils/api';
 
@@ -117,41 +117,39 @@ export default function Navbar() {
             </AnimatePresence>
           </div>
 
-          {/* Join / Account */}
+          {/* Account / Sign In */}
           {isAuthenticated ? (
             <div className="rc-notif-wrap">
               <button
                 onClick={() => setDropdownOpen(!isDropdownOpen)}
-                className="rc-btn-join flex items-center gap-2"
+                className="rc-btn-join"
               >
-                <UserCircle2 size={15} />
-                <span>Account</span>
+                Account
               </button>
               <AnimatePresence>
                 {isDropdownOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
+                    exit={{ opacity: 0, y: 8 }}
+                    transition={{ duration: 0.15 }}
                     className="rc-dropdown"
                   >
-                    {/* User identity header */}
-                    <div className="px-4 py-3 border-b border-var">
-                      <p className="text-xs font-bold text-primary-var truncate">{user?.email}</p>
-                      <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-0.5 font-bold">{user?.role}</p>
-                    </div>
                     {user?.role === 'admin' ? (
                       <>
-                        <div className="px-4 pt-2 pb-1 text-[9px] font-bold text-red-500 uppercase tracking-widest">Admin Control</div>
-                        <Link to="/dashboard/admin" onClick={() => setDropdownOpen(false)} className="rc-dropdown-item rc-dropdown-link font-bold" style={{color: 'var(--color-accent, #e53e3e)'}}>Admin Panel</Link>
-                        <Link to="/dashboard/member" onClick={() => setDropdownOpen(false)} className="rc-dropdown-item rc-dropdown-link">Member View</Link>
-                        <Link to="/dashboard/user" onClick={() => setDropdownOpen(false)} className="rc-dropdown-item rc-dropdown-link">User View</Link>
-                        <div className="border-t border-var mt-1" />
+                        <div className="rc-dropdown-header">Admin Controls</div>
+                        <Link to="/dashboard/admin" onClick={() => setDropdownOpen(false)} className="rc-dropdown-link" style={{color:'#ff3b30',fontWeight:700}}>Admin Panel</Link>
+                        <Link to="/dashboard/member" onClick={() => setDropdownOpen(false)} className="rc-dropdown-link">Member View</Link>
+                        <Link to="/dashboard/user" onClick={() => setDropdownOpen(false)} className="rc-dropdown-link">User View</Link>
+                        <div style={{height:'1px',background:'rgba(255,255,255,0.08)',margin:'0'}} />
+                        <button onClick={() => { setDropdownOpen(false); handleLogout(); }} className="rc-dropdown-link">Sign Out</button>
                       </>
                     ) : (
-                      <Link to={`/dashboard/${user?.role}`} onClick={() => setDropdownOpen(false)} className="rc-dropdown-item rc-dropdown-link">Dashboard</Link>
+                      <>
+                        <Link to={`/dashboard/${user?.role}`} onClick={() => setDropdownOpen(false)} className="rc-dropdown-link">Dashboard</Link>
+                        <button onClick={() => { setDropdownOpen(false); handleLogout(); }} className="rc-dropdown-link">Sign Out</button>
+                      </>
                     )}
-                    <button onClick={() => { setDropdownOpen(false); handleLogout(); }} className="rc-dropdown-item rc-dropdown-link w-full text-left">Sign Out</button>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -190,7 +188,7 @@ export default function Navbar() {
               <>
                 {user?.role === 'admin' ? (
                   <>
-                    <Link to="/dashboard/admin" onClick={() => setMobileOpen(false)} className="rc-mobile-link text-red-500 font-bold">• Admin Panel</Link>
+                    <Link to="/dashboard/admin" onClick={() => setMobileOpen(false)} className="rc-mobile-link" style={{color:'#ff3b30',fontWeight:700}}>Admin Panel</Link>
                     <Link to="/dashboard/member" onClick={() => setMobileOpen(false)} className="rc-mobile-link">Member View</Link>
                     <Link to="/dashboard/user" onClick={() => setMobileOpen(false)} className="rc-mobile-link">User View</Link>
                   </>
