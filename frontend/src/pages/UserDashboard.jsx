@@ -5,10 +5,10 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { apiFetch } from '../utils/api';
 import { useAuthStore } from '../store/authStore';
-import { LayoutDashboard, Users, Activity, Bell, FileCode, Lightbulb } from 'lucide-react';
+import { LayoutDashboard, Users, Activity, Bell, FileCode, Lightbulb, User as UserIcon } from 'lucide-react';
 
 export default function UserDashboard() {
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, updateProfile } = useAuthStore();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Overview');
   const [teams, setTeams] = useState([]);
@@ -17,6 +17,15 @@ export default function UserDashboard() {
   const [myTeam, setMyTeam] = useState(null);
   const [myIdea, setMyIdea] = useState(null);
   const [progressForm, setProgressForm] = useState({ progress: 0, progress_description: '', github_repo: '' });
+  
+  const [profileForm, setProfileForm] = useState({
+    name: '',
+    student_id: '',
+    github_url: '',
+    linkedin_url: '',
+    phone: '',
+  });
+  const [profileStatus, setProfileStatus] = useState('');
   
   const [proposeForm, setProposeForm] = useState({
     title: '',
@@ -66,6 +75,30 @@ export default function UserDashboard() {
     alert('Progress updated successfully.');
   };
 
+  useEffect(() => {
+    if (user) {
+      setProfileForm({
+        name: user.name || '',
+        student_id: user.student_id || '',
+        github_url: user.github_url || '',
+        linkedin_url: user.linkedin_url || '',
+        phone: user.phone || '',
+      });
+    }
+  }, [user]);
+
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    setProfileStatus('Updating...');
+    try {
+      await updateProfile(profileForm);
+      setProfileStatus('Profile updated successfully!');
+      setTimeout(() => setProfileStatus(''), 4000);
+    } catch (err) {
+      setProfileStatus(err.message || 'Failed to update profile.');
+    }
+  };
+
   const handleProposeIdea = async (e) => {
     e.preventDefault();
     setProposeStatus('Submitting...');
@@ -86,6 +119,7 @@ export default function UserDashboard() {
 
   const tabs = [
     { name: 'Overview', icon: LayoutDashboard },
+    { name: 'My Profile', icon: UserIcon },
     { name: 'My Project', icon: FileCode },
     { name: 'Team', icon: Users },
     { name: 'Progress Log', icon: Activity },
@@ -122,6 +156,114 @@ export default function UserDashboard() {
 
   const renderContent = () => {
       switch(activeTab) {
+          case 'My Profile':
+              return (
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full animate-fadeIn">
+                      {/* Edit Profile Form */}
+                      <Card className="glass-card border-var p-6 lg:col-span-2">
+                          <h2 className="text-xl font-display font-bold mb-2 text-primary-var">Profile Details</h2>
+                          <p className="text-xs text-muted-var mb-6">Keep your contact and workspace details up to date.</p>
+                          <form onSubmit={handleUpdateProfile} className="space-y-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div className="space-y-1">
+                                      <label className="text-xs font-bold text-muted-var uppercase tracking-widest">Full Name</label>
+                                      <input
+                                          type="text"
+                                          required
+                                          value={profileForm.name}
+                                          onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                                          className="w-full bg-input-bg border border-var rounded-xl px-4 py-3 text-primary-var text-sm outline-none focus:border-accent"
+                                      />
+                                  </div>
+                                  <div className="space-y-1">
+                                      <label className="text-xs font-bold text-muted-var uppercase tracking-widest">Roll Number / Student ID</label>
+                                      <input
+                                          type="text"
+                                          value={profileForm.student_id}
+                                          onChange={(e) => setProfileForm({ ...profileForm, student_id: e.target.value })}
+                                          className="w-full bg-input-bg border border-var rounded-xl px-4 py-3 text-primary-var text-sm outline-none focus:border-accent"
+                                          placeholder="e.g. 2026CS101"
+                                      />
+                                  </div>
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div className="space-y-1">
+                                      <label className="text-xs font-bold text-muted-var uppercase tracking-widest">GitHub Profile URL</label>
+                                      <input
+                                          type="url"
+                                          value={profileForm.github_url}
+                                          onChange={(e) => setProfileForm({ ...profileForm, github_url: e.target.value })}
+                                          className="w-full bg-input-bg border border-var rounded-xl px-4 py-3 text-primary-var text-sm outline-none focus:border-accent"
+                                          placeholder="https://github.com/username"
+                                      />
+                                  </div>
+                                  <div className="space-y-1">
+                                      <label className="text-xs font-bold text-muted-var uppercase tracking-widest">LinkedIn Profile URL</label>
+                                      <input
+                                          type="url"
+                                          value={profileForm.linkedin_url}
+                                          onChange={(e) => setProfileForm({ ...profileForm, linkedin_url: e.target.value })}
+                                          className="w-full bg-input-bg border border-var rounded-xl px-4 py-3 text-primary-var text-sm outline-none focus:border-accent"
+                                          placeholder="https://linkedin.com/in/username"
+                                      />
+                                  </div>
+                              </div>
+                              <div className="space-y-1">
+                                  <label className="text-xs font-bold text-muted-var uppercase tracking-widest">Phone Number</label>
+                                  <input
+                                      type="tel"
+                                      value={profileForm.phone}
+                                      onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                                      className="w-full bg-input-bg border border-var rounded-xl px-4 py-3 text-primary-var text-sm outline-none focus:border-accent"
+                                      placeholder="e.g. +91 9876543210"
+                                  />
+                              </div>
+                              <div className="flex items-center justify-between pt-2">
+                                  <Button type="submit" variant="primary">Save Changes</Button>
+                                  {profileStatus && (
+                                      <span className={`text-sm font-bold ${profileStatus.includes('success') ? 'text-accent' : 'text-primary-var/60 animate-pulse'}`}>
+                                          {profileStatus}
+                                      </span>
+                                  )}
+                              </div>
+                          </form>
+                      </Card>
+
+                      {/* Team & Workspace Status */}
+                      <div className="space-y-6">
+                          <Card className="glass-card border-var p-6">
+                              <h3 className="text-muted-var text-xs uppercase tracking-widest mb-4 font-bold">Team Workspace</h3>
+                              {myTeam ? (
+                                  <div className="space-y-4">
+                                      <div>
+                                          <p className="text-[10px] text-muted-var uppercase tracking-wider font-bold">Team Name</p>
+                                          <p className="text-lg font-bold text-primary-var">{myTeam.team_name}</p>
+                                      </div>
+                                      <div>
+                                          <p className="text-[10px] text-muted-var uppercase tracking-wider font-bold mb-2">Team Members</p>
+                                          <div className="space-y-2">
+                                              {myTeam.members?.map((m) => (
+                                                  <div key={m.id} className="flex flex-col p-2.5 rounded-lg bg-input-bg border border-var">
+                                                      <span className="font-bold text-sm text-primary-var">{m.member_name}</span>
+                                                      <span className="text-xs text-muted-var">{m.member_email}</span>
+                                                      {m.member_roll_number && <span className="text-[10px] text-muted-var mt-0.5">Roll No: {m.member_roll_number}</span>}
+                                                  </div>
+                                              ))}
+                                          </div>
+                                      </div>
+                                  </div>
+                              ) : (
+                                  <div className="text-center py-6">
+                                      <p className="text-sm text-muted-var mb-4">You are not registered in any team yet.</p>
+                                      <Link to="/forum">
+                                          <Button variant="ghost" className="w-full text-xs">Join Forum & Find a Team</Button>
+                                      </Link>
+                                  </div>
+                              )}
+                          </Card>
+                      </div>
+                  </div>
+              );
           case 'My Project':
               if (!myIdea || !myTeam) {
                   return (
@@ -266,20 +408,76 @@ export default function UserDashboard() {
           case 'Overview':
           default:
               return (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fadeIn">
                       <Card className="glass-card border-var p-6">
-                          <h3 className="text-muted-var text-sm uppercase tracking-widest mb-2 font-bold">Team</h3>
+                          <h3 className="text-muted-var text-xs uppercase tracking-widest mb-2 font-bold">Team</h3>
                           <p className="text-3xl font-display font-bold text-primary-var mb-2">{myTeam ? myTeam.team_name : 'No Team'}</p>
                           <p className="text-xs text-muted-var">Registered Team Name</p>
                       </Card>
                       <Card className="glass-card border-var p-6">
-                          <h3 className="text-muted-var text-sm uppercase tracking-widest mb-2 font-bold">Progress</h3>
+                          <h3 className="text-muted-var text-xs uppercase tracking-widest mb-2 font-bold">Progress</h3>
                           <p className="text-3xl font-display font-bold text-accent mb-2">{myTeam ? `${myTeam.progress}%` : '0%'}</p>
                           <p className="text-xs text-muted-var">Project Completion</p>
                       </Card>
-                      <Card className="glass-card border-var p-6 md:col-span-2 flex flex-col justify-center items-center text-center py-12">
-                          <h2 className="text-2xl font-display font-bold text-primary-var mb-4">Welcome to your dashboard</h2>
-                          <p className="text-muted-var max-w-md">Use the sidebar to view your project details, manage your team, and track your progress.</p>
+                      
+                      {/* Profile Summary Card */}
+                      <Card className="glass-card border-var p-6 flex flex-col justify-between">
+                          <div>
+                              <h3 className="text-muted-var text-xs uppercase tracking-widest mb-4 font-bold">Your Profile</h3>
+                              <div className="space-y-3">
+                                  <div>
+                                      <p className="text-[10px] text-muted-var uppercase tracking-wider font-bold">Name</p>
+                                      <p className="text-base font-bold text-primary-var">{user.name}</p>
+                                  </div>
+                                  <div>
+                                      <p className="text-[10px] text-muted-var uppercase tracking-wider font-bold">Roll Number / Student ID</p>
+                                      <p className="text-sm text-primary-var font-mono">{user.student_id || 'Not set'}</p>
+                                  </div>
+                                  {user.github_url && (
+                                      <div>
+                                          <p className="text-[10px] text-muted-var uppercase tracking-wider font-bold">GitHub</p>
+                                          <a href={user.github_url} target="_blank" rel="noopener noreferrer" className="text-xs text-accent hover:underline truncate block">
+                                              {user.github_url}
+                                          </a>
+                                      </div>
+                                  )}
+                                  {user.linkedin_url && (
+                                      <div>
+                                          <p className="text-[10px] text-muted-var uppercase tracking-wider font-bold">LinkedIn</p>
+                                          <a href={user.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-xs text-accent hover:underline truncate block">
+                                              {user.linkedin_url}
+                                          </a>
+                                      </div>
+                                  )}
+                              </div>
+                          </div>
+                          <button onClick={() => setActiveTab('My Profile')} className="text-left text-xs font-bold text-accent hover:underline mt-6">
+                              Edit Profile Details →
+                          </button>
+                      </Card>
+
+                      {/* Team Members Card */}
+                      <Card className="glass-card border-var p-6">
+                          <h3 className="text-muted-var text-xs uppercase tracking-widest mb-4 font-bold">Team Members</h3>
+                          {myTeam ? (
+                              <div className="space-y-3">
+                                  {myTeam.members?.map((m) => (
+                                      <div key={m.id} className="flex items-center justify-between p-2 rounded-lg bg-input-bg border border-var">
+                                          <div>
+                                              <p className="font-bold text-xs text-primary-var">{m.member_name}</p>
+                                              <p className="text-[10px] text-muted-var">{m.member_email}</p>
+                                          </div>
+                                          {m.member_roll_number && (
+                                              <span className="text-[9px] font-mono text-muted-var bg-surface-var px-1.5 py-0.5 rounded border border-var">
+                                                  {m.member_roll_number}
+                                              </span>
+                                          )}
+                                      </div>
+                                  ))}
+                              </div>
+                          ) : (
+                              <p className="text-xs text-muted-var">No team registered yet. Lock a project in the forum to register a team.</p>
+                          )}
                       </Card>
                   </div>
               );

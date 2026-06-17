@@ -167,18 +167,50 @@ function OverviewTab() {
 function UsersTab({ currentUser }) {
   const [users, setUsers] = useState([]);
   const [page, setPage] = useState(1);
+  const [editingUserId, setEditingUserId] = useState(null);
+  const [editForm, setEditForm] = useState({
+    name: '',
+    role: '',
+    position: '',
+    student_id: '',
+    github_url: '',
+    linkedin_url: '',
+    phone: '',
+  });
+  const [saveStatus, setSaveStatus] = useState('');
   const itemsPerPage = 10;
 
   useEffect(() => {
     apiFetch('/admin/users').then(setUsers).catch(() => {});
   }, []);
 
-  const changeRole = async (userId, newRole) => {
+  const startEditing = (u) => {
+    setEditingUserId(u.id);
+    setEditForm({
+      name: u.name || '',
+      role: u.role || 'user',
+      position: u.position || '',
+      student_id: u.student_id || '',
+      github_url: u.github_url || '',
+      linkedin_url: u.linkedin_url || '',
+      phone: u.phone || '',
+    });
+    setSaveStatus('');
+  };
+
+  const saveUserProfile = async (userId) => {
+    setSaveStatus('Saving...');
     try {
-      await apiFetch(`/admin/users/${userId}/role?role=${newRole}`, { method: 'PUT' });
-      setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u)));
+      const updatedUser = await apiFetch(`/admin/users/${userId}/profile`, {
+        method: 'PUT',
+        body: JSON.stringify(editForm),
+      });
+      setUsers((prev) => prev.map((u) => (u.id === userId ? updatedUser : u)));
+      setEditingUserId(null);
+      setSaveStatus('');
     } catch (err) {
-      alert(err.message);
+      alert(err.message || 'Failed to save profile changes.');
+      setSaveStatus('');
     }
   };
 
@@ -196,11 +228,12 @@ function UsersTab({ currentUser }) {
   const paginatedUsers = users.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   return (
-    <div className="rc-admin-card">
+    <div className="rc-admin-card animate-fadeIn">
       <h2 className="rc-admin-card-title">All Users</h2>
-      {!isSuperAdmin && (
-        <p className="rc-admin-card-desc mb-4">Only the primary admin can grant admin access to others.</p>
-      )}
+      <p className="rc-admin-card-desc mb-4">
+        Assign roles, position titles, verify credentials, and manage account statuses.
+        {!isSuperAdmin && " Only the primary admin can grant admin access."}
+      </p>
       <div className="overflow-x-auto">
         <table className="rc-admin-table">
           <thead>
@@ -208,38 +241,126 @@ function UsersTab({ currentUser }) {
               <th>Name</th>
               <th>Email</th>
               <th>Role</th>
+              <th>Position</th>
+              <th>Details</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {paginatedUsers.map((u) => (
-              <tr key={u.id}>
-                <td className="font-bold text-black">{u.name}</td>
-                <td className="text-gray-500">{u.email}</td>
-                <td>
-                  <span className={`rc-pill-badge ${u.role === 'admin' ? 'admin' : u.role === 'member' ? 'member' : 'user'}`}>
-                    {u.role}
-                  </span>
-                </td>
-                <td>
-                  <button onClick={() => toggleActive(u.id)} className={`rc-status-toggle-btn ${u.is_active ? 'active' : 'inactive'}`}>
-                    {u.is_active ? 'Active' : 'Deactivated'}
-                  </button>
-                </td>
-                <td>
-                  <select
-                    value={u.role}
-                    onChange={(e) => changeRole(u.id, e.target.value)}
-                    className="rc-admin-select"
-                  >
-                    <option value="user">User</option>
-                    <option value="member">Member</option>
-                    {isSuperAdmin && <option value="admin">Admin</option>}
-                  </select>
-                </td>
-              </tr>
-            ))}
+            {paginatedUsers.map((u) => {
+              const isEditing = editingUserId === u.id;
+              return (
+                <tr key={u.id}>
+                  <td className="font-bold text-black">
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={editForm.name}
+                        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                        className="rc-admin-input py-1 px-2 text-xs"
+                      />
+                    ) : (
+                      u.name
+                    )}
+                  </td>
+                  <td className="text-gray-500">{u.email}</td>
+                  <td>
+                    {isEditing ? (
+                      <select
+                        value={editForm.role}
+                        onChange={(e) => setEditForm({ ...editForm, role: e.target.value })}
+                        className="rc-admin-select text-xs py-1"
+                      >
+                        <option value="user">User</option>
+                        <option value="member">Member</option>
+                        {isSuperAdmin && <option value="admin">Admin</option>}
+                      </select>
+                    ) : (
+                      <span className={`rc-pill-badge ${u.role === 'admin' ? 'admin' : u.role === 'member' ? 'member' : 'user'}`}>
+                        {u.role}
+                      </span>
+                    )}
+                  </td>
+                  <td>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={editForm.position}
+                        onChange={(e) => setEditForm({ ...editForm, position: e.target.value })}
+                        placeholder="Position (e.g. IoT Lead)"
+                        className="rc-admin-input py-1 px-2 text-xs"
+                      />
+                    ) : (
+                      <span className="text-xs text-gray-700 font-mono">{u.position || '—'}</span>
+                    )}
+                  </td>
+                  <td>
+                    {isEditing ? (
+                      <div className="space-y-1.5 py-1">
+                        <input
+                          type="text"
+                          value={editForm.student_id}
+                          onChange={(e) => setEditForm({ ...editForm, student_id: e.target.value })}
+                          placeholder="Roll No"
+                          className="rc-admin-input py-1 px-2 text-[11px]"
+                        />
+                        <input
+                          type="text"
+                          value={editForm.github_url}
+                          onChange={(e) => setEditForm({ ...editForm, github_url: e.target.value })}
+                          placeholder="GitHub Link"
+                          className="rc-admin-input py-1 px-2 text-[11px]"
+                        />
+                        <input
+                          type="text"
+                          value={editForm.linkedin_url}
+                          onChange={(e) => setEditForm({ ...editForm, linkedin_url: e.target.value })}
+                          placeholder="LinkedIn Link"
+                          className="rc-admin-input py-1 px-2 text-[11px]"
+                        />
+                      </div>
+                    ) : (
+                      <div className="text-xs space-y-0.5">
+                        {u.student_id && <p><span className="text-[10px] text-gray-400 uppercase font-bold">Roll:</span> {u.student_id}</p>}
+                        {u.github_url && <p><a href={u.github_url} target="_blank" rel="noreferrer" className="text-red-500 hover:underline">GitHub</a></p>}
+                        {u.linkedin_url && <p><a href={u.linkedin_url} target="_blank" rel="noreferrer" className="text-red-500 hover:underline">LinkedIn</a></p>}
+                      </div>
+                    )}
+                  </td>
+                  <td>
+                    <button onClick={() => toggleActive(u.id)} className={`rc-status-toggle-btn ${u.is_active ? 'active' : 'inactive'}`}>
+                      {u.is_active ? 'Active' : 'Deactivated'}
+                    </button>
+                  </td>
+                  <td>
+                    {isEditing ? (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => saveUserProfile(u.id)}
+                          className="px-2 py-1 bg-red-500 text-white rounded text-[11px] font-bold uppercase tracking-wider"
+                        >
+                          {saveStatus || 'Save'}
+                        </button>
+                        <button
+                          onClick={() => setEditingUserId(null)}
+                          className="px-2 py-1 bg-gray-200 text-gray-700 rounded text-[11px] font-bold uppercase tracking-wider"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => startEditing(u)}
+                        className="px-2 py-1 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white rounded text-[11px] font-bold uppercase tracking-wider transition-colors"
+                      >
+                        Edit Profile
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

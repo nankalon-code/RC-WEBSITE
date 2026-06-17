@@ -36,6 +36,16 @@ export const useAuthStore = create((set, get) => ({
     return data.user;
   },
 
+  updateProfile: async (profileData) => {
+    const data = await apiFetch('/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify(profileData),
+    });
+    localStorage.setItem('rc_user', JSON.stringify(data));
+    set({ user: data });
+    return data;
+  },
+
   logout: () => {
     localStorage.removeItem('rc_token');
     localStorage.removeItem('rc_user');

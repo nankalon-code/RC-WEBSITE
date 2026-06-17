@@ -12,6 +12,8 @@ class UserCreate(BaseModel):
     password: str
     name: str
     github_url: Optional[str] = None
+    linkedin_url: Optional[str] = None
+    position: Optional[str] = None
     student_id: Optional[str] = None
     phone: Optional[str] = None
 
@@ -27,6 +29,8 @@ class UserOut(BaseModel):
     name: str
     role: str
     github_url: Optional[str] = None
+    linkedin_url: Optional[str] = None
+    position: Optional[str] = None
     avatar_url: Optional[str] = None
     student_id: Optional[str] = None
     phone: Optional[str] = None
@@ -35,6 +39,24 @@ class UserOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class UserUpdate(BaseModel):
+    name: Optional[str] = None
+    student_id: Optional[str] = None
+    github_url: Optional[str] = None
+    linkedin_url: Optional[str] = None
+    phone: Optional[str] = None
+
+
+class UserAdminUpdate(BaseModel):
+    name: Optional[str] = None
+    role: Optional[str] = None
+    position: Optional[str] = None
+    student_id: Optional[str] = None
+    github_url: Optional[str] = None
+    linkedin_url: Optional[str] = None
+    phone: Optional[str] = None
 
 
 class Token(BaseModel):

@@ -134,31 +134,26 @@ export default function Navbar() {
                     exit={{ opacity: 0, y: 10 }}
                     className="rc-dropdown"
                   >
-                    <Link to={`/dashboard/${user?.role}`} onClick={() => setDropdownOpen(false)} className="rc-dropdown-item rc-dropdown-link">Dashboard</Link>
+                    {user?.role === 'admin' ? (
+                      <>
+                        <div className="px-4 py-1.5 text-[9px] font-bold text-red-500 uppercase tracking-widest border-b border-var mb-1">Admin Control</div>
+                        <Link to="/dashboard/admin" onClick={() => setDropdownOpen(false)} className="rc-dropdown-item rc-dropdown-link text-red-500 font-bold">• Admin Panel</Link>
+                        <Link to="/dashboard/member" onClick={() => setDropdownOpen(false)} className="rc-dropdown-item rc-dropdown-link">Member View</Link>
+                        <Link to="/dashboard/user" onClick={() => setDropdownOpen(false)} className="rc-dropdown-item rc-dropdown-link">User View</Link>
+                        <div className="border-t border-var my-1" />
+                      </>
+                    ) : (
+                      <Link to={`/dashboard/${user?.role}`} onClick={() => setDropdownOpen(false)} className="rc-dropdown-item rc-dropdown-link">Dashboard</Link>
+                    )}
                     <button onClick={() => { setDropdownOpen(false); handleLogout(); }} className="rc-dropdown-item rc-dropdown-link">Sign Out</button>
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
           ) : (
-            <div className="rc-notif-wrap">
-              <button onClick={() => setDropdownOpen(!isDropdownOpen)} className="rc-btn-join">
-                Join
-              </button>
-              <AnimatePresence>
-                {isDropdownOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="rc-dropdown"
-                  >
-                    <Link to="/login" onClick={() => setDropdownOpen(false)} className="rc-dropdown-item rc-dropdown-link">Join Club</Link>
-                    <Link to="/forum" onClick={() => setDropdownOpen(false)} className="rc-dropdown-item rc-dropdown-link">Join Forum</Link>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+            <Link to="/login" className="rc-btn-join">
+              Sign In
+            </Link>
           )}
 
           {/* Mobile toggle */}
@@ -187,7 +182,15 @@ export default function Navbar() {
             <Link to="/resources" onClick={() => setMobileOpen(false)} className="rc-mobile-link">Resources</Link>
             {isAuthenticated ? (
               <>
-                <Link to={`/dashboard/${user?.role}`} onClick={() => setMobileOpen(false)} className="rc-mobile-link">Dashboard</Link>
+                {user?.role === 'admin' ? (
+                  <>
+                    <Link to="/dashboard/admin" onClick={() => setMobileOpen(false)} className="rc-mobile-link text-red-500 font-bold">• Admin Panel</Link>
+                    <Link to="/dashboard/member" onClick={() => setMobileOpen(false)} className="rc-mobile-link">Member View</Link>
+                    <Link to="/dashboard/user" onClick={() => setMobileOpen(false)} className="rc-mobile-link">User View</Link>
+                  </>
+                ) : (
+                  <Link to={`/dashboard/${user?.role}`} onClick={() => setMobileOpen(false)} className="rc-mobile-link">Dashboard</Link>
+                )}
                 <button onClick={() => { setMobileOpen(false); handleLogout(); }} className="rc-mobile-link">Sign Out</button>
               </>
             ) : (
