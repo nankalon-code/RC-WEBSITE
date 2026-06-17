@@ -13,6 +13,8 @@ class User(Base):
     name = Column(String, nullable=False)
     role = Column(String, default="user")          # admin | member | user
     github_url = Column(String, nullable=True)
+    linkedin_url = Column(String, nullable=True)
+    position = Column(String, default="Core Member", nullable=True)
     avatar_url = Column(String, nullable=True)
     student_id = Column(String, nullable=True)
     phone = Column(String, nullable=True)

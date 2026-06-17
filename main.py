@@ -22,7 +22,7 @@ from auth import (
 )
 from email_service import (
     send_registration_email, send_announcement_email, send_contact_email,
-    send_welcome_user_email, send_member_promotion_email
+    send_welcome_user_email, send_member_promotion_email, send_position_assignment_email
 )
 from seed_data import SEED_IDEAS
 
@@ -74,6 +74,31 @@ def seed_db():
         logger.info("Column 'project_name' not found in 'achievements' table. Recreating 'achievements' table...")
         models.Achievement.__table__.drop(bind=engine, checkfirst=True)
         models.Achievement.__table__.create(bind=engine, checkfirst=True)
+
+    # Self-healing migrations for users columns (linkedin_url and position)
+    try:
+        db.execute("SELECT linkedin_url FROM users LIMIT 1")
+    except Exception:
+        db.rollback()
+        logger.info("Column 'linkedin_url' not found in 'users' table. Adding column...")
+        try:
+            db.execute("ALTER TABLE users ADD COLUMN linkedin_url VARCHAR")
+            db.commit()
+        except Exception as e_alt:
+            logger.error(f"Failed to add column linkedin_url: {e_alt}")
+            db.rollback()
+
+    try:
+        db.execute("SELECT position FROM users LIMIT 1")
+    except Exception:
+        db.rollback()
+        logger.info("Column 'position' not found in 'users' table. Adding column...")
+        try:
+            db.execute("ALTER TABLE users ADD COLUMN position VARCHAR")
+            db.commit()
+        except Exception as e_alt2:
+            logger.error(f"Failed to add column position: {e_alt2}")
+            db.rollback()
 
     # Admin Seeding / Syncing from Environment Variables
     admin_email = os.environ.get("ADMIN_EMAIL", "admin@robotics.club")
@@ -269,6 +294,8 @@ def register(request: Request, response: Response, data: schemas.UserCreate, bac
         name=data.name,
         role="user",
         github_url=data.github_url,
+        linkedin_url=data.linkedin_url,
+        position=data.position or "User",
         student_id=data.student_id,
         phone=data.phone,
     )
@@ -321,6 +348,23 @@ def get_me(current_user: models.User = Depends(get_current_user)):
     return current_user
 
 
+@api.put("/auth/profile", response_model=schemas.UserOut)
+def update_profile(data: schemas.UserUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    if data.name is not None:
+        current_user.name = data.name
+    if data.student_id is not None:
+        current_user.student_id = data.student_id
+    if data.github_url is not None:
+        current_user.github_url = data.github_url
+    if data.linkedin_url is not None:
+        current_user.linkedin_url = data.linkedin_url
+    if data.phone is not None:
+        current_user.phone = data.phone
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
+
 @api.post("/auth/create-member", response_model=schemas.UserOut)
 def create_member(data: schemas.CreateMemberRequest, db: Session = Depends(get_db), admin: models.User = Depends(require_admin)):
     if db.query(models.User).filter(models.User.email == data.email).first():
@@ -361,6 +405,48 @@ def update_user_role(user_id: int, role: str, background_tasks: BackgroundTasks,
     if role == "member" and old_role != "member":
         background_tasks.add_task(send_member_promotion_email, user.email, user.name)
     return {"status": "ok", "user_id": user_id, "new_role": role}
+
+
+@api.put("/admin/users/{user_id}/profile", response_model=schemas.UserOut)
+def admin_update_user_profile(user_id: int, data: schemas.UserAdminUpdate, background_tasks: BackgroundTasks, db: Session = Depends(get_db), admin: models.User = Depends(require_admin)):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if data.role is not None:
+        if data.role not in ("admin", "member", "user"):
+            raise HTTPException(status_code=400, detail="Invalid role")
+        if data.role == "admin" and admin.id != 1:
+            raise HTTPException(status_code=403, detail="Only the primary admin can grant admin access.")
+        old_role = user.role
+        user.role = data.role
+        if data.role == "member" and old_role != "member":
+            background_tasks.add_task(send_member_promotion_email, user.email, user.name)
+
+    if data.name is not None:
+        user.name = data.name
+
+    position_changed = False
+    if data.position is not None and data.position != user.position:
+        position_changed = True
+        user.position = data.position
+
+    if data.student_id is not None:
+        user.student_id = data.student_id
+    if data.github_url is not None:
+        user.github_url = data.github_url
+    if data.linkedin_url is not None:
+        user.linkedin_url = data.linkedin_url
+    if data.phone is not None:
+        user.phone = data.phone
+        
+    db.commit()
+    db.refresh(user)
+
+    if position_changed and user.position:
+        background_tasks.add_task(send_position_assignment_email, user.email, user.name, user.position)
+
+    return user
 
 
 @api.put("/admin/users/{user_id}/toggle-active")

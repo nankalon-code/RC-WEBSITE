@@ -225,6 +225,32 @@ def send_member_promotion_email(to_email: str, name: str):
     send_email([to_email], subject, body)
 
 
+def send_position_assignment_email(to_email: str, name: str, position: str):
+    subject = f"Robotics Club — New Position Assigned: {position}"
+    body = f"""
+    <div style="font-family:sans-serif;padding:32px;background:#0a0a0f;color:#e0e0e0;max-width:600px;margin:auto;border-radius:12px;border:1px solid #1f2937;">
+      <div style="border-bottom:1px solid #222;padding-bottom:16px;margin-bottom:24px;">
+        <h1 style="color:#00d4ff;font-size:24px;margin:0;">New Duty Assigned! 🚀</h1>
+      </div>
+      <p>Hello {name},</p>
+      <p>We are excited to inform you that you have been assigned a new position/duty in the Robotics Club:</p>
+      
+      <div style="background:#0d1a1f;border:1px solid #00d4ff22;border-radius:8px;padding:20px;margin:20px 0;">
+        <p style="color:#00d4ff;font-size:18px;margin:0 0 8px;font-weight:bold;">{position}</p>
+        <p style="color:#aaa;font-size:14px;margin:0;line-height:1.6;">
+          Your leadership and contribution in this role will help drive our upcoming robotics projects and lab initiatives.
+        </p>
+      </div>
+      
+      <p>Log in to your dashboard to check your status and get started on your responsibilities!</p>
+
+      <hr style="border-color:#1a1a1a;margin:24px 0;">
+      <p style="color:#555;font-size:12px;margin:0;">Robotics Club Platform — Automated Role Assignment.</p>
+    </div>
+    """
+    send_email([to_email], subject, body)
+
+
 def send_announcement_email(to_emails: list[str], title: str, message: str):
     subject = f"Robotics Club — {title}"
     body = f"""
