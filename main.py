@@ -422,6 +422,8 @@ def admin_update_user_profile(user_id: int, data: schemas.UserAdminUpdate, backg
         user.role = data.role
         if data.role == "member" and old_role != "member":
             background_tasks.add_task(send_member_promotion_email, user.email, user.name)
+        elif data.role == "admin" and old_role != "admin":
+            background_tasks.add_task(send_member_promotion_email, user.email, user.name)
 
     if data.name is not None:
         user.name = data.name

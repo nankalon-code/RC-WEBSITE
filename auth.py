@@ -17,7 +17,7 @@ if not SECRET_KEY:
                        "Copy .env.example to .env and fill in a strong secret.")
 
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 15          # Short-lived access token
+ACCESS_TOKEN_EXPIRE_MINUTES = 60          # Access token (1 hour)
 REFRESH_TOKEN_EXPIRE_DAYS = 7             # Long-lived refresh token
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
