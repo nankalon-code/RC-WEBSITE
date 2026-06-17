@@ -10,6 +10,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 
 import models, schemas
 from database import engine, get_db, Base
@@ -66,39 +67,64 @@ api = APIRouter(prefix="/api/v1")
 def seed_db():
     db = next(get_db())
 
-    # Self-healing migrations for achievements and gallery
-    try:
-        db.execute("SELECT project_name FROM achievements LIMIT 1")
-    except Exception:
-        db.rollback()
-        logger.info("Column 'project_name' not found in 'achievements' table. Recreating 'achievements' table...")
-        models.Achievement.__table__.drop(bind=engine, checkfirst=True)
-        models.Achievement.__table__.create(bind=engine, checkfirst=True)
-
-    # Self-healing migrations for users columns (linkedin_url and position)
-    try:
-        db.execute("SELECT linkedin_url FROM users LIMIT 1")
-    except Exception:
-        db.rollback()
-        logger.info("Column 'linkedin_url' not found in 'users' table. Adding column...")
+    # ── Universal self-healing migration helper ─────────────────
+    def add_column_if_missing(table: str, column: str, col_type: str):
+        """Works with both PostgreSQL (Neon) and SQLite."""
         try:
-            db.execute("ALTER TABLE users ADD COLUMN linkedin_url VARCHAR")
-            db.commit()
-        except Exception as e_alt:
-            logger.error(f"Failed to add column linkedin_url: {e_alt}")
+            # Use information_schema for PostgreSQL; fallback for SQLite
+            is_pg = engine.dialect.name == "postgresql"
+            if is_pg:
+                exists = db.execute(text(
+                    "SELECT 1 FROM information_schema.columns "
+                    "WHERE table_name=:t AND column_name=:c"
+                ), {"t": table, "c": column}).fetchone()
+                if not exists:
+                    db.execute(text(f'ALTER TABLE {table} ADD COLUMN {column} {col_type}'))
+                    db.commit()
+                    logger.info(f"[MIGRATION] Added column '{column}' to '{table}'")
+            else:
+                # SQLite: try SELECT, catch on missing column
+                try:
+                    db.execute(text(f"SELECT {column} FROM {table} LIMIT 1"))
+                except Exception:
+                    db.rollback()
+                    db.execute(text(f'ALTER TABLE {table} ADD COLUMN {column} {col_type}'))
+                    db.commit()
+                    logger.info(f"[MIGRATION] Added column '{column}' to '{table}' (SQLite)")
+        except Exception as e:
             db.rollback()
+            logger.error(f"[MIGRATION ERROR] {table}.{column}: {e}")
 
+    # Run all pending column migrations
+    add_column_if_missing("users", "linkedin_url", "VARCHAR")
+    add_column_if_missing("users", "position", "VARCHAR")
+    add_column_if_missing("users", "avatar_url", "VARCHAR")
+    add_column_if_missing("users", "student_id", "VARCHAR")
+    add_column_if_missing("users", "phone", "VARCHAR")
+    add_column_if_missing("users", "is_active", "BOOLEAN DEFAULT TRUE")
+
+    # Achievements table: recreate if project_name is missing
     try:
-        db.execute("SELECT position FROM users LIMIT 1")
-    except Exception:
+        is_pg = engine.dialect.name == "postgresql"
+        if is_pg:
+            exists = db.execute(text(
+                "SELECT 1 FROM information_schema.columns "
+                "WHERE table_name='achievements' AND column_name='project_name'"
+            )).fetchone()
+            if not exists:
+                models.Achievement.__table__.drop(bind=engine, checkfirst=True)
+                models.Achievement.__table__.create(bind=engine, checkfirst=True)
+                logger.info("[MIGRATION] Recreated achievements table")
+        else:
+            try:
+                db.execute(text("SELECT project_name FROM achievements LIMIT 1"))
+            except Exception:
+                db.rollback()
+                models.Achievement.__table__.drop(bind=engine, checkfirst=True)
+                models.Achievement.__table__.create(bind=engine, checkfirst=True)
+    except Exception as e:
         db.rollback()
-        logger.info("Column 'position' not found in 'users' table. Adding column...")
-        try:
-            db.execute("ALTER TABLE users ADD COLUMN position VARCHAR")
-            db.commit()
-        except Exception as e_alt2:
-            logger.error(f"Failed to add column position: {e_alt2}")
-            db.rollback()
+        logger.error(f"[MIGRATION ERROR] achievements table: {e}")
 
     # Admin Seeding / Syncing from Environment Variables
     admin_email = os.environ.get("ADMIN_EMAIL", "admin@robotics.club")
