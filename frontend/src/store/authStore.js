@@ -10,7 +10,12 @@ export const useAuthStore = create((set, get) => ({
     const token = localStorage.getItem('rc_token');
     const user = localStorage.getItem('rc_user');
     if (token && user) {
-      set({ token, user: JSON.parse(user), isAuthenticated: true });
+      try {
+        set({ token, user: JSON.parse(user), isAuthenticated: true });
+      } catch {
+        localStorage.removeItem('rc_token');
+        localStorage.removeItem('rc_user');
+      }
     }
   },
 
@@ -47,6 +52,8 @@ export const useAuthStore = create((set, get) => ({
   },
 
   logout: () => {
+    // Tell the backend to clear the httpOnly cookie
+    apiFetch('/auth/logout', { method: 'POST' }).catch(() => {});
     localStorage.removeItem('rc_token');
     localStorage.removeItem('rc_user');
     set({ user: null, token: null, isAuthenticated: false });

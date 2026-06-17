@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Bell, Menu, X } from 'lucide-react';
+import { Bell, Menu, X } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { apiFetch } from '../utils/api';
 
@@ -15,7 +15,12 @@ export default function Navbar() {
   const { user, isAuthenticated, logout, init } = useAuthStore();
   const navigate = useNavigate();
 
+  // Refs for click-outside detection
+  const notifRef = useRef(null);
+  const accountRef = useRef(null);
+
   useEffect(() => { init(); }, [init]);
+
   useEffect(() => {
     apiFetch('/announcements').then((d) => {
       const sliced = d.slice(0, 5);
@@ -28,10 +33,25 @@ export default function Navbar() {
       }
     }).catch(() => {});
   }, []);
+
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', h);
     return () => window.removeEventListener('scroll', h);
+  }, []);
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setNotificationsOpen(false);
+      }
+      if (accountRef.current && !accountRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, []);
 
   const handleLogout = () => { logout(); navigate('/'); };
@@ -43,6 +63,12 @@ export default function Navbar() {
       navigate('/', { state: { scrollToSection: id } });
     }
     setMobileOpen(false);
+  };
+
+  const dropdownVariants = {
+    hidden: { opacity: 0, y: 6, scale: 0.97 },
+    visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.18, ease: [0.16, 1, 0.3, 1] } },
+    exit:    { opacity: 0, y: 4, scale: 0.97, transition: { duration: 0.12 } },
   };
 
   return (
@@ -70,22 +96,20 @@ export default function Navbar() {
 
         {/* Right controls */}
         <div className="rc-nav-controls">
-          {/* Settings icon */}
-          <button className="rc-icon-btn" title="Settings">
-            <Settings size={14} />
-          </button>
 
           {/* Notifications */}
-          <div className="rc-notif-wrap">
+          <div className="rc-notif-wrap" ref={notifRef}>
             <button
               className="rc-icon-btn rc-notif-btn"
               onClick={() => {
                 setNotificationsOpen(!isNotificationsOpen);
+                setDropdownOpen(false);
                 if (!isNotificationsOpen) {
                   localStorage.setItem('lastCheckedNotifications', new Date().toISOString());
                   setHasNew(false);
                 }
               }}
+              aria-label="Notifications"
             >
               <Bell size={14} />
               {hasNew && <span className="rc-notif-dot" />}
@@ -93,10 +117,10 @@ export default function Navbar() {
             <AnimatePresence>
               {isNotificationsOpen && (
                 <motion.div
-                  initial={{ opacity: 0, y: 10, scale: 0.96 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.96 }}
-                  transition={{ duration: 0.2 }}
+                  variants={dropdownVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
                   className="rc-dropdown"
                 >
                   <div className="rc-dropdown-header">Notifications</div>
@@ -119,9 +143,9 @@ export default function Navbar() {
 
           {/* Account / Sign In */}
           {isAuthenticated ? (
-            <div className="rc-notif-wrap">
+            <div className="rc-notif-wrap" ref={accountRef}>
               <button
-                onClick={() => setDropdownOpen(!isDropdownOpen)}
+                onClick={() => { setDropdownOpen(!isDropdownOpen); setNotificationsOpen(false); }}
                 className="rc-btn-join"
               >
                 Account
@@ -129,19 +153,19 @@ export default function Navbar() {
               <AnimatePresence>
                 {isDropdownOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 8 }}
-                    transition={{ duration: 0.15 }}
+                    variants={dropdownVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
                     className="rc-dropdown"
                   >
                     {user?.role === 'admin' ? (
                       <>
                         <div className="rc-dropdown-header">Admin Controls</div>
-                        <Link to="/dashboard/admin" onClick={() => setDropdownOpen(false)} className="rc-dropdown-link" style={{color:'#ff3b30',fontWeight:700}}>Admin Panel</Link>
+                        <Link to="/dashboard/admin" onClick={() => setDropdownOpen(false)} className="rc-dropdown-link" style={{color:'#ff3b30', fontWeight: 700}}>Admin Panel</Link>
                         <Link to="/dashboard/member" onClick={() => setDropdownOpen(false)} className="rc-dropdown-link">Member View</Link>
                         <Link to="/dashboard/user" onClick={() => setDropdownOpen(false)} className="rc-dropdown-link">User View</Link>
-                        <div style={{height:'1px',background:'rgba(255,255,255,0.08)',margin:'0'}} />
+                        <div style={{height:'1px', background:'rgba(255,255,255,0.08)'}} />
                         <button onClick={() => { setDropdownOpen(false); handleLogout(); }} className="rc-dropdown-link">Sign Out</button>
                       </>
                     ) : (
@@ -155,13 +179,11 @@ export default function Navbar() {
               </AnimatePresence>
             </div>
           ) : (
-            <Link to="/login" className="rc-btn-join">
-              Sign In
-            </Link>
+            <Link to="/login" className="rc-btn-join">Sign In</Link>
           )}
 
           {/* Mobile toggle */}
-          <button onClick={() => setMobileOpen(!isMobileOpen)} className="rc-mobile-toggle">
+          <button onClick={() => setMobileOpen(!isMobileOpen)} className="rc-mobile-toggle" aria-label="Menu">
             {isMobileOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
@@ -172,8 +194,8 @@ export default function Navbar() {
         {isMobileOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto', transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] } }}
+            exit={{ opacity: 0, height: 0, transition: { duration: 0.18 } }}
             className="rc-mobile-menu"
           >
             <Link to="/" onClick={() => setMobileOpen(false)} className="rc-mobile-link">Home</Link>
@@ -188,7 +210,7 @@ export default function Navbar() {
               <>
                 {user?.role === 'admin' ? (
                   <>
-                    <Link to="/dashboard/admin" onClick={() => setMobileOpen(false)} className="rc-mobile-link" style={{color:'#ff3b30',fontWeight:700}}>Admin Panel</Link>
+                    <Link to="/dashboard/admin" onClick={() => setMobileOpen(false)} className="rc-mobile-link" style={{color:'#ff3b30', fontWeight: 700}}>Admin Panel</Link>
                     <Link to="/dashboard/member" onClick={() => setMobileOpen(false)} className="rc-mobile-link">Member View</Link>
                     <Link to="/dashboard/user" onClick={() => setMobileOpen(false)} className="rc-mobile-link">User View</Link>
                   </>
@@ -198,7 +220,7 @@ export default function Navbar() {
                 <button onClick={() => { setMobileOpen(false); handleLogout(); }} className="rc-mobile-link">Sign Out</button>
               </>
             ) : (
-              <Link to="/login" onClick={() => setMobileOpen(false)} className="rc-mobile-link">Sign In / Join</Link>
+              <Link to="/login" onClick={() => setMobileOpen(false)} className="rc-mobile-link">Sign In</Link>
             )}
           </motion.div>
         )}
