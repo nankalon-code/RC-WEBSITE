@@ -22,13 +22,13 @@ export default function RobotIntro() {
     const t = setInterval(() => {
       if (i < LOGS.length) { setLogs(p => [...p, LOGS[i++]]); }
       else { clearInterval(t); setBootState('ready'); }
-    }, 800);
+    }, 300);
     return () => clearInterval(t);
   }, []);
 
   useEffect(() => {
     if (bootState !== 'ready') return;
-    const t = setTimeout(dismiss, 2400);
+    const t = setTimeout(dismiss, 800);
     return () => clearTimeout(t);
   }, [bootState]);
 

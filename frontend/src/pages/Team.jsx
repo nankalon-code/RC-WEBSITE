@@ -40,11 +40,7 @@ export default function Team() {
             </p>
           </div>
 
-          {/* Floating robot */}
-          <motion.img src="/new_robot.png" alt=""
-            className="w-24 h-24 object-contain opacity-80 pointer-events-none hidden md:block"
-            animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 3.5, ease: 'easeInOut' }}
-            style={{ filter: 'drop-shadow(0 10px 30px rgba(96,165,250,0.3))' }} />
+
         </div>
 
         {/* Role filters */}

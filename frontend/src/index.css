@@ -2868,5 +2868,188 @@ section {
   color: #ff3b30;
 }
 
+/* ══════════ ACHIEVEMENTS TABLE ══════════ */
+.rc-ach-table-wrap {
+  width: 100%;
+  border: 1.5px solid var(--color-border);
+  border-radius: 0;
+  overflow: hidden;
+  background-color: var(--color-surface);
+}
+.rc-ach-table-header {
+  display: grid;
+  grid-template-columns: 60px 1.4fr 1fr 1.2fr 100px 1.5fr;
+  gap: 0;
+  padding: 1rem 1.5rem;
+  background-color: var(--color-primary);
+  color: var(--color-base) !important;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.rc-ach-table-row {
+  display: grid;
+  grid-template-columns: 60px 1.4fr 1fr 1.2fr 100px 1.5fr;
+  gap: 0;
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.92rem;
+  color: var(--color-text-main);
+  transition: all 0.2s ease;
+  cursor: default;
+  align-items: center;
+}
+.rc-ach-table-row:last-child {
+  border-bottom: none;
+}
+.rc-ach-row-hovered {
+  background-color: var(--color-surface-2) !important;
+  transform: scale(1.002);
+}
+.rc-ach-col {
+  padding: 0 0.5rem;
+}
+.rc-ach-cell-sno {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+.rc-ach-cell-inst {
+  font-weight: 700;
+  color: var(--color-text-main);
+}
+.rc-ach-cell-fest {
+  color: var(--color-text-muted);
+}
+.rc-ach-cell-cat {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+.rc-ach-cell-part {
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+}
+.rc-ach-cell-ach {
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+}
+.rc-ach-highlight {
+  color: #ff3b30 !important;
+  font-weight: 700;
+}
 
+/* Responsive: stack on smaller screens */
+@media (max-width: 900px) {
+  .rc-ach-table-header {
+    display: none;
+  }
+  .rc-ach-table-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    position: relative;
+  }
+  .rc-ach-cell-sno {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    font-size: 1.5rem;
+    opacity: 0.15;
+  }
+  .rc-ach-cell-inst {
+    font-size: 1.05rem;
+  }
+  .rc-ach-cell-part::before {
+    content: 'Participants: ';
+    font-weight: 400;
+    color: var(--color-text-muted);
+  }
+  .rc-ach-cell-part {
+    text-align: left;
+  }
+}
 
+/* Stats Summary Bar */
+.rc-ach-stats-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: 1.5px solid var(--color-border);
+  margin-top: 3rem;
+  background-color: var(--color-surface);
+}
+@media (max-width: 640px) {
+  .rc-ach-stats-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.rc-ach-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1.5rem;
+  border-right: 1.5px solid var(--color-border);
+  transition: background-color 0.2s;
+}
+.rc-ach-stat-item:last-child {
+  border-right: none;
+}
+@media (max-width: 640px) {
+  .rc-ach-stat-item:nth-child(2) {
+    border-right: none;
+  }
+  .rc-ach-stat-item:nth-child(1),
+  .rc-ach-stat-item:nth-child(2) {
+    border-bottom: 1.5px solid var(--color-border);
+  }
+}
+.rc-ach-stat-item:hover {
+  background-color: var(--color-surface-2);
+}
+.rc-ach-stat-val {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--color-text-main);
+  line-height: 1;
+}
+.rc-ach-stat-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 0.75rem;
+  text-align: center;
+}
+
+/* ══════════ IMPROVED FEATURE CARD INTERACTIVITY ══════════ */
+.rc-feature-card {
+  position: relative;
+  overflow: hidden;
+}
+.rc-feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #ff3b30;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.rc-feature-card:hover::before {
+  transform: scaleX(1);
+}
+.rc-feature-card:hover .rc-feature-num {
+  color: #ff3b30;
+}
+.rc-feature-num {
+  transition: color 0.25s ease;
+}

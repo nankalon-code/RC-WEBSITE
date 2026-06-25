@@ -38,15 +38,15 @@ function StatNum({ val, label }) {
 const ARCH_TABS = [
   {
     id: 'firmware',
-    label: '01 FIRMWARE',
+    label: '01 RC CAR',
     module: 'MODULE 01',
-    title: 'Real-time control kernel',
-    desc: 'Custom RTOS layer driving sub-millisecond command execution across all actuators. Built in-house, maintained by the club.',
+    title: 'Remote control car',
+    desc: 'Custom-built RC car with wireless control, precision steering, and high-torque drivetrain. Designed and assembled by club members for speed trials and obstacle courses.',
     specs: [
-      { label: 'CLOCK', val: '480 MHz Dual-Core' },
-      { label: 'LOOP RATE', val: '1 kHz Deterministic' },
-      { label: 'TOOLCHAIN', val: 'C++ / Rust' },
-      { label: 'SAFETY', val: 'Watchdog + E-Stop' },
+      { label: 'MOTOR', val: '540 Brushless 3300KV' },
+      { label: 'RANGE', val: '200 m 2.4 GHz' },
+      { label: 'SPEED', val: '45 km/h top speed' },
+      { label: 'CONTROL', val: 'Arduino + nRF24L01' },
     ],
   },
   {
@@ -278,7 +278,6 @@ export default function Landing() {
               >
                 <div className="rc-feature-top">
                   <span className="rc-feature-num">{f.num}</span>
-                  <span className="rc-feature-arrow">↗</span>
                 </div>
                 <h3 className="rc-feature-title">{f.title}</h3>
                 <p className="rc-feature-desc">{f.desc}</p>
