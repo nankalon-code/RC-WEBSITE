@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect, useState, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Lenis from '@studio-freight/lenis';
@@ -26,6 +26,17 @@ const PageLoader = () => (
     <div className="w-12 h-12 rounded-full border-2 border-primary-var border-t-transparent animate-spin" />
   </div>
 );
+
+// Scroll to top on route change
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [pathname]);
+  return null;
+}
 
 function App() {
   const { init, theme } = useThemeStore();
@@ -61,6 +72,7 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <div className="min-h-screen flex flex-col font-sans relative overflow-hidden transition-colors duration-500 bg-base-var text-primary-var">
         
         {/* Dynamic Animated Premium Background System (Pitch Black Dark Mode) */}
