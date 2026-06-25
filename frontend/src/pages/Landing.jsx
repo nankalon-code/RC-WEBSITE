@@ -362,9 +362,8 @@ export default function Landing() {
           >
             <div className="rc-manifesto-quote-bar" />
             <p className="rc-manifesto-quote-text">
-              "If it doesn't move, sense, or break something — it's not done yet."
+              We learn and we share.
             </p>
-            <span className="rc-manifesto-quote-attr">— The Workshop Manifesto</span>
           </motion.div>
         </div>
       </section>
