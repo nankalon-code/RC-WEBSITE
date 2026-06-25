@@ -3,47 +3,32 @@ import { motion } from 'framer-motion';
 const ACHIEVEMENTS = [
   {
     year: '2025',
-    title: "ELICIT '25 — Manipal University, Jaipur",
-    category: 'ROBO SOCCER · 10 PARTICIPANTS · PARTICIPATED',
-  },
-  {
-    year: '2025',
     title: 'Plinth — LNMIT, Jaipur',
-    category: '1ST RUNNER UP AT ROBO SOCCER · 6 PARTICIPANTS',
+    category: '1ST RUNNER UP AT ROBO SOCCER',
     highlight: true,
   },
   {
     year: '2026',
-    title: "Renaissance'26 — JECRC Foundation, Jaipur",
-    category: 'ROBO SOCCER · 2 PARTICIPANTS · PARTICIPATED',
-  },
-  {
-    year: '2026',
     title: "Rhythm'26 — JECRC University, Jaipur",
-    category: '1ST RUNNER UP ROBO WAR · 2ND RUNNER UP ROBO SOCCER · 3 PARTICIPANTS',
+    category: '1ST RUNNER UP ROBO WAR · 2ND RUNNER UP ROBO SOCCER',
     highlight: true,
   },
   {
     year: '2026',
     title: 'Ranbhoomi — NMIMS University, Indore',
-    category: '1ST RUNNER UP · ROBO SOCCER & SUMO · 1 PARTICIPANT',
+    category: '1ST RUNNER UP · ROBO SOCCER & SUMO',
     highlight: true,
   },
   {
     year: '2026',
     title: '67th Milestone Heroes Challenge — BML University, Gurgaon',
-    category: '2ND RUNNER UP AT ROBO SOCCER · 2 PARTICIPANTS',
+    category: '2ND RUNNER UP AT ROBO SOCCER',
     highlight: true,
   },
   {
     year: '2026',
-    title: 'Rec-kon 6.0 — JIET, Jodhpur',
-    category: 'HACKATHON · 4 PARTICIPANTS · PARTICIPATED',
-  },
-  {
-    year: '2026',
     title: 'Shankara Hackathon — Shankar Institute of Education, Jaipur',
-    category: 'HACKATHON · 15 PARTICIPANTS · WINNER',
+    category: 'WINNER · HACKATHON',
     highlight: true,
   },
 ];
