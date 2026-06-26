@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Lenis from '@studio-freight/lenis';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import RobotIntro from './components/RobotIntro';
 import LabStatusHUD from './components/LabStatusHUD';
 import { useThemeStore } from './store/themeStore';
 
@@ -82,7 +81,6 @@ function App() {
         </div>
 
         <div className="relative z-10 flex flex-col min-h-screen">
-          <RobotIntro />
           <LabStatusHUD />
           <Navbar />
           <main className="flex-grow">

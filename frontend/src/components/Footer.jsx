@@ -23,7 +23,10 @@ export default function Footer() {
         <div className="rc-footer-col">
           <div className="rc-footer-col-title">FIND US</div>
           <div className="rc-footer-col-body">
-            WORKSHOP · ENG. BLOCK C<br />
+            A228 Robotics Club<br />
+            Electronic Department, A block<br />
+            Rajasthan Technical University,<br />
+            Rawatbhata Road, Kota 324010<br />
             MON – FRI, 18:00 →
           </div>
         </div>
