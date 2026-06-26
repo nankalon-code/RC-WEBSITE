@@ -110,3 +110,37 @@ The backend features an intelligent **Self-Healing Schema Engine** inside `datab
 1. It automatically inspects table schemas dynamically.
 2. If new columns (such as achievement categories or gallery items) are added to `models.py`, it patches the active SQLite or production SQL database on the fly without needing manual migration files!
 3. It validates that the default site structures, administrator credentials, and 50 forum projects are 100% loaded and synchronized.
+
+---
+
+## 🔒 Security & Repository Hygiene Policy
+
+To prevent sensitive information exposure and keep the repository clean and efficient, the project strictly adheres to the following rules:
+
+### 1. Zero-Secret Leaks (Ignored Environment Files)
+All local configuration files that store credentials or secrets **MUST** remain ignored and should never be pushed to GitHub. This includes:
+* **`.env` / `.env.*`**: Contains backend secret keys, database credentials, API keys (e.g. Brevo), and SMTP app passwords.
+* **`*.db` / `*.sqlite3`**: SQLite database binaries containing live table data and administrator user logs.
+* **`db_dump.txt`**: Raw SQL dump files containing database table dumps.
+
+### 2. Zero-Cache Track (Ignored Cache & Build Outputs)
+Compiler outputs and dependency cache folders bloat repository history and can leak development system configurations. The following are strictly ignored:
+* **`.vite/`**: Vite dependency pre-bundling caches.
+* **`node_modules/`**: Large vendor dependency directories.
+* **`dist/` / `build/`**: Production bundles.
+* **`__pycache__/` / `*.pyc`**: Python bytecode caches.
+* **`venv/` / `.venv/`**: Python virtual environment folders.
+* **`*.webp`**: Heavy development screen recordings and media diagnostics.
+
+### 3. Required Environment Variables Reference
+
+| Variable | Scope | Description | Default / Example | Security Level |
+| :--- | :--- | :--- | :--- | :--- |
+| `SECRET_KEY` | Backend | High-entropy signing key for JWT session access tokens | *Generate via python secrets module* | **CRITICAL** (Never expose) |
+| `DATABASE_URL` | Backend | Connection string to the SQLite database (local) or PostgreSQL (production) | `sqlite:///./core_robotics.db` | **HIGH** |
+| `SMTP_EMAIL` | Backend | Sender email for club registrations and email dispatches | `your_gmail@gmail.com` | **MEDIUM** |
+| `SMTP_PASSWORD` | Backend | 16-digit Google App Password for SMTP login | `your_gmail_app_password` | **CRITICAL** (Never expose) |
+| `BREVO_API_KEY` | Backend | API Key for mail dispatch via Brevo REST API (HTTPS fallback) | *Brevo REST API Key* | **CRITICAL** (Never expose) |
+| `ALLOWED_ORIGINS` | Backend | Comma-separated list of permitted frontend origins for CORS | `http://localhost:5173,http://localhost:3000` | **MEDIUM** |
+| `VITE_API_URL` | Frontend | Base URL endpoint for the REST API | `http://localhost:8000` | **LOW** |
+

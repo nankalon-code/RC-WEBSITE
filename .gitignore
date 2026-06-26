@@ -12,3 +12,10 @@ __pycache__/
 *.sqlite3
 .env
 .DS_Store
+
+# Vite cache
+.vite/
+
+# Workspace configuration files
+*.code-workspace
+
