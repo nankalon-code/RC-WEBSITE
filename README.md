@@ -4,10 +4,16 @@ This is the FastAPI backend for the Antigravity Robotics Platform. It handles us
 
 ## Security & Repository Instructions
 
-**CRITICAL:** NEVER commit the `.env` file or `robotics.db` file to your GitHub repository.
-1. The `.gitignore` file is already configured to ignore `.env`, `*.db`, `__pycache__/`, and `.venv/`.
-2. Do **NOT** forcefully add or commit `.env` or `robotics.db`.
-3. Your `SECRET_KEY` and database credentials must remain strictly inside the `.env` file on your local machine, and configured as Environment Variables on your hosting provider.
+**CRITICAL:** NEVER commit the `.env` file, database binaries, or developer dumps/scripts to the GitHub repository.
+1. The `.gitignore` file is configured to strictly ignore:
+   * Secrets: `.env`, `.env.*`
+   * Databases: `*.db`, `*.sqlite3`
+   * Database Dumps: `db_dump.txt`
+   * Cache & Venvs: `__pycache__/`, `.venv/`, `venv/`, `*.py[cod]`
+   * Helper Diagnostics & WebP Screen Recordings: `check_users.py`, `dump_db.py`, `find_all_dbs.py`, `find_db.py`, `repair_db.py`, `search_db.py`, `search_files.py`, `search_logs.py`, `verify_urls.py`, `*.webp`, `*.code-workspace`
+2. Do **NOT** forcefully add or commit any of these files.
+3. Your `SECRET_KEY` and database credentials must remain strictly inside your local `.env` file or set as Environment Variables on your hosting provider.
+
 
 ## Setup & Local Development
 
