@@ -1009,6 +1009,7 @@ function SiteContentTab() {
     { key: 'stat_stacks', label: 'Stat: Tech Stacks' },
     { key: 'stat_wins', label: 'Stat: Competition Wins' },
     { key: 'contact_email', label: 'Club Contact Email' },
+    { key: 'club_phone', label: 'Club Phone Number' },
     { key: 'club_github', label: 'Club GitHub URL' },
     { key: 'club_linkedin', label: 'Club LinkedIn URL' },
     { key: 'club_instagram', label: 'Club Instagram URL' },

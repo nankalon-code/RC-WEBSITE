@@ -3081,7 +3081,7 @@ section {
 /* Stats Summary Bar */
 .rc-ach-stats-bar {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   border: 1.5px solid var(--color-border);
   margin-top: 3rem;
   background-color: var(--color-surface);

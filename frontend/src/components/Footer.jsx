@@ -15,7 +15,7 @@ export default function Footer() {
         <div className="rc-footer-col">
           <div className="rc-footer-brand">ROBOTICS CLUB / V.04</div>
           <div className="rc-footer-tagline">
-            ENGINEERED IN THE WORKSHOP, SINCE 2018.
+            ENGINEERED IN THE WORKSHOP, SINCE 2013.
           </div>
         </div>
 
@@ -28,6 +28,14 @@ export default function Footer() {
             Rajasthan Technical University,<br />
             Rawatbhata Road, Kota 324010<br />
             MON – FRI, 18:00 →
+            {content.club_phone && (
+              <>
+                <br />
+                <span style={{ fontSize: '11px', opacity: 0.7, fontFamily: 'monospace' }}>
+                  TEL: {content.club_phone}
+                </span>
+              </>
+            )}
           </div>
         </div>
 
@@ -37,7 +45,7 @@ export default function Footer() {
           <div className="rc-footer-col-body">
             <a href={content.club_github || '#'} target="_blank" rel="noreferrer" className="rc-footer-link">GITHUB</a><br />
             <a href={content.club_instagram || '#'} target="_blank" rel="noreferrer" className="rc-footer-link">INSTAGRAM</a><br />
-            <a href="#" className="rc-footer-link">YOUTUBE</a>
+            <a href={content.club_linkedin || '#'} target="_blank" rel="noreferrer" className="rc-footer-link">LINKEDIN</a>
           </div>
         </div>
 

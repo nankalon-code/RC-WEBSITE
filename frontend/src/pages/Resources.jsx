@@ -18,31 +18,30 @@ export default function Resources() {
       });
   }, []);
 
-  // Custom static categorization based on the mockups to match the layout perfectly, 
-  // falling back to api data categories if available.
+  // Custom static categorization based on the mockups to match the layout perfectly
   const categories = [
     {
       title: 'Getting started',
       items: [
-        { title: 'Arduino in 10 minutes', type: 'TUTORIAL · PDF', link: '#' },
-        { title: 'Soldering, properly', type: 'WORKSHOP VIDEO', link: '#' },
-        { title: 'Reading a datasheet', type: 'CHEATSHEET', link: '#' }
+        { title: 'MIT 2.12 Introduction to Robotics', type: 'COURSEWARE', link: 'https://ocw.mit.edu/courses/2-12-introduction-to-robotics-fall-2005/' },
+        { title: 'HowToMechatronics Tutorials', type: 'WEBSITE', link: 'https://howtomechatronics.com/' },
+        { title: 'Arduino Docs & Reference', type: 'DOCUMENTATION', link: 'https://docs.arduino.cc/' }
       ]
     },
     {
       title: 'Software',
       items: [
-        { title: 'ROS2 cheatsheet', type: 'PDF', link: '#' },
-        { title: 'OpenCV starter repo', type: 'GITHUB', link: '#' },
-        { title: 'PID tuning notebook', type: 'JUPYTER', link: '#' }
+        { title: 'ROS 2 Humble Documentation', type: 'FRAMEWORK', link: 'https://docs.ros.org/en/humble/' },
+        { title: 'OpenCV Library Tutorials', type: 'COMPUTER VISION', link: 'https://docs.opencv.org/4.x/d9/df8/tutorial_root.html' },
+        { title: 'Modern Robotics Lynch & Park', type: 'BOOK & COURSE', link: 'https://modernrobotics.org/' }
       ]
     },
     {
       title: 'Hardware & IoT',
       items: [
-        { title: 'Approved vendor list', type: 'SHEET', link: '#' },
-        { title: 'ESP32 reference designs', type: 'KICAD', link: '#' },
-        { title: 'Motor selection guide', type: 'DOC', link: '#' }
+        { title: 'ESP32 GPIO Pinout Guide', type: 'REFERENCE', link: 'https://randomnerdtutorials.com/esp32-pinout-reference-gpios/' },
+        { title: 'KiCad Official PCB Tutorials', type: 'CAD MANUAL', link: 'https://www.kicad.org/help/tutorials/' },
+        { title: 'SparkFun Electronics Learning', type: 'TUTORIALS', link: 'https://learn.sparkfun.com/' }
       ]
     }
   ];
@@ -61,17 +60,17 @@ export default function Resources() {
     }
     groupedResources[cat].push({
       title: res.title,
-      type: res.type ? res.type.toUpperCase() : 'LINK',
-      link: res.link_url || '#'
+      type: res.tag ? res.tag.toUpperCase() : 'LINK',
+      link: res.link || '#'
     });
   });
 
-  // Merge API resources with static structure
+  // Merge API resources with static structure (append API items so both show up)
   const finalCategories = categories.map(cat => {
     const apiItems = groupedResources[cat.title] || [];
     return {
       title: cat.title,
-      items: apiItems.length > 0 ? apiItems : cat.items
+      items: [...cat.items, ...apiItems]
     };
   });
 

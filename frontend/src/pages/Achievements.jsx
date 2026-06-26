@@ -2,9 +2,9 @@ import { motion } from 'framer-motion';
 
 const ACHIEVEMENTS = [
   {
-    year: '2025',
-    title: 'Plinth — LNMIT, Jaipur',
-    category: '1ST RUNNER UP AT ROBO SOCCER',
+    year: '2026',
+    title: 'Shankara Hackathon — Shankar Institute of Education, Jaipur',
+    category: 'WINNER · HACKATHON',
     highlight: true,
   },
   {
@@ -26,9 +26,27 @@ const ACHIEVEMENTS = [
     highlight: true,
   },
   {
-    year: '2026',
-    title: 'Shankara Hackathon — Shankar Institute of Education, Jaipur',
-    category: 'WINNER · HACKATHON',
+    year: '2025',
+    title: 'Plinth — LNMIT, Jaipur',
+    category: '1ST RUNNER UP AT ROBO SOCCER',
+    highlight: true,
+  },
+  {
+    year: '2025',
+    title: 'JERCE University Fest',
+    category: 'WINNER ROBO RUSH · SEMI-FINALIST ROBO SOCCER',
+    highlight: true,
+  },
+  {
+    year: '2025',
+    title: 'JERCE Foundation Fest',
+    category: 'SEMI-FINALIST · TUG OF WAR',
+    highlight: true,
+  },
+  {
+    year: '2025',
+    title: 'Shankara Hackathon',
+    category: '2ND POSITION · TEAM "HYDRO BOT" (WATER SURFACE CLEANING BOT)',
     highlight: true,
   },
 ];
@@ -73,7 +91,6 @@ export default function Achievements() {
             {[
               { val: '8', label: 'Total Competitions' },
               { val: '6', label: 'Podium Finishes' },
-              { val: '20', label: 'Students Participated' },
               { val: '5', label: 'Cities Visited' },
             ].map((s, i) => (
               <div key={i} className="rc-ach-stat-item">
