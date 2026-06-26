@@ -2,6 +2,13 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { apiFetch } from '../utils/api';
 
+const ensureAbsoluteUrl = (url) => {
+  if (!url || url === '#') return '#';
+  const clean = url.trim();
+  if (/^(https?:)?\/\//i.test(clean)) return clean;
+  return `https://${clean}`;
+};
+
 export default function Resources() {
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -101,7 +108,7 @@ export default function Resources() {
                   {cat.items.map((item, idx) => (
                     <a
                       key={idx}
-                      href={item.link}
+                      href={ensureAbsoluteUrl(item.link)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="rc-resource-item"

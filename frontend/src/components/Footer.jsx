@@ -2,6 +2,13 @@ import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { apiFetch } from '../utils/api';
 
+const ensureAbsoluteUrl = (url) => {
+  if (!url || url === '#') return '#';
+  const clean = url.trim();
+  if (/^(https?:)?\/\//i.test(clean)) return clean;
+  return `https://${clean}`;
+};
+
 export default function Footer() {
   const [content, setContent] = useState({});
   useEffect(() => {
@@ -43,9 +50,9 @@ export default function Footer() {
         <div className="rc-footer-col">
           <div className="rc-footer-col-title">CHANNELS</div>
           <div className="rc-footer-col-body">
-            <a href={content.club_github || '#'} target="_blank" rel="noreferrer" className="rc-footer-link">GITHUB</a><br />
-            <a href={content.club_instagram || '#'} target="_blank" rel="noreferrer" className="rc-footer-link">INSTAGRAM</a><br />
-            <a href={content.club_linkedin || '#'} target="_blank" rel="noreferrer" className="rc-footer-link">LINKEDIN</a>
+            <a href={ensureAbsoluteUrl(content.club_github)} target="_blank" rel="noreferrer" className="rc-footer-link">GITHUB</a><br />
+            <a href={ensureAbsoluteUrl(content.club_instagram)} target="_blank" rel="noreferrer" className="rc-footer-link">INSTAGRAM</a><br />
+            <a href={ensureAbsoluteUrl(content.club_linkedin)} target="_blank" rel="noreferrer" className="rc-footer-link">LINKEDIN</a>
           </div>
         </div>
 
