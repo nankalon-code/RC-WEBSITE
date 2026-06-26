@@ -39,3 +39,17 @@ build/
 # OS
 .DS_Store
 Thumbs.db
+
+# Local developer scripts, database dumps, and recordings
+db_dump.txt
+*.webp
+check_users.py
+dump_db.py
+find_all_dbs.py
+find_db.py
+repair_db.py
+search_db.py
+search_files.py
+search_logs.py
+verify_urls.py
+*.code-workspace
