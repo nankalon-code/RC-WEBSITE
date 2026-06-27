@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -744,6 +746,96 @@
   animation: particle-drift linear infinite;
 }
 
+/* ── Cursor Glow Orb ── */
+.cursor-glow {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,59,48,0.07) 0%, rgba(255,59,48,0.02) 40%, transparent 70%);
+  transform: translate(-50%, -50%);
+  transition: opacity 0.4s ease;
+  mix-blend-mode: multiply;
+}
+
+/* ── Floating Glass Orbs (decorative) ── */
+.rc-floating-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(2px);
+  opacity: 0;
+  animation: orb-float-in 1.2s ease forwards, orb-drift ease-in-out infinite;
+}
+@keyframes orb-float-in {
+  from { opacity: 0; transform: scale(0.6); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes orb-drift {
+  0%,100% { transform: translateY(0px) translateX(0px) scale(1); }
+  33%      { transform: translateY(-18px) translateX(10px) scale(1.04); }
+  66%      { transform: translateY(12px) translateX(-8px) scale(0.97); }
+}
+
+/* ── Handwriting Annotation ── */
+.rc-handwrite {
+  font-family: 'Caveat', cursive !important;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.rc-handwrite-note {
+  font-family: 'Caveat', cursive !important;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: #ff3b30;
+  opacity: 0.75;
+  transform: rotate(-2deg);
+  display: inline-block;
+  line-height: 1.3;
+}
+.rc-scribble-underline {
+  position: relative;
+  display: inline-block;
+}
+.rc-scribble-underline::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: -4px;
+  width: 100%; height: 3px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 8'%3E%3Cpath d='M0 6 Q15 1 30 5 Q45 9 60 4 Q75 0 90 5 Q105 9 120 4' stroke='%23ff3b30' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") repeat-x center/auto 100%;
+  opacity: 0.7;
+}
+
+/* ── Manifesto section glass tint ── */
+.rc-manifesto-section {
+  background: rgba(240,240,242,0.7) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ── Arch wireframe box subtle glass ── */
+.rc-arch-wireframe-box {
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* ── Feature number glow on hover ── */
+.rc-feature-card:hover .rc-feature-num {
+  color: #ff3b30;
+  transition: color 0.3s;
+}
+
+/* ── Pillar title handwriting variant ── */
+.rc-pillar-num {
+  font-family: 'Caveat', cursive !important;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ff3b30;
+}
+
 /* ── Responsive Stack Cards ── */
 @media (max-width: 768px) {
   .stack-card.left {
@@ -1180,9 +1272,12 @@ section {
   }
 }
 .rc-hero-em {
-  font-style: italic;
-  font-weight: 800;
+  font-family: 'Caveat', cursive !important;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 1.15em;
   color: #ff3b30;
+  letter-spacing: 0.01em;
 }
 .rc-hero-desc {
   font-size: 1.1rem;
@@ -1372,8 +1467,9 @@ section {
 .rc-features-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  border: 1.5px solid var(--color-border);
-  background-color: var(--color-surface);
+  gap: 1.25rem;
+  background: transparent;
+  border: none;
 }
 @media (max-width: 1024px) {
   .rc-features-grid {
@@ -1385,39 +1481,34 @@ section {
     grid-template-columns: 1fr;
   }
 }
+/* OVAL GLASS FEATURE CARDS */
 .rc-feature-card {
-  padding: 3rem 2.25rem;
-  border-right: 1.5px solid var(--color-border);
-  background-color: var(--color-surface);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 2.75rem 2rem;
+  border: 1.5px solid var(--color-border);
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border-radius: 2.5rem;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
   min-height: 250px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8);
+  position: relative;
+  overflow: hidden;
 }
-.rc-feature-card:last-child {
-  border-right: none;
-}
-@media (max-width: 1024px) {
-  .rc-feature-card:nth-child(2n) {
-    border-right: none;
-  }
-  .rc-feature-card:nth-child(1), .rc-feature-card:nth-child(2) {
-    border-bottom: 1.5px solid var(--color-border);
-  }
-}
-@media (max-width: 640px) {
-  .rc-feature-card {
-    border-right: none !important;
-    border-bottom: 1.5px solid var(--color-border);
-  }
-  .rc-feature-card:last-child {
-    border-bottom: none;
-  }
+.rc-feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent);
 }
 .rc-feature-card:hover {
-  background-color: var(--color-surface-2);
-  transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.05);
+  background: rgba(255,255,255,0.78);
+  border-color: rgba(15,23,42,0.14);
+  transform: translateY(-6px) scale(1.015);
+  box-shadow: 0 20px 48px rgba(0,0,0,0.09), inset 0 1px 0 rgba(255,255,255,0.9);
 }
 .rc-feature-top {
   display: flex;
@@ -1524,26 +1615,35 @@ section {
   }
 }
 
-/* Pillar cards — bordered blocks with hover effects */
+/* OVAL/PILL GLASS Pillar cards */
 .rc-pillar-card {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  padding: 2.5rem 2rem;
+  padding: 2.75rem 2.25rem;
   border: 1.5px solid var(--color-border);
-  background-color: var(--color-surface);
+  background: rgba(255,255,255,0.52);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border-radius: 2.5rem;
   position: relative;
   overflow: hidden;
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: default;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.75);
+}
+.rc-pillar-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.85), transparent);
 }
 .rc-pillar-card:hover {
-  border-color: var(--color-border-hover);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.06);
-  background-color: var(--color-base);
-}
-.dark .rc-pillar-card:hover {
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+  border-color: rgba(15,23,42,0.15);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.09), inset 0 1px 0 rgba(255,255,255,0.9);
+  background: rgba(255,255,255,0.72);
+  transform: translateY(-4px);
 }
 
 /* Left accent bar on hover */
@@ -1620,11 +1720,12 @@ section {
   align-self: stretch;
 }
 .rc-manifesto-quote-text {
-  font-size: 1.35rem;
+  font-family: 'Caveat', cursive !important;
+  font-size: 1.75rem;
   font-weight: 600;
-  font-style: italic;
   color: var(--color-text-main);
-  line-height: 1.5;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
 }
 .rc-manifesto-quote-attr {
   display: none;
@@ -1938,13 +2039,32 @@ section {
   color: var(--color-text-muted);
 }
 .rc-faculty-card {
-  background-color: var(--color-surface);
-  border: 1.5px solid var(--color-border);
+  background: rgba(255,255,255,0.58);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1.5px solid rgba(255,255,255,0.7);
+  border-top: 1.5px solid rgba(255,255,255,0.9);
+  border-radius: 2rem;
   padding: 3rem;
   display: flex;
   flex-direction: column;
   gap: 2rem;
   width: 100%;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.rc-faculty-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent);
+}
+.rc-faculty-card:hover {
+  box-shadow: 0 20px 50px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.95);
+  transform: translateY(-4px);
 }
 .rc-faculty-top {
   display: flex;
@@ -1972,9 +2092,10 @@ section {
   margin-top: 0.25rem;
 }
 .rc-faculty-quote {
-  font-size: 1.05rem;
-  font-style: italic;
-  line-height: 1.65;
+  font-family: 'Caveat', cursive !important;
+  font-size: 1.4rem;
+  font-weight: 500;
+  line-height: 1.6;
   color: var(--color-text-muted);
 }
 
@@ -2041,6 +2162,157 @@ section {
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
+}
+
+/* ── Feature card icon ── */
+.rc-feature-icon {
+  color: var(--color-text-muted);
+  opacity: 0.55;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+.rc-feature-card:hover .rc-feature-icon {
+  color: #ff3b30;
+  opacity: 1;
+}
+.rc-feature-arrow {
+  font-size: 1.15rem;
+  color: var(--color-text-muted);
+  opacity: 0.4;
+  transition: all 0.3s ease;
+  font-family: 'JetBrains Mono', monospace;
+}
+.rc-feature-card:hover .rc-feature-arrow {
+  opacity: 1;
+  color: #ff3b30;
+  transform: translateX(4px);
+}
+
+/* ══════════ TILE MOSAIC SECTION ══════════ */
+.rc-tile-mosaic-section {
+  padding: 0 1.5rem 8rem;
+  background-color: var(--color-base);
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+.rc-tile-mosaic-inner {
+  width: 100%;
+  max-width: 1200px;
+}
+.rc-tile-mosaic-label {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.rc-tile-mosaic-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: auto auto;
+  gap: 1rem;
+}
+@media (max-width: 1024px) {
+  .rc-tile-mosaic-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 640px) {
+  .rc-tile-mosaic-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.rc-tile {
+  border-radius: 1.5rem;
+  padding: 2rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border: 1.5px solid var(--color-border);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: default;
+  position: relative;
+  overflow: hidden;
+}
+.rc-tile:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.08);
+}
+.rc-tile-tall {
+  grid-row: span 2;
+  justify-content: flex-end;
+  padding: 2.5rem 2rem;
+  min-height: 280px;
+}
+.rc-tile-wide {
+  grid-column: span 2;
+}
+.rc-tile-normal {
+  min-height: 140px;
+}
+.rc-tile-accent {
+  background: rgba(255, 59, 48, 0.07);
+  border-color: rgba(255, 59, 48, 0.18);
+}
+.rc-tile-accent:hover {
+  background: rgba(255, 59, 48, 0.12);
+  border-color: rgba(255, 59, 48, 0.3);
+}
+.rc-tile-accent .rc-tile-icon { color: #ff3b30; }
+.rc-tile-muted {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.rc-tile-muted:hover { background: rgba(255,255,255,0.85); }
+.rc-tile-muted .rc-tile-icon { color: var(--color-text-muted); }
+.rc-tile-warm {
+  background: rgba(240, 234, 225, 0.75);
+  border-color: rgba(180, 150, 110, 0.2);
+}
+.rc-tile-warm:hover { background: rgba(240, 234, 225, 1); }
+.rc-tile-warm .rc-tile-icon { color: #a07850; }
+.rc-tile-dark {
+  background: rgba(15, 23, 42, 0.88);
+  border-color: rgba(15, 23, 42, 0.9);
+}
+.rc-tile-dark:hover {
+  background: rgba(15, 23, 42, 1);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.25);
+}
+.rc-tile-dark .rc-tile-icon { color: rgba(255,255,255,0.7); }
+.rc-tile-dark .rc-tile-label { color: #ffffff !important; }
+.rc-tile-dark .rc-tile-desc { color: rgba(255,255,255,0.55) !important; }
+.rc-tile-accent2 {
+  background: rgba(220, 230, 255, 0.55);
+  border-color: rgba(100, 120, 220, 0.2);
+}
+.rc-tile-accent2:hover { background: rgba(220, 230, 255, 0.85); }
+.rc-tile-accent2 .rc-tile-icon { color: #4060cc; }
+.rc-tile-icon {
+  display: flex;
+  align-items: center;
+  opacity: 0.85;
+  margin-bottom: 0.25rem;
+  transition: opacity 0.3s, transform 0.3s;
+}
+.rc-tile:hover .rc-tile-icon {
+  opacity: 1;
+  transform: scale(1.08);
+}
+.rc-tile-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-main) !important;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.rc-tile-desc {
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+  line-height: 1.55;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 /* Resources Page */
