@@ -20,7 +20,7 @@ export default function Gallery() {
   }, []);
 
   const staticPhotos = [
-    { label: 'IMG_01', caption: 'AXIS-7 DRY-FIT', image_url: '/robot_chassis_wireframe.png' },
+    { label: 'IMG_01', caption: 'MANIPULATOR DRY-FIT', image_url: '/robot_chassis_wireframe.png' },
     { label: 'IMG_04', caption: 'DRONE BUILD, DAY 1', image_url: '/robot_chassis_wireframe.png' },
     { label: 'IMG_07', caption: 'HEXAPOD GAIT TUNING', image_url: '/robot_chassis_wireframe.png' },
     { label: 'IMG_02', caption: 'CRAWLER MK.III FIELD TEST', image_url: '/robot_chassis_wireframe.png' },

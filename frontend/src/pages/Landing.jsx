@@ -219,7 +219,7 @@ export default function Landing() {
             <div className="rc-hero-img-wrap">
               {/* HUD labels */}
               <div className="rc-hud-label rc-hud-tr">
-                AXIS-7 / MANIPULATOR<br />
+                MANIPULATOR<br />
                 <span className="rc-hud-accent">• GRIPPER MODULE</span>
               </div>
               <div className="rc-hud-label rc-hud-bl">
@@ -256,9 +256,8 @@ export default function Landing() {
               transition={{ duration: 0.7 }}
               className="rc-section-title"
             >
-              What we offer
+              Features
             </motion.h2>
-            <span className="rc-handwrite-note" style={{marginTop:'-0.25rem',fontSize:'1.15rem',display:'block',color:'#ff3b30'}}>— crafted for builders</span>
             <p className="rc-section-desc">
               Build awesome robots and smart software with direct help from mentors, great resources, and cool team opportunities.
             </p>
@@ -268,52 +267,23 @@ export default function Landing() {
             {[
               {
                 num: '01',
-                icon: (
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="2" y="3" width="20" height="14" rx="2"/>
-                    <path d="M8 21h8M12 17v4"/>
-                    <path d="M6 8h.01M9 8h6"/>
-                  </svg>
-                ),
-                title: 'Real Hardware',
-                desc: 'Get hands-on with microcontrollers, motors, sensors and actuators. We build things that move.',
+                title: 'Cool Hardware',
+                desc: 'Get hands-on experience building real robots with parts like microcontrollers, motors, and sensors.',
               },
               {
                 num: '02',
-                icon: (
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="16 18 22 12 16 6"/>
-                    <polyline points="8 6 2 12 8 18"/>
-                    <line x1="14" y1="4" x2="10" y2="20"/>
-                  </svg>
-                ),
                 title: 'Smart Software',
-                desc: 'Write firmware, build AI vision pipelines, and deploy autonomous decision systems.',
+                desc: 'Learn to write code for robots, build AI models, computer vision systems, and simulator tools.',
               },
               {
                 num: '03',
-                icon: (
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                    <path d="M2 17l10 5 10-5"/>
-                    <path d="M2 12l10 5 10-5"/>
-                  </svg>
-                ),
-                title: 'Project Lock-In',
-                desc: 'Choose from 50+ curated projects. Lock your slot, form your team, and own it to shipping.',
+                title: 'Lock Your Ideas',
+                desc: 'Pick from 50 unique projects, lock your choice with a team, and build a resume-ready project.',
               },
               {
                 num: '04',
-                icon: (
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                    <circle cx="9" cy="7" r="4"/>
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                  </svg>
-                ),
-                title: 'Team Up',
-                desc: 'Work in squads of 2–4 with mentors guiding every sprint from breadboard to competition floor.',
+                title: 'Join a Team',
+                desc: 'Work in teams of 2 to 4 students with full support and guidance from experienced club mentors.',
               },
             ].map((f, i) => (
               <motion.div
@@ -323,15 +293,13 @@ export default function Landing() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1, duration: 0.6 }}
-                whileHover={{ y: -6 }}
               >
                 <div className="rc-feature-top">
                   <span className="rc-feature-num">{f.num}</span>
-                  <span className="rc-feature-icon">{f.icon}</span>
+                  <span className="rc-feature-arrow">↗</span>
                 </div>
                 <h3 className="rc-feature-title">{f.title}</h3>
                 <p className="rc-feature-desc">{f.desc}</p>
-                <div className="rc-feature-arrow" style={{marginTop:'auto',paddingTop:'1.5rem'}}>→</div>
               </motion.div>
             ))}
           </div>
@@ -418,69 +386,6 @@ export default function Landing() {
           </motion.div>
         </div>
       </section>
-
-      {/* ══════════ TILE MOSAIC ══════════ */}
-      <section className="rc-tile-mosaic-section" aria-hidden="true">
-        <div className="rc-tile-mosaic-inner">
-          <div className="rc-tile-mosaic-label">
-            <span className="rc-tag-label">003 / LABS</span>
-            <span className="rc-handwrite-note" style={{fontSize:'1.1rem'}}>what we're working on</span>
-          </div>
-          <div className="rc-tile-mosaic-grid">
-            {/* Tall featured tile */}
-            <motion.div className="rc-tile rc-tile-tall rc-tile-accent"
-              initial={{opacity:0,y:20}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:0.6,delay:0}}>
-              <span className="rc-tile-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
-              </span>
-              <span className="rc-tile-label">Autonomy</span>
-              <p className="rc-tile-desc">Sensor fusion &amp; path planning</p>
-            </motion.div>
-            {/* Normal tile */}
-            <motion.div className="rc-tile rc-tile-normal rc-tile-muted"
-              initial={{opacity:0,y:20}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:0.6,delay:0.08}}>
-              <span className="rc-tile-icon">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/></svg>
-              </span>
-              <span className="rc-tile-label">CAD &amp; Fabrication</span>
-            </motion.div>
-            {/* Normal tile */}
-            <motion.div className="rc-tile rc-tile-normal rc-tile-warm"
-              initial={{opacity:0,y:20}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:0.6,delay:0.16}}>
-              <span className="rc-tile-icon">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-              </span>
-              <span className="rc-tile-label">Firmware</span>
-            </motion.div>
-            {/* Wide tile */}
-            <motion.div className="rc-tile rc-tile-wide rc-tile-dark"
-              initial={{opacity:0,y:20}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:0.6,delay:0.22}}>
-              <span className="rc-tile-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
-              </span>
-              <span className="rc-tile-label">Competition Track</span>
-              <p className="rc-tile-desc">6 wins · 12 podiums · ongoing</p>
-            </motion.div>
-            {/* Normal tile */}
-            <motion.div className="rc-tile rc-tile-normal rc-tile-muted"
-              initial={{opacity:0,y:20}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:0.6,delay:0.28}}>
-              <span className="rc-tile-icon">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-              </span>
-              <span className="rc-tile-label">Open Source</span>
-            </motion.div>
-            {/* Normal tall tile */}
-            <motion.div className="rc-tile rc-tile-normal rc-tile-accent2"
-              initial={{opacity:0,y:20}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{duration:0.6,delay:0.34}}>
-              <span className="rc-tile-icon">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              </span>
-              <span className="rc-tile-label">AI &amp; Vision</span>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
       {/* ══════════ SYSTEM ARCHITECTURE ══════════ */}
       <section id="architecture" className="rc-arch-section">
         <div className="rc-section-inner">
