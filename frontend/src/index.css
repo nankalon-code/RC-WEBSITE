@@ -1413,6 +1413,18 @@ section {
   max-height: 480px;
   object-fit: contain;
 }
+.rc-hero-video {
+  max-width: 100%;
+  height: auto;
+  max-height: 480px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  filter: brightness(1.42) contrast(1.35);
+}
+.dark .rc-hero-video {
+  mix-blend-mode: screen;
+  filter: invert(1) hue-rotate(180deg) brightness(0.55) contrast(1.55);
+}
 .rc-hud-accent {
   color: #ff3b30 !important;
   font-weight: 700;

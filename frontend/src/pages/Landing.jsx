@@ -354,18 +354,21 @@ export default function Landing() {
             </motion.div>
           </div>
 
-          {/* Right: robot arm image */}
+          {/* Right: robot animation video */}
           <motion.div
             className="rc-hero-right"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="rc-hero-img-wrap">
-              <img
-                src={siteContent.hero_image || "/robot_arm_hero.png"}
-                alt="6-DOF robot arm manipulator"
-                className="rc-hero-img"
+            <div className="rc-hero-img-wrap" style={{ overflow: 'hidden' }}>
+              <video
+                src="https://file.garden/akdvjVp1FDtnmq02/OKAY_CREATE_AN_ANIMATION_OF_TH.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="rc-hero-video"
               />
             </div>
           </motion.div>
