@@ -363,7 +363,7 @@ export default function Landing() {
           >
             <div className="rc-hero-img-wrap" style={{ overflow: 'hidden' }}>
               <video
-                src="https://file.garden/akdvjVp1FDtnmq02/OKAY_CREATE_AN_ANIMATION_OF_TH.mp4"
+                src="/robot_animation.mp4"
                 autoPlay
                 loop
                 muted
