@@ -4006,7 +4006,7 @@ section {
   font-weight: 800;
   line-height: 1.05;
   letter-spacing: -0.03em;
-  color: #ffffff !important;
+  color: var(--color-text-main) !important;
 }
 
 /* Gallery card in dark mode — override skeleton colors */

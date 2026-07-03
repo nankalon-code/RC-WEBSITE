@@ -119,7 +119,7 @@ export default function Gallery() {
               From the workshop<br />
               <em style={{ fontStyle: 'italic', color: '#ff3b30' }}>floor.</em>
             </h1>
-            <p style={{ color: 'rgba(255,255,255,0.5)', marginTop: '1rem', fontSize: '1rem', maxWidth: '480px' }}>
+            <p style={{ color: 'var(--color-text-muted)', marginTop: '1rem', fontSize: '1rem', maxWidth: '480px' }}>
               Every session captured. Browse the builds, tests, and moments that define the club.
             </p>
           </motion.div>
@@ -143,7 +143,7 @@ export default function Gallery() {
             }
 
             {!loading && displayPhotos.length === 0 && (
-              <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '6rem 0', color: 'rgba(255,255,255,0.3)' }}>
+              <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '6rem 0', color: 'var(--color-text-muted)' }}>
                 <ImageOff size={48} strokeWidth={1} style={{ margin: '0 auto 1rem' }} />
                 <p style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                   No gallery photos yet
