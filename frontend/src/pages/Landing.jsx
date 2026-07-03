@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { apiFetch } from '../utils/api';
+import { X, ArrowRight, Users, Calendar, Cpu, Zap } from 'lucide-react';
 
 /* ─── Counter hook ─────────────────────────────────────────── */
 function useCounter(end, duration = 2000) {
@@ -90,10 +91,142 @@ const ARCH_TABS = [
   },
 ];
 
+/* ─── Magnetic Button ───────────────────────────────────────── */
+function MagneticBtn({ children, className, to, onClick, style }) {
+  const ref = useRef(null);
+  const handleMouseMove = useCallback((e) => {
+    const btn = ref.current;
+    if (!btn) return;
+    const rect = btn.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = (e.clientX - cx) * 0.28;
+    const dy = (e.clientY - cy) * 0.28;
+    btn.style.transform = `translate(${dx}px, ${dy}px)`;
+  }, []);
+  const handleMouseLeave = useCallback(() => {
+    if (ref.current) ref.current.style.transform = 'translate(0,0)';
+  }, []);
+  return (
+    <Link
+      ref={ref}
+      to={to || '#'}
+      className={className}
+      onClick={onClick}
+      style={{ transition: 'transform 0.25s cubic-bezier(0.16,1,0.3,1)', display: 'inline-flex', alignItems: 'center', ...style }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      {children}
+    </Link>
+  );
+}
+
+/* ─── Live Coords ────────────────────────────────────────────── */
+function LiveCoords() {
+  const [coords, setCoords] = useState({ x: '42.091', y: '12.884', z: '0.002' });
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCoords({
+        x: (40 + Math.random() * 5).toFixed(3),
+        y: (11 + Math.random() * 4).toFixed(3),
+        z: (Math.random() * 0.01).toFixed(4),
+      });
+    }, 1200);
+    return () => clearInterval(interval);
+  }, []);
+  return (
+    <div className="rc-arch-coords">
+      <motion.span key={coords.x} initial={{ opacity: 0.4 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>X {coords.x}</motion.span>
+      <motion.span key={coords.y + 'y'} initial={{ opacity: 0.4 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>Y {coords.y}</motion.span>
+      <motion.span key={coords.z + 'z'} initial={{ opacity: 0.4 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>Z {coords.z}</motion.span>
+      <span className="rc-arch-page-ind">01 /<br />BUILD</span>
+    </div>
+  );
+}
+
+/* ─── Terminal Ticker ────────────────────────────────────────── */
+const TICKER_MSGS = [
+  'SYSTEM BOOT — ALL NODES ONLINE',
+  'SENSOR ARRAY CALIBRATED ✓',
+  'ROS2 BRIDGE ACTIVE — PORT 11311',
+  'IMU DRIFT < 0.002° — NOMINAL',
+  'COMPETITION SEASON 2026 ACTIVE',
+  'FIRMWARE v4.2.1 LOADED ✓',
+];
+function TerminalTicker() {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setIdx(i => (i + 1) % TICKER_MSGS.length), 2800);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <div className="rc-terminal-ticker">
+      <span className="rc-terminal-prompt">▶</span>
+      <AnimatePresence mode="wait">
+        <motion.span
+          key={idx}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -6 }}
+          transition={{ duration: 0.35 }}
+          className="rc-terminal-msg"
+        >
+          {TICKER_MSGS[idx]}
+        </motion.span>
+      </AnimatePresence>
+    </div>
+  );
+}
+
+/* ─── Dot Grid Hero Background ───────────────────────────────── */
+function DotGrid() {
+  const canvasRef = useRef(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let animId;
+    let time = 0;
+    const resize = () => {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const spacing = 36;
+      const cols = Math.ceil(canvas.width / spacing) + 1;
+      const rows = Math.ceil(canvas.height / spacing) + 1;
+      for (let c = 0; c < cols; c++) {
+        for (let r = 0; r < rows; r++) {
+          const x = c * spacing;
+          const y = r * spacing;
+          const wave = Math.sin(time * 0.7 + c * 0.4 + r * 0.3) * 0.5 + 0.5;
+          const alpha = 0.06 + wave * 0.1;
+          const radius = 1.2 + wave * 1.1;
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(20,20,30,${alpha})`;
+          ctx.fill();
+        }
+      }
+      time += 0.028;
+      animId = requestAnimationFrame(draw);
+    };
+    draw();
+    return () => { cancelAnimationFrame(animId); window.removeEventListener('resize', resize); };
+  }, []);
+  return <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }} />;
+}
+
 /* ─── Main Landing ──────────────────────────────────────────── */
 export default function Landing() {
   const [siteContent, setSiteContent] = useState({});
   const [events, setEvents] = useState([]);
+  const [members, setMembers] = useState([]);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const [activeArchTab, setActiveArchTab] = useState(0);
   const location = useLocation();
   const heroRef = useRef(null);
@@ -105,6 +238,7 @@ export default function Landing() {
   useEffect(() => {
     apiFetch('/site-content').then(setSiteContent).catch(() => {});
     apiFetch('/events').then(setEvents).catch(() => {});
+    apiFetch('/display-members').then(d => setMembers(d || [])).catch(() => {});
   }, []);
 
   // Cursor glow tracking
@@ -140,6 +274,7 @@ export default function Landing() {
 
       {/* ══════════ HERO ══════════ */}
       <section ref={heroRef} className="rc-hero" id="home" style={{position:'relative',overflow:'hidden'}}>
+        <DotGrid />
 
         {/* page counter */}
         <div className="rc-page-counter">
@@ -188,12 +323,21 @@ export default function Landing() {
               transition={{ delay: 0.55, duration: 0.7 }}
               className="rc-hero-ctas"
             >
-              <Link to="/forum" className="rc-btn-primary">
+              <MagneticBtn to="/forum" className="rc-btn-primary">
                 EXPLORE PROJECTS →
-              </Link>
-              <Link to="/login" className="rc-btn-outline">
+              </MagneticBtn>
+              <MagneticBtn to="/login" className="rc-btn-outline">
                 JOIN THE CLUB
-              </Link>
+              </MagneticBtn>
+            </motion.div>
+
+            {/* Terminal status ticker */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.9, duration: 0.6 }}
+            >
+              <TerminalTicker />
             </motion.div>
 
             {/* Stats row */}
@@ -203,9 +347,9 @@ export default function Landing() {
               transition={{ delay: 0.75, duration: 0.8 }}
               className="rc-hero-stats"
             >
-              <StatNum val={siteContent.stat_projects || '42'} label="MEMBERS" />
-              <StatNum val={siteContent.stat_members || '11'} label="BOTS SHIPPED" />
-              <StatNum val={siteContent.stat_wins || '6'} label="COMPETITIONS" />
+              <StatNum val={siteContent.stat_members || '150'} label="MEMBERS" />
+              <StatNum val={siteContent.stat_projects || '24+'} label="PROJECTS MADE" />
+              <StatNum val={siteContent.stat_wins || '5'} label="COMPETITIONS" />
             </motion.div>
           </div>
 
@@ -217,17 +361,8 @@ export default function Landing() {
             transition={{ delay: 0.2, duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
           >
             <div className="rc-hero-img-wrap">
-              {/* HUD labels */}
-              <div className="rc-hud-label rc-hud-tr">
-                MANIPULATOR<br />
-                <span className="rc-hud-accent">• GRIPPER MODULE</span>
-              </div>
-              <div className="rc-hud-label rc-hud-bl">
-                REF. ST-2026.B<br />
-                6 DOF · 4.5KG PAYLOAD
-              </div>
               <img
-                src="/robot_arm_hero.png"
+                src={siteContent.hero_image || "/robot_arm_hero.png"}
                 alt="6-DOF robot arm manipulator"
                 className="rc-hero-img"
               />
@@ -238,7 +373,7 @@ export default function Landing() {
         {/* scroll cue */}
         <div className="rc-scroll-cue">↓ Scroll</div>
         {/* Handwriting annotation */}
-        <span className="rc-handwrite-note" style={{position:'absolute',bottom:'2.8rem',right:'2.5rem'}}>since 2013 ✦</span>
+        <span className="rc-handwrite-note" style={{position:'absolute',bottom:'2.8rem',right:'15rem'}}>since 2013 ✦</span>
       </section>
 
       {/* ══════════ FEATURES ══════════ */}
@@ -336,6 +471,7 @@ export default function Landing() {
             </motion.h2>
           </div>
 
+
           <div className="rc-manifesto-pillars">
             {[
               {
@@ -371,18 +507,25 @@ export default function Landing() {
             ))}
           </div>
 
-          {/* Bottom quote block */}
+          {/* Club stats strip */}
           <motion.div
-            className="rc-manifesto-quote-block"
-            initial={{ opacity: 0, y: 20 }}
+            className="rc-manifesto-stats-strip"
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.4, duration: 0.7 }}
+            transition={{ delay: 0.3, duration: 0.7 }}
           >
-            <div className="rc-manifesto-quote-bar" />
-            <p className="rc-manifesto-quote-text">
-              We learn and we share.
-            </p>
+            {[
+              { val: '42+', label: 'Active Members' },
+              { val: '11', label: 'Projects Shipped' },
+              { val: '6', label: 'Competitions Won' },
+              { val: '2013', label: 'Founded' },
+            ].map((s, i) => (
+              <div key={i} className="rc-manifesto-stat-item">
+                <span className="rc-manifesto-stat-val">{s.val}</span>
+                <span className="rc-manifesto-stat-label">{s.label}</span>
+              </div>
+            ))}
           </motion.div>
         </div>
       </section>
@@ -422,12 +565,7 @@ export default function Landing() {
                   alt="Robot chassis wireframe"
                   className="rc-arch-wireframe-img"
                 />
-                <div className="rc-arch-coords">
-                  <span>X 42.091</span>
-                  <span>Y 12.884</span>
-                  <span>Z 0.002</span>
-                  <span className="rc-arch-page-ind">01 /<br />BUILD</span>
-                </div>
+                <LiveCoords />
               </div>
             </div>
 
@@ -536,37 +674,223 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ══════════ EVENTS (if present) ══════════ */}
-      {events.length > 0 && (
-        <section id="events" className="rc-section">
-          <div className="rc-section-inner">
-            <div className="rc-section-header">
-              <span className="rc-tag-label">004</span>
-              <h2 className="rc-section-title">Upcoming Events</h2>
-              <p className="rc-section-desc">Workshops, hackathons, and guest lectures.</p>
+      {/* ══════════ MEET THE TEAM ══════════ */}
+      <section id="team-preview" className="rc-team-preview-section">
+        <div className="rc-section-inner">
+          <div className="rc-section-header" style={{ marginBottom: '2.5rem' }}>
+            <div>
+              <span className="rc-tag-label">003A</span>
+              <span className="rc-tag-sub">THE CREW</span>
             </div>
-            <div className="rc-events-list">
-              {events.slice(0, 4).map((ev, i) => (
-                <motion.div
-                  key={ev.id}
-                  className="rc-event-row"
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1, duration: 0.6 }}
-                >
-                  <span className="rc-event-date">{ev.date}</span>
-                  <div className="rc-event-info">
-                    <span className="rc-event-title">{ev.title}</span>
-                    <span className="rc-event-desc">{ev.description}</span>
-                  </div>
-                  <span className="rc-event-type">{ev.type || 'EVENT'}</span>
-                </motion.div>
-              ))}
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7 }}
+              className="rc-section-title"
+            >
+              Meet the Team
+            </motion.h2>
+            <p className="rc-section-desc">The people turning ideas into robots. Builders, tinkerers, and the occasional philosopher.</p>
+          </div>
+
+          <div className="rc-team-scroll-wrap">
+            <div className="rc-team-scroll-track">
+              {members.length > 0
+                ? members.slice(0, 10).map((m, i) => (
+                    <motion.div
+                      key={m.id}
+                      className="rc-team-scroll-card"
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.07, duration: 0.5 }}
+                      whileHover={{ y: -6, scale: 1.03 }}
+                    >
+                      <div className="rc-team-scroll-img-wrap">
+                        <img
+                          src={m.photo_url || `https://i.pravatar.cc/300?u=${m.id}`}
+                          alt={m.name}
+                          className="rc-team-scroll-img"
+                        />
+                      </div>
+                      <div className="rc-team-scroll-info">
+                        <span className="rc-team-scroll-name">{m.name}</span>
+                        <span className="rc-team-scroll-role">{m.role}</span>
+                      </div>
+                    </motion.div>
+                  ))
+                : Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="rc-team-scroll-card" style={{ animationDelay: `${i * 0.1}s` }}>
+                      <div className="rc-team-scroll-img-wrap" style={{ background: '#e4e4e7' }} />
+                      <div className="rc-team-scroll-info">
+                        <div style={{ height: '12px', borderRadius: '4px', background: '#e4e4e7', marginBottom: '6px', width: '80%' }} />
+                        <div style={{ height: '10px', borderRadius: '4px', background: '#ececef', width: '55%' }} />
+                      </div>
+                    </div>
+                  ))
+              }
             </div>
           </div>
-        </section>
-      )}
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            style={{ marginTop: '2rem' }}
+          >
+            <Link to="/team" className="rc-btn-outline" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Users size={14} /> VIEW FULL ROSTER →
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ══════════ EVENTS ══════════ */}
+      <section id="events" className="rc-section" style={{ background: '#f1f1f4', borderTop: '1.5px solid var(--color-border)', borderBottom: '1.5px solid var(--color-border)' }}>
+        <div className="rc-section-inner">
+          <div className="rc-section-header">
+            <span className="rc-tag-label">004</span>
+            <h2 className="rc-section-title">Upcoming Events</h2>
+            <p className="rc-section-desc">Workshops, hackathons, and guest lectures. Click any event to see full details.</p>
+          </div>
+          <div className="rc-events-list">
+            {(events.length > 0 ? events : [
+              { id: 1, date: '2026-07-10', title: 'Annual Hackathon', description: '48-hour build sprint — bring your best ideas.', type: 'HACKATHON' },
+              { id: 2, date: '2026-08-01', title: 'Project Showcase', description: 'Present your semester project to faculty and industry guests.', type: 'SHOWCASE' },
+              { id: 3, date: '2026-08-20', title: 'Robotics Workshop', description: 'Hands-on session covering ROS2 and sensor integration.', type: 'WORKSHOP' },
+            ]).slice(0, 4).map((ev, i) => (
+              <motion.div
+                key={ev.id || i}
+                className="rc-event-row rc-event-row-clickable"
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1, duration: 0.6 }}
+                onClick={() => setSelectedEvent(ev)}
+                whileHover={{ x: 8 }}
+                style={{ cursor: 'pointer' }}
+              >
+                <span className="rc-event-date">{ev.date}</span>
+                <div className="rc-event-info">
+                  <span className="rc-event-title">{ev.title}</span>
+                  <span className="rc-event-desc">{ev.description}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <span className="rc-event-type">{ev.type || 'EVENT'}</span>
+                  <ArrowRight size={16} style={{ color: '#ff3b30', opacity: 0.6 }} />
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════ CONTACT ══════════ */}
+      <section id="contact" className="rc-contact-dark-section">
+        <div className="rc-contact-dark-inner">
+          {/* Left */}
+          <div className="rc-contact-dark-left">
+            <div className="rc-contact-dark-counter">
+              <span className="rc-contact-dark-num">005</span>
+              <span className="rc-contact-dark-sep">/</span>
+              <span className="rc-contact-dark-num">006</span>
+            </div>
+            <div className="rc-contact-dark-label">
+              <span className="rc-contact-dark-dot" />
+              COMMS OPEN
+            </div>
+            <h2 className="rc-contact-dark-title">
+              Drop us a <em>signal.</em>
+            </h2>
+            <p className="rc-contact-dark-desc">
+              We're in the lab most days. Whether you want to join, collaborate, or sponsor us — hit us up. No corporate emails, just real people.
+            </p>
+            <div className="rc-contact-dark-grid">
+              <div className="rc-contact-dark-cell">
+                <span className="rc-contact-dark-cell-label">FOR JOINING</span>
+                <span className="rc-contact-dark-cell-val">Use the forum or login portal</span>
+              </div>
+              <div className="rc-contact-dark-cell">
+                <span className="rc-contact-dark-cell-label">FOR SPONSORS</span>
+                <span className="rc-contact-dark-cell-val">Mention it in the subject line</span>
+              </div>
+              <div className="rc-contact-dark-cell">
+                <span className="rc-contact-dark-cell-label">RESPONSE TIME</span>
+                <span className="rc-contact-dark-cell-val">Usually same day</span>
+              </div>
+            </div>
+            <div className="rc-contact-dark-btns">
+              <Link to="/login" className="rc-contact-dark-btn-primary">APPLY TO JOIN →</Link>
+              <Link to="/forum" className="rc-contact-dark-btn-outline">VISIT THE WORKSHOP</Link>
+            </div>
+          </div>
+
+          {/* Right: robot image panel */}
+          <motion.div
+            className="rc-contact-dark-right"
+            initial={{ opacity: 0, x: 40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <div className="rc-contact-dark-img-box">
+              <img src="/robot_arm_hero.png" alt="Robot arm" className="rc-contact-dark-img" />
+              <div className="rc-contact-dark-img-caption">
+                <span className="rc-contact-dark-dot" />
+                UNIT-04 / IDLE — AWAITING SIGNAL
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ══════════ EVENT POPUP MODAL ══════════ */}
+      <AnimatePresence>
+        {selectedEvent && (
+          <motion.div
+            className="rc-event-modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedEvent(null)}
+          >
+            <motion.div
+              className="rc-event-modal"
+              initial={{ opacity: 0, scale: 0.92, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 30 }}
+              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+              onClick={e => e.stopPropagation()}
+            >
+              <button className="rc-event-modal-close" onClick={() => setSelectedEvent(null)}>
+                <X size={18} />
+              </button>
+              <div className="rc-event-modal-tag">{selectedEvent.type || 'EVENT'}</div>
+              <h3 className="rc-event-modal-title">{selectedEvent.title}</h3>
+              <div className="rc-event-modal-date">
+                <Calendar size={14} />
+                {selectedEvent.date}
+              </div>
+              <p className="rc-event-modal-desc">{selectedEvent.description}</p>
+              <div className="rc-event-modal-footer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.72rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                  <Cpu size={12} style={{ display: 'inline', marginRight: '0.35rem', verticalAlign: 'middle' }} />
+                  Check the forum for updates
+                </span>
+                <button
+                  className="rc-btn-outline"
+                  style={{ padding: '0.55rem 1.25rem', fontSize: '0.75rem' }}
+                  onClick={() => setSelectedEvent(null)}
+                >
+                  CLOSE
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   );
