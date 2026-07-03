@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 
 export default function LabStatusHUD() {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const [readings, setReadings] = useState({ temp: '24.2°C', members: '4 ACTIVE', power: '1.42 kW', bots: '2 ONLINE' });
   const [startTime] = useState(Date.now());
 
@@ -28,9 +28,9 @@ export default function LabStatusHUD() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
+      initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 3.5, duration: 0.5 }}
-      className="hidden md:block fixed bottom-6 left-6 z-40 font-mono text-[10px] tracking-widest select-none"
+      className="hidden md:block fixed bottom-6 right-6 z-40 font-mono text-[10px] tracking-widest select-none"
     >
       <div
         className="rounded-xl overflow-hidden cursor-pointer border border-white/20 backdrop-blur-3xl shadow-[0_0_30px_rgba(255,255,255,0.03),_inset_0_0_12px_rgba(255,255,255,0.02)]"

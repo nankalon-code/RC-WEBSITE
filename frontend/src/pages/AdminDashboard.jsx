@@ -998,6 +998,7 @@ function SiteContentTab() {
   };
 
   const keys = [
+    { key: 'hero_image', label: 'Hero Image URL (Robot Arm)' },
     { key: 'faculty_name', label: 'Faculty Coordinator Name' },
     { key: 'faculty_title', label: 'Faculty Title' },
     { key: 'faculty_bio', label: 'Faculty Bio' },

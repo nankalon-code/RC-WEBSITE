@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'fra
 import { Link, useLocation } from 'react-router-dom';
 import { apiFetch } from '../utils/api';
 import { X, ArrowRight, Users, Calendar, Cpu, Zap } from 'lucide-react';
+import { SectionReveal } from '../App';
 
 /* ─── Counter hook ─────────────────────────────────────────── */
 function useCounter(end, duration = 2000) {
@@ -377,6 +378,7 @@ export default function Landing() {
       </section>
 
       {/* ══════════ FEATURES ══════════ */}
+      <SectionReveal delay={0}>
       <section id="features" className="rc-section">
         <div className="rc-section-inner">
           <div className="rc-section-header">
@@ -440,8 +442,10 @@ export default function Landing() {
           </div>
         </div>
       </section>
+      </SectionReveal>
 
       {/* ══════════ MANIFESTO ══════════ */}
+      <SectionReveal delay={0.05}>
       <section id="manifesto" className="rc-manifesto-section">
         <div className="rc-section-inner">
           {/* Decorative grid blocks */}
@@ -529,7 +533,9 @@ export default function Landing() {
           </motion.div>
         </div>
       </section>
+      </SectionReveal>
       {/* ══════════ SYSTEM ARCHITECTURE ══════════ */}
+      <SectionReveal delay={0}>
       <section id="architecture" className="rc-arch-section">
         <div className="rc-section-inner">
           <div className="rc-arch-header">
@@ -618,8 +624,10 @@ export default function Landing() {
           </div>
         </div>
       </section>
+      </SectionReveal>
 
       {/* ══════════ ABOUT ══════════ */}
+      <SectionReveal delay={0}>
       <section id="about" className="rc-about-section">
         <div className="rc-section-inner">
           <div className="rc-about-layout">
@@ -673,8 +681,10 @@ export default function Landing() {
           </div>
         </div>
       </section>
+      </SectionReveal>
 
       {/* ══════════ MEET THE TEAM ══════════ */}
+      <SectionReveal delay={0}>
       <section id="team-preview" className="rc-team-preview-section">
         <div className="rc-section-inner">
           <div className="rc-section-header" style={{ marginBottom: '2.5rem' }}>
@@ -746,9 +756,11 @@ export default function Landing() {
           </motion.div>
         </div>
       </section>
+      </SectionReveal>
 
       {/* ══════════ EVENTS ══════════ */}
-      <section id="events" className="rc-section" style={{ background: '#f1f1f4', borderTop: '1.5px solid var(--color-border)', borderBottom: '1.5px solid var(--color-border)' }}>
+      <SectionReveal delay={0}>
+      <section id="events" className="rc-section" style={{ background: '#1a1a1f', borderTop: '1.5px solid rgba(255,255,255,0.06)', borderBottom: '1.5px solid rgba(255,255,255,0.06)' }}>
         <div className="rc-section-inner">
           <div className="rc-section-header">
             <span className="rc-tag-label">004</span>
@@ -786,8 +798,10 @@ export default function Landing() {
           </div>
         </div>
       </section>
+      </SectionReveal>
 
       {/* ══════════ CONTACT ══════════ */}
+      <SectionReveal delay={0}>
       <section id="contact" className="rc-contact-dark-section">
         <div className="rc-contact-dark-inner">
           {/* Left */}
@@ -845,6 +859,7 @@ export default function Landing() {
           </motion.div>
         </div>
       </section>
+      </SectionReveal>
 
       {/* ══════════ EVENT POPUP MODAL ══════════ */}
       <AnimatePresence>

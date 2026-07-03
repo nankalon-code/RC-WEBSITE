@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { useEffect, useState, lazy, Suspense } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useState, lazy, Suspense, useRef } from 'react';
+import { motion, AnimatePresence, useInView, useScroll, useTransform } from 'framer-motion';
 import Lenis from '@studio-freight/lenis';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -37,6 +37,70 @@ function ScrollToTop() {
   return null;
 }
 
+/* ══════════ GLASS SCROLL REVEAL PAGE WRAPPER ══════════
+   Wraps each page in a glassmorphism panel that slides up
+   and fades in from below when it enters the viewport.
+   The overlay gives the site a cohesive dark glass look.
+*/
+function GlassPageReveal({ children }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: '-80px' });
+
+  return (
+    <motion.div
+      ref={ref}
+      className="glass-page-reveal"
+      initial={{ opacity: 0, y: 48, scale: 0.985, filter: 'blur(6px)' }}
+      animate={
+        inView
+          ? { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }
+          : {}
+      }
+      transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/* ══════════ SECTION GLASS REVEAL
+   Used inside Landing to animate individual sections
+   as the user scrolls. We export this too so Landing can use it.
+*/
+export function SectionReveal({ children }) {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"]
+  });
+
+  // Scale: starts slightly smaller, reaches 1 in the middle, shrinks slightly when leaving
+  const scale = useTransform(scrollYProgress, [0, 0.22, 0.78, 1], [0.93, 1, 1, 0.93]);
+  
+  // Opacity: starts transparent, fades in, fades out when leaving
+  const opacity = useTransform(scrollYProgress, [0, 0.18, 0.82, 1], [0, 1, 1, 0]);
+  
+  // Blur: starts blurred, clears up in the middle, blurs when leaving
+  const filter = useTransform(
+    scrollYProgress,
+    [0, 0.18, 0.82, 1],
+    ["blur(8px)", "blur(0px)", "blur(0px)", "blur(8px)"]
+  );
+
+  // Y displacement: slide up when entering, continue sliding up when leaving
+  const y = useTransform(scrollYProgress, [0, 0.22, 0.78, 1], [80, 0, 0, -80]);
+
+  return (
+    <motion.div
+      ref={ref}
+      className="section-glass-panel"
+      style={{ scale, opacity, filter, y }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 function App() {
   const { init, theme } = useThemeStore();
 
@@ -67,17 +131,18 @@ function App() {
     };
   }, [init]);
 
-  const isDark = theme === 'dark';
-
   return (
     <Router>
       <ScrollToTop />
-      <div className="min-h-screen flex flex-col font-sans relative overflow-hidden transition-colors duration-500 bg-base-var text-primary-var">
+      <div className="app-root-dark">
         
-        {/* Dynamic Animated Premium Background System (Pitch Black Dark Mode) */}
-        <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[var(--color-base)] transition-colors duration-500">
-          {/* Grainy Noise Overlay */}
-          <div className="absolute inset-0 noise-overlay opacity-[0.035] mix-blend-overlay" />
+        {/* ── Ambient dark background with subtle noise ── */}
+        <div className="app-bg-layer">
+          <div className="app-bg-noise" />
+          {/* Subtle red ambient glow top-left */}
+          <div className="app-bg-glow-tl" />
+          {/* Subtle red glow bottom-right */}
+          <div className="app-bg-glow-br" />
         </div>
 
         <div className="relative z-10 flex flex-col min-h-screen">
@@ -86,16 +151,16 @@ function App() {
           <main className="flex-grow">
             <Suspense fallback={<PageLoader />}>
               <Routes>
-                <Route path="/" element={<Landing />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/dashboard/admin" element={<AdminDashboard />} />
-                <Route path="/dashboard/member" element={<MemberDashboard />} />
-                <Route path="/dashboard/user" element={<UserDashboard />} />
-                <Route path="/forum" element={<Forum />} />
-                <Route path="/resources" element={<Resources />} />
-                <Route path="/achievements" element={<Achievements />} />
-                <Route path="/gallery" element={<Gallery />} />
-                <Route path="/team" element={<Team />} />
+                <Route path="/"              element={<Landing />} />
+                <Route path="/login"         element={<GlassPageReveal><Login /></GlassPageReveal>} />
+                <Route path="/dashboard/admin"  element={<GlassPageReveal><AdminDashboard /></GlassPageReveal>} />
+                <Route path="/dashboard/member" element={<GlassPageReveal><MemberDashboard /></GlassPageReveal>} />
+                <Route path="/dashboard/user"   element={<GlassPageReveal><UserDashboard /></GlassPageReveal>} />
+                <Route path="/forum"         element={<GlassPageReveal><Forum /></GlassPageReveal>} />
+                <Route path="/resources"     element={<GlassPageReveal><Resources /></GlassPageReveal>} />
+                <Route path="/achievements"  element={<GlassPageReveal><Achievements /></GlassPageReveal>} />
+                <Route path="/gallery"       element={<GlassPageReveal><Gallery /></GlassPageReveal>} />
+                <Route path="/team"          element={<GlassPageReveal><Team /></GlassPageReveal>} />
               </Routes>
             </Suspense>
           </main>
