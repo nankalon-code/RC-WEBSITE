@@ -666,19 +666,19 @@ export default function Landing() {
             >
               <div className="rc-faculty-top">
                 <img
-                  src={siteContent.faculty_photo || 'https://i.pravatar.cc/150?u=faculty'}
-                  alt="Faculty"
+                  src="/faculty.png"
+                  alt="Dr. Deepak Bhatia"
                   className="rc-faculty-img"
                 />
                 <div>
                   <div className="rc-faculty-name">
-                    {siteContent.faculty_name || 'Dr. Faculty Name'}
+                    Dr. Deepak Bhatia
                   </div>
                   <div className="rc-faculty-role">FACULTY COORDINATOR</div>
                 </div>
               </div>
               <p className="rc-faculty-quote">
-                "{siteContent.faculty_bio || 'Leading research in robotics and autonomous systems.'}"
+                "As the faculty coordinator of the robotics club, Dr. Deepak Bhatia provides invaluable mentorship that transforms innovative ideas into successful projects. His expert guidance and constant encouragement inspire students to excel in the competitive field of robotics."
               </p>
             </motion.div>
           </div>
