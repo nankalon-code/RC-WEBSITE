@@ -68,33 +68,12 @@ function GlassPageReveal({ children }) {
    as the user scrolls. We export this too so Landing can use it.
 */
 export function SectionReveal({ children }) {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"]
-  });
-
-  // Scale: starts slightly smaller, reaches 1 in the middle, shrinks slightly when leaving
-  const scale = useTransform(scrollYProgress, [0, 0.22, 0.78, 1], [0.93, 1, 1, 0.93]);
-  
-  // Opacity: starts transparent, fades in, fades out when leaving
-  const opacity = useTransform(scrollYProgress, [0, 0.18, 0.82, 1], [0, 1, 1, 0]);
-  
-  // Blur: starts blurred, clears up in the middle, blurs when leaving
-  const filter = useTransform(
-    scrollYProgress,
-    [0, 0.18, 0.82, 1],
-    ["blur(8px)", "blur(0px)", "blur(0px)", "blur(8px)"]
-  );
-
-  // Y displacement: slide up when entering, continue sliding up when leaving
-  const y = useTransform(scrollYProgress, [0, 0.22, 0.78, 1], [80, 0, 0, -80]);
-
   return (
     <motion.div
-      ref={ref}
-      className="section-glass-panel"
-      style={{ scale, opacity, filter, y }}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-60px' }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
     >
       {children}
     </motion.div>

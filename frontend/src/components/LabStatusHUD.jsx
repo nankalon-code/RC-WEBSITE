@@ -4,26 +4,21 @@ import { ChevronDown } from 'lucide-react';
 
 export default function LabStatusHUD() {
   const [collapsed, setCollapsed] = useState(true);
-  const [readings, setReadings] = useState({ temp: '24.2°C', members: '4 ACTIVE', power: '1.42 kW', bots: '2 ONLINE' });
-  const [startTime] = useState(Date.now());
+  const [readings, setReadings] = useState({ visitors: '14 ONLINE', projects: '6 IN PROGRESS' });
 
   useEffect(() => {
     const t = setInterval(() => {
       setReadings({
-        temp: `${(23.5 + Math.random() * 1.2).toFixed(1)}°C`,
-        members: `${Math.floor(3 + Math.random() * 3)} ACTIVE`,
-        power: `${(1.35 + Math.random() * 0.18).toFixed(2)} kW`,
-        bots: `${Math.floor(1 + Math.random() * 2)} ONLINE`,
+        visitors: `${Math.floor(12 + Math.random() * 6)} ONLINE`,
+        projects: `${Math.floor(5 + Math.random() * 3)} IN PROGRESS`,
       });
     }, 4000);
     return () => clearInterval(t);
   }, []);
 
   const rows = [
-    { label: 'LAB TEMP', val: readings.temp },
-    { label: 'MEMBERS', val: readings.members },
-    { label: 'POWER DRAW', val: readings.power },
-    { label: 'ACTIVE BOTS', val: readings.bots },
+    { label: 'PEOPLE VISITING', val: readings.visitors },
+    { label: 'PROJECTS IN MAKING', val: readings.projects },
   ];
 
   return (

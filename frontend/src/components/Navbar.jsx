@@ -89,6 +89,7 @@ export default function Navbar() {
           <Link to="/gallery" className="rc-nav-link">Gallery</Link>
           <Link to="/forum" className="rc-nav-link">Forum</Link>
           <Link to="/resources" className="rc-nav-link">Resources</Link>
+          <button onClick={() => handleScrollToSection('contact')} className="rc-nav-link">Contact Us</button>
           {isAuthenticated && user && (
             <Link to={`/dashboard/${user.role}`} className="rc-nav-link rc-nav-link-bold">Dashboard</Link>
           )}
@@ -206,6 +207,7 @@ export default function Navbar() {
             <Link to="/gallery" onClick={() => setMobileOpen(false)} className="rc-mobile-link">Gallery</Link>
             <Link to="/forum" onClick={() => setMobileOpen(false)} className="rc-mobile-link">Forum</Link>
             <Link to="/resources" onClick={() => setMobileOpen(false)} className="rc-mobile-link">Resources</Link>
+            <button onClick={() => handleScrollToSection('contact')} className="rc-mobile-link">Contact Us</button>
             {isAuthenticated ? (
               <>
                 {user?.role === 'admin' ? (

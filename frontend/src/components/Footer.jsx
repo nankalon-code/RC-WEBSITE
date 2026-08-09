@@ -70,7 +70,6 @@ export default function Footer() {
 
         {/* Column 4: Copyright */}
         <div className="rc-footer-col rc-footer-col-right">
-          <div className="rc-footer-pages">005 / 005</div>
           <div className="rc-footer-copy">© {new Date().getFullYear()}</div>
         </div>
       </div>
