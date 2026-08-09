@@ -3638,6 +3638,7 @@ section {
   background-color: transparent;
   color: #0f172a;
   padding: 0;
+  margin-bottom: 2rem;
   display: flex;
   justify-content: center;
   width: 100%;
@@ -4135,7 +4136,7 @@ section {
   position: relative;
   width: 100%;
   max-width: 1360px;
-  margin: 0 auto;
+  margin: 0 auto 4rem auto;
   border: 1px solid rgba(15, 23, 42, 0.16);
   border-radius: 16px;
   background: rgba(246, 243, 235, 0.96);
