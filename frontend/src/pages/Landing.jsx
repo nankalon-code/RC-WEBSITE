@@ -201,9 +201,6 @@ export default function Landing() {
 
   return (
     <div className="rc-root">
-      {/* Cursor glow orb */}
-      <div ref={cursorRef} className="cursor-glow" />
-
       {/* ══════════ HERO ══════════ */}
       <section ref={heroRef} className="rc-hero" id="home" style={{ position: 'relative', overflow: 'hidden' }}>
           <DotGrid />
