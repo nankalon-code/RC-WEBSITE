@@ -22,25 +22,32 @@ export default function RobotCompanion() {
     "BEEP BOOP! CODING COMMENCED."
   ];
 
-  // Eye tracking cursor logic
+  // Eye tracking cursor logic (throttled with rAF for performance)
   useEffect(() => {
+    let rafId = null;
     const handleMouseMove = (e) => {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const relX = e.clientX - (rect.left + rect.width / 2);
-      const relY = e.clientY - (rect.top + rect.height / 2);
-      
-      // Calculate angle and limit distance to make eyes shift slightly
-      const dist = Math.sqrt(relX * relX + relY * relY);
-      const maxShift = 4; // Max SVG pixel shift
-      const shiftX = dist > 0 ? (relX / dist) * Math.min(dist * 0.05, maxShift) : 0;
-      const shiftY = dist > 0 ? (relY / dist) * Math.min(dist * 0.05, maxShift) : 0;
-      
-      setMousePos({ x: shiftX, y: shiftY });
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        if (!containerRef.current) return;
+        const rect = containerRef.current.getBoundingClientRect();
+        const relX = e.clientX - (rect.left + rect.width / 2);
+        const relY = e.clientY - (rect.top + rect.height / 2);
+        
+        const dist = Math.sqrt(relX * relX + relY * relY);
+        const maxShift = 4;
+        const shiftX = dist > 0 ? (relX / dist) * Math.min(dist * 0.05, maxShift) : 0;
+        const shiftY = dist > 0 ? (relY / dist) * Math.min(dist * 0.05, maxShift) : 0;
+        
+        setMousePos({ x: shiftX, y: shiftY });
+      });
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   const triggerInteraction = () => {

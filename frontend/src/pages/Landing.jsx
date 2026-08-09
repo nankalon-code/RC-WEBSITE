@@ -175,7 +175,6 @@ export default function Landing() {
   const [activeArchTab, setActiveArchTab] = useState(0);
   const location = useLocation();
   const heroRef = useRef(null);
-  const cursorRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 60]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
@@ -184,17 +183,6 @@ export default function Landing() {
     apiFetch('/site-content').then(setSiteContent).catch(() => {});
     apiFetch('/events').then(setEvents).catch(() => {});
     apiFetch('/display-members').then(d => setMembers(d || [])).catch(() => {});
-  }, []);
-
-  // Cursor glow tracking
-  useEffect(() => {
-    const el = cursorRef.current;
-    if (!el) return;
-    const move = (e) => {
-      el.style.transform = `translate3d(${e.clientX - 160}px, ${e.clientY - 160}px, 0)`;
-    };
-    window.addEventListener('mousemove', move);
-    return () => window.removeEventListener('mousemove', move);
   }, []);
 
   useEffect(() => {
@@ -223,15 +211,6 @@ export default function Landing() {
           <motion.div style={{ y: heroY, opacity: heroOpacity }} className="rc-hero-inner">
             {/* Left editorial column */}
             <div className="rc-hero-left">
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6 }}
-                className="rc-eyebrow"
-              >
-                <span className="rc-eyebrow-line" />
-                <span className="rc-eyebrow-text">ENGINEERING SOCIETY</span>
-              </motion.div>
 
               <motion.h1
                 initial={{ opacity: 0, y: 30 }}
