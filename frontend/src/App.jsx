@@ -50,13 +50,13 @@ function GlassPageReveal({ children }) {
     <motion.div
       ref={ref}
       className="glass-page-reveal"
-      initial={{ opacity: 0, y: 48, scale: 0.985, filter: 'blur(6px)' }}
+      initial={{ opacity: 0, y: 32, scale: 0.99 }}
       animate={
         inView
-          ? { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }
+          ? { opacity: 1, y: 0, scale: 1 }
           : {}
       }
-      transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
     >
       {children}
     </motion.div>
@@ -70,10 +70,10 @@ function GlassPageReveal({ children }) {
 export function SectionReveal({ children }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
     >
       {children}
     </motion.div>
@@ -81,31 +81,33 @@ export function SectionReveal({ children }) {
 }
 
 function App() {
-  const { init, theme } = useThemeStore();
+  const { init } = useThemeStore();
 
   useEffect(() => {
     init();
     
-    // Initialize Lenis smooth scroll
+    // Initialize Lenis smooth scroll with optimal performance settings
     const lenis = new Lenis({
-      duration: 1.2,
+      duration: 0.8,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       direction: 'vertical',
       gestureDirection: 'vertical',
       smooth: true,
       mouseMultiplier: 1,
       smoothTouch: false,
-      touchMultiplier: 2,
+      touchMultiplier: 1.5,
       infinite: false,
     });
 
+    let rafId;
     function raf(time) {
       lenis.raf(time);
-      requestAnimationFrame(raf);
+      rafId = requestAnimationFrame(raf);
     }
-    requestAnimationFrame(raf);
+    rafId = requestAnimationFrame(raf);
     
     return () => {
+      if (rafId) cancelAnimationFrame(rafId);
       lenis.destroy();
     };
   }, [init]);

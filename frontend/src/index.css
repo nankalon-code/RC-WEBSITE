@@ -53,7 +53,6 @@
     background-color: #eae5da !important;
     background-image: radial-gradient(#c2bbb0 1.1px, transparent 1.1px) !important;
     background-size: 24px 24px !important;
-    background-attachment: fixed !important;
   }
   body {
     /* Transparent so the html gradient shows through between sections */
@@ -89,7 +88,6 @@
     background-color: #eae5da !important;
     background-image: radial-gradient(#c2bbb0 1.1px, transparent 1.1px) !important;
     background-size: 24px 24px !important;
-    background-attachment: fixed !important;
   }
 
   ::selection {
@@ -249,8 +247,8 @@
     background: var(--glass-bg);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-top: 1px solid rgba(255, 255, 255, 0.22);
-    backdrop-filter: blur(80px) saturate(180%);
-    -webkit-backdrop-filter: blur(80px) saturate(180%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   }
@@ -456,8 +454,8 @@
   .glass-premium {
     background: var(--feature-card-bg);
     border: 1px solid var(--feature-card-border);
-    backdrop-filter: blur(40px);
-    -webkit-backdrop-filter: blur(40px);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 
   .glass-premium-hover {
@@ -496,16 +494,16 @@
     animation: dash 1s linear infinite;
   }
 
-  /* Heavy Grainy Noise texture */
+  /* Lightweight Grainy Noise texture */
   .noise-overlay::after {
     content: '';
     position: absolute;
     inset: 0;
-    opacity: 0.08; /* Increased opacity for heavy grain */
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.03;
+    background-image: radial-gradient(rgba(0,0,0,0.15) 1px, transparent 0);
+    background-size: 4px 4px;
     pointer-events: none;
     z-index: 10;
-    mix-blend-mode: overlay;
   }
 
   /* Ultra minimal glass panel matching mockup 3 - made 100% transparent */
@@ -513,8 +511,8 @@
     background: transparent !important;
     border: 1.5px solid rgba(255, 255, 255, 0.08);
     border-top: 1.5px solid rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     box-shadow: none !important;
     transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   }
@@ -3904,11 +3902,9 @@ section {
 .app-bg-noise {
   position: absolute;
   inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: 200px 200px;
-  opacity: 0.55;
-  mix-blend-mode: overlay;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 0);
+  background-size: 8px 8px;
+  opacity: 0.4;
 }
 .app-bg-glow-tl {
   position: absolute;
@@ -3937,11 +3933,12 @@ section {
   width: calc(100% - 2.5rem);
   max-width: 1300px;
   margin: 3.5rem auto;
-  will-change: transform, opacity, filter;
+  will-change: transform, opacity;
+  transform: translateZ(0);
   /* Premium Light Frosted Glass look */
-  background: rgba(255, 255, 255, 0.74);
-  backdrop-filter: blur(24px) saturate(150%);
-  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 2.25rem;
   box-shadow:
@@ -3953,7 +3950,7 @@ section {
 }
 
 .section-glass-panel:hover {
-  transform: translateY(-4px);
+  transform: translateY(-4px) translateZ(0);
   box-shadow:
     0 35px 70px rgba(0, 0, 0, 0.09),
     0 10px 25px rgba(0, 0, 0, 0.03);
@@ -3981,9 +3978,9 @@ section {
 /* Dark glass panel overrides for the bottom sections (Events & Contact) where background is black */
 .section-glass-panel:has(#events),
 .section-glass-panel:has(#contact) {
-  background: rgba(18, 18, 24, 0.78);
-  backdrop-filter: blur(25px) saturate(130%);
-  -webkit-backdrop-filter: blur(25px) saturate(130%);
+  background: rgba(18, 18, 24, 0.90);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow:
     0 35px 70px rgba(0, 0, 0, 0.5),
@@ -3998,10 +3995,10 @@ section {
     0 15px 35px rgba(0, 0, 0, 0.3);
 }
 
-
 .glass-page-reveal {
   width: 100%;
-  will-change: transform, opacity, filter;
+  will-change: transform, opacity;
+  transform: translateZ(0);
   min-height: 40vh;
 }
 

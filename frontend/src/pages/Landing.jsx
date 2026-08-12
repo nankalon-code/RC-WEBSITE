@@ -96,19 +96,33 @@ const ARCH_TABS = [
 /* ─── Magnetic Button ───────────────────────────────────────── */
 function MagneticBtn({ children, className, to, onClick, style }) {
   const ref = useRef(null);
+  const rafId = useRef(null);
+
   const handleMouseMove = useCallback((e) => {
-    const btn = ref.current;
-    if (!btn) return;
-    const rect = btn.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    const dx = (e.clientX - cx) * 0.28;
-    const dy = (e.clientY - cy) * 0.28;
-    btn.style.transform = `translate(${dx}px, ${dy}px)`;
+    if (rafId.current) return;
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+    rafId.current = requestAnimationFrame(() => {
+      rafId.current = null;
+      const btn = ref.current;
+      if (!btn) return;
+      const rect = btn.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = (clientX - cx) * 0.2;
+      const dy = (clientY - cy) * 0.2;
+      btn.style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
+    });
   }, []);
+
   const handleMouseLeave = useCallback(() => {
-    if (ref.current) ref.current.style.transform = 'translate(0,0)';
+    if (rafId.current) {
+      cancelAnimationFrame(rafId.current);
+      rafId.current = null;
+    }
+    if (ref.current) ref.current.style.transform = 'translate3d(0,0,0)';
   }, []);
+
   return (
     <Link
       ref={ref}
@@ -139,9 +153,9 @@ function LiveCoords() {
   }, []);
   return (
     <div className="rc-arch-coords">
-      <motion.span key={coords.x} initial={{ opacity: 0.4 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>X {coords.x}</motion.span>
-      <motion.span key={coords.y + 'y'} initial={{ opacity: 0.4 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>Y {coords.y}</motion.span>
-      <motion.span key={coords.z + 'z'} initial={{ opacity: 0.4 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>Z {coords.z}</motion.span>
+      <span>X {coords.x}</span>
+      <span>Y {coords.y}</span>
+      <span>Z {coords.z}</span>
       <span className="rc-arch-page-ind">01 /<br />BUILD</span>
     </div>
   );
