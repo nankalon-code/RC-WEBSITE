@@ -474,7 +474,7 @@ export default function Landing() {
                 </div>
                 <div className="rc-arch-wireframe-box">
                   <img
-                    src="/robot_chassis_suspension.jpg"
+                    src="/robot_chassis_suspension.png"
                     alt="Robot chassis wireframe"
                     className="rc-arch-wireframe-img"
                   />

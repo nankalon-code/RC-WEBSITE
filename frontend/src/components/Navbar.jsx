@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, Menu, X } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
@@ -18,6 +18,14 @@ export default function Navbar() {
   // Refs for click-outside detection
   const notifRef = useRef(null);
   const accountRef = useRef(null);
+  const navRef = useRef(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    setMobileOpen(false);
+    setNotificationsOpen(false);
+    setDropdownOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => { init(); }, [init]);
 
@@ -49,9 +57,16 @@ export default function Navbar() {
       if (accountRef.current && !accountRef.current.contains(e.target)) {
         setDropdownOpen(false);
       }
+      if (navRef.current && !navRef.current.contains(e.target)) {
+        setMobileOpen(false);
+      }
     };
     document.addEventListener('mousedown', handleOutsideClick);
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('touchstart', handleOutsideClick);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('touchstart', handleOutsideClick);
+    };
   }, []);
 
   const handleLogout = () => { logout(); navigate('/'); };
@@ -72,7 +87,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className={`rc-navbar ${scrolled ? 'rc-navbar-scrolled' : ''}`}>
+    <nav ref={navRef} className={`rc-navbar ${scrolled ? 'rc-navbar-scrolled' : ''} ${isMobileOpen ? 'rc-navbar-mobile-open' : ''}`}>
       <div className="rc-navbar-inner">
         {/* Brand */}
         <Link to="/" className="rc-brand">
@@ -197,6 +212,7 @@ export default function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto', transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] } }}
             exit={{ opacity: 0, height: 0, transition: { duration: 0.18 } }}
+            data-lenis-prevent
             className="rc-mobile-menu"
           >
             <Link to="/" onClick={() => setMobileOpen(false)} className="rc-mobile-link">Home</Link>
