@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useForumStore } from '../store/forumStore';
@@ -26,6 +27,17 @@ export default function Forum() {
   useEffect(() => {
     fetchIdeas();
   }, [fetchIdeas]);
+
+  useEffect(() => {
+    if (selectedIdea) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [selectedIdea]);
 
   const openLockModal = (idea) => {
     if (!isAuthenticated) {
@@ -250,24 +262,38 @@ export default function Forum() {
       </div>
 
       {/* Registration Modal */}
-      <AnimatePresence>
-        {selectedIdea && (
-          <div data-lenis-prevent className="fixed inset-0 z-[100] overflow-y-auto flex items-start justify-center py-12 px-4 scrollbar-thin">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/85 backdrop-blur-md"
-              onClick={() => !loading && setSelectedIdea(null)}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="relative w-full max-w-xl bg-panel-var border border-var rounded-2xl p-6 sm:p-8 shadow-2xl z-10 md:my-auto my-4"
-              data-lenis-prevent
-            >
+      {typeof document !== 'undefined' &&
+        createPortal(
+          <AnimatePresence>
+            {selectedIdea && (
+              <div
+                data-lenis-prevent
+                className="fixed inset-0 z-[99999] overflow-y-auto flex items-center justify-center p-4 sm:p-6"
+              >
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="fixed inset-0 bg-black/85 backdrop-blur-md cursor-pointer"
+                  onClick={() => !loading && setSelectedIdea(null)}
+                />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                  transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                  className="relative w-full max-w-xl max-h-[90vh] overflow-y-auto bg-panel-var border border-var rounded-2xl p-6 sm:p-8 shadow-2xl z-10 my-auto scrollbar-thin"
+                  data-lenis-prevent
+                >
+                  <button
+                    type="button"
+                    onClick={() => !loading && setSelectedIdea(null)}
+                    className="absolute top-4 right-4 sm:top-6 sm:right-6 text-muted-var hover:text-primary-var w-8 h-8 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors z-20 cursor-pointer text-sm"
+                    title="Close modal"
+                  >
+                    ✕
+                  </button>
               <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#ff3b30] to-transparent" />
 
               <h2 className="text-2xl font-display font-bold mb-2 text-primary-var">
@@ -430,7 +456,9 @@ export default function Forum() {
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body
+    )}
     </div>
   );
 }
