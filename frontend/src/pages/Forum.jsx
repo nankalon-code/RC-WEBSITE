@@ -8,14 +8,15 @@ import { Button } from '../components/ui/Button';
 
 export default function Forum() {
   const { ideas, lockIdea, fetchIdeas } = useForumStore();
-  const { isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
   const [selectedIdea, setSelectedIdea] = useState(null);
   const [teamName, setTeamName] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   
-  // Dynamic structured members (2 to 4)
+  // Dynamic structured members (1 to 4)
   const [members, setMembers] = useState([
-    { name: '', email: '', student_id: '', branch: '', github: '', linkedin: '' },
     { name: '', email: '', student_id: '', branch: '', github: '', linkedin: '' }
   ]);
   
@@ -25,6 +26,27 @@ export default function Forum() {
   useEffect(() => {
     fetchIdeas();
   }, [fetchIdeas]);
+
+  const openLockModal = (idea) => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    setSelectedIdea(idea);
+    setTeamName('');
+    setError('');
+    // Auto-fill member 1 with current user details if available
+    setMembers([
+      {
+        name: user?.name || '',
+        email: user?.email || '',
+        student_id: user?.student_id || '',
+        branch: '',
+        github: user?.github_url || '',
+        linkedin: user?.linkedin_url || ''
+      }
+    ]);
+  };
 
   const filtered = ideas.filter((idea) => {
     const matchFilter = 
@@ -43,48 +65,66 @@ export default function Forum() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    if (selectedIdea) {
-      const validMembers = members.filter(m => m.email.trim() !== '');
-      if (validMembers.length < 2 || validMembers.length > 4) {
-          alert("Please provide 2 to 4 members.");
-          return;
-      }
-      const success = await lockIdea(selectedIdea.id, { teamName, members: validMembers });
-      if (success) {
+    setError('');
+
+    if (!selectedIdea) return;
+
+    if (!teamName.trim()) {
+      setError('Please provide a team or project name.');
+      return;
+    }
+
+    const validMembers = members.filter(m => m.email.trim() !== '' && m.name.trim() !== '');
+    if (validMembers.length < 1 || validMembers.length > 4) {
+      setError('Please provide at least 1 valid member with Name and Email (max 4).');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await lockIdea(selectedIdea.id, {
+        teamName: teamName.trim(),
+        members: validMembers.map(m => ({
+          name: m.name.trim(),
+          email: m.email.trim(),
+          student_id: m.student_id ? m.student_id.trim() : null,
+          branch: m.branch ? m.branch.trim() : null,
+          github: m.github ? m.github.trim() : null,
+          linkedin: m.linkedin ? m.linkedin.trim() : null,
+        }))
+      });
+
+      if (res.success) {
         setSelectedIdea(null);
         setTeamName('');
-        setMembers([
-          { name: '', email: '', student_id: '', branch: '', github: '', linkedin: '' },
-          { name: '', email: '', student_id: '', branch: '', github: '', linkedin: '' }
-        ]);
+        setError('');
+        fetchIdeas();
+      } else {
+        setError(res.error || 'Failed to lock idea. Please try again.');
       }
+    } catch (err) {
+      setError(err.message || 'An unexpected error occurred while locking this idea.');
+    } finally {
+      setLoading(false);
     }
   };
   
   const addMemberField = () => {
-      if (members.length < 4) {
-          setMembers([...members, { name: '', email: '', student_id: '', branch: '', github: '', linkedin: '' }]);
-      }
+    if (members.length < 4) {
+      setMembers([...members, { name: '', email: '', student_id: '', branch: '', github: '', linkedin: '' }]);
+    }
   };
 
   const removeMemberField = (index) => {
-      if (members.length > 2) {
-          setMembers(members.filter((_, i) => i !== index));
-      }
+    if (members.length > 1) {
+      setMembers(members.filter((_, i) => i !== index));
+    }
   };
 
   const updateMember = (index, field, value) => {
-      const newMembers = [...members];
-      newMembers[index][field] = value;
-      setMembers(newMembers);
-  };
-
-  const categoryColor = (cat) => {
-    switch (cat) {
-      case 'Hardware': return 'bg-[var(--glass-bg-hover)] text-[var(--color-text-main)] border-[var(--color-border-hover)]';
-      case 'Software': return 'bg-[var(--glass-bg-hover)] text-[var(--color-text-main)] border-[var(--color-border-hover)]';
-      default: return 'bg-[var(--glass-bg)] text-[var(--color-text-muted)] border-[var(--color-border)]';
-    }
+    const newMembers = [...members];
+    newMembers[index][field] = value;
+    setMembers(newMembers);
   };
 
   return (
@@ -94,7 +134,7 @@ export default function Forum() {
         <div className="rc-forum-header">
           <div className="rc-forum-title-wrap">
             <div className="rc-forum-tag">
-              003 / 006 <span className="rc-forum-tag-sec">· PROJECT FORUM</span>
+              003 / 006 <span className="rc-forum-tag-sec">PROJECT FORUM</span>
             </div>
             <h1 className="rc-forum-title">
               {ideas.length} robotics projects. <em>Lock yours.</em>
@@ -164,7 +204,7 @@ export default function Forum() {
                 <div className="rc-forum-card">
                   <div className="rc-forum-card-top">
                     <span className="rc-forum-card-category">
-                      <span className="rc-forum-card-index">#{ideaIndex}</span> · {idea.category}
+                      <span className="rc-forum-card-index">#{ideaIndex}</span> {idea.category}
                     </span>
                     <span className="rc-forum-card-status">
                       <span className={`rc-forum-card-dot ${isLocked ? 'locked' : 'open'}`} />
@@ -191,13 +231,7 @@ export default function Forum() {
                       <span className="rc-forum-card-team">Team: {idea.locked_by_team}</span>
                     ) : (
                       <button
-                        onClick={() => {
-                          if (isAuthenticated) {
-                            setSelectedIdea(idea);
-                          } else {
-                            navigate('/login');
-                          }
-                        }}
+                        onClick={() => openLockModal(idea)}
                         className="rc-forum-card-btn"
                       >
                         Lock idea &rarr;
@@ -224,7 +258,7 @@ export default function Forum() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/85 backdrop-blur-md"
-              onClick={() => setSelectedIdea(null)}
+              onClick={() => !loading && setSelectedIdea(null)}
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -248,34 +282,40 @@ export default function Forum() {
                 </span>
               </div>
 
-              <p className="text-muted-var text-sm leading-relaxed mb-3">
+              <p className="text-muted-var text-sm leading-relaxed mb-4">
                 {selectedIdea.description}
               </p>
 
-              <div className="border-t border-var pt-6 mt-4">
-                <form onSubmit={handleRegister} className="space-y-6">
+              {error && (
+                <div className="mb-4 p-3 bg-red-500/10 border border-red-500/25 rounded-xl text-red-400 text-xs font-medium">
+                  {error}
+                </div>
+              )}
+
+              <div className="border-t border-var pt-5 mt-2">
+                <form onSubmit={handleRegister} className="space-y-5">
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-muted-var tracking-widest uppercase">
-                      Team Name
+                      Team / Project Name <span className="text-red-400">*</span>
                     </label>
                     <input
                       value={teamName}
                       onChange={(e) => setTeamName(e.target.value)}
                       required
                       type="text"
-                      className="w-full bg-input-bg border border-var rounded-xl px-4 py-3 text-sm outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500"
-                      placeholder="Your team name"
+                      className="w-full bg-input-bg border border-var rounded-xl px-4 py-2.5 text-sm outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500"
+                      placeholder="e.g. Apex Robotics, Autonomous Rover Alpha"
                     />
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <label className="text-xs font-bold text-muted-var tracking-widest uppercase">
-                        Team Members (2-4)
+                        Team Members (1–4)
                       </label>
                       {members.length < 4 && (
-                        <button type="button" onClick={addMemberField} className="text-xs text-accent hover:underline">
-                          + Add Member
+                        <button type="button" onClick={addMemberField} className="text-xs text-accent hover:underline font-medium">
+                          + Add Teammate
                         </button>
                       )}
                     </div>
@@ -283,61 +323,106 @@ export default function Forum() {
                     {members.map((m, i) => (
                       <div key={i} className="p-4 bg-surface-var border border-var rounded-xl space-y-3 relative">
                         <div className="flex justify-between items-center border-b border-var pb-2">
-                          <span className="text-xs font-bold text-accent uppercase tracking-wider">Member #{i + 1}</span>
-                          {members.length > 2 && (
-                            <button type="button" onClick={() => removeMemberField(i)} className="text-red-500 hover:text-red-400 text-xs">
+                          <span className="text-xs font-bold text-accent uppercase tracking-wider">
+                            Member #{i + 1} {i === 0 && <span className="text-muted-var font-normal text-[11px]">(Lead / Submitter)</span>}
+                          </span>
+                          {members.length > 1 && (
+                            <button type="button" onClick={() => removeMemberField(i)} className="text-red-500 hover:text-red-400 text-xs font-medium">
                               Remove
                             </button>
                           )}
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">Name</label>
-                            <input required type="text" placeholder="Full Name" value={m.name} onChange={(e) => updateMember(i, 'name', e.target.value)} className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500" />
+                            <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">
+                              Full Name <span className="text-red-400">*</span>
+                            </label>
+                            <input
+                              required
+                              type="text"
+                              placeholder="Full Name"
+                              value={m.name}
+                              onChange={(e) => updateMember(i, 'name', e.target.value)}
+                              className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500"
+                            />
                           </div>
                           <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">Email</label>
-                            <input required type="email" placeholder="email@address.com" value={m.email} onChange={(e) => updateMember(i, 'email', e.target.value)} className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500" />
+                            <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">
+                              Email <span className="text-red-400">*</span>
+                            </label>
+                            <input
+                              required
+                              type="email"
+                              placeholder="email@address.com"
+                              value={m.email}
+                              onChange={(e) => updateMember(i, 'email', e.target.value)}
+                              className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500"
+                            />
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">Roll Number</label>
-                            <input required type="text" placeholder="Roll / Student ID" value={m.student_id} onChange={(e) => updateMember(i, 'student_id', e.target.value)} className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500" />
+                            <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">Roll / Student ID (Optional)</label>
+                            <input
+                              type="text"
+                              placeholder="e.g. 21UCSE042"
+                              value={m.student_id}
+                              onChange={(e) => updateMember(i, 'student_id', e.target.value)}
+                              className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500"
+                            />
                           </div>
                           <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">Branch</label>
-                            <input required type="text" placeholder="e.g. CSE, ECE, Robotics" value={m.branch} onChange={(e) => updateMember(i, 'branch', e.target.value)} className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500" />
+                            <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">Branch / Dept (Optional)</label>
+                            <input
+                              type="text"
+                              placeholder="e.g. CSE, ECE, Robotics"
+                              value={m.branch}
+                              onChange={(e) => updateMember(i, 'branch', e.target.value)}
+                              className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500"
+                            />
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">GitHub Profile</label>
-                            <input required type="url" placeholder="https://github.com/..." value={m.github} onChange={(e) => updateMember(i, 'github', e.target.value)} className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500" />
+                            <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">GitHub Profile (Optional)</label>
+                            <input
+                              type="text"
+                              placeholder="github.com/username"
+                              value={m.github}
+                              onChange={(e) => updateMember(i, 'github', e.target.value)}
+                              className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500"
+                            />
                           </div>
                           <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">LinkedIn Profile</label>
-                            <input required type="url" placeholder="https://linkedin.com/in/..." value={m.linkedin} onChange={(e) => updateMember(i, 'linkedin', e.target.value)} className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500" />
+                            <label className="text-[10px] font-bold text-muted-var uppercase tracking-wider">LinkedIn Profile (Optional)</label>
+                            <input
+                              type="text"
+                              placeholder="linkedin.com/in/username"
+                              value={m.linkedin}
+                              onChange={(e) => updateMember(i, 'linkedin', e.target.value)}
+                              className="w-full bg-input-bg border border-var rounded-lg px-3 py-2 text-xs outline-none text-primary-var focus:border-[var(--color-border-hover)] focus:ring-1 focus:ring-[var(--color-border-hover)]/20 transition-all placeholder-zinc-500"
+                            />
                           </div>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  <div className="flex space-x-4 pt-2">
+                  <div className="flex space-x-3 pt-2">
                     <Button
                       type="button"
                       variant="ghost"
                       className="flex-1 text-primary-var hover:bg-glass-bg"
                       onClick={() => setSelectedIdea(null)}
+                      disabled={loading}
                     >
                       Cancel
                     </Button>
-                    <Button type="submit" variant="primary" className="flex-1">
-                      Register & Lock
+                    <Button type="submit" variant="primary" className="flex-1" disabled={loading}>
+                      {loading ? 'Registering & Locking...' : 'Register & Lock Idea'}
                     </Button>
                   </div>
                 </form>

@@ -30,10 +30,9 @@ export const useForumStore = create((set) => ({
           idea.id === ideaId ? updatedIdea : idea
         ),
       }));
-      return true;
+      return { success: true, idea: updatedIdea };
     } catch (error) {
-      alert(error.message);
-      return false;
+      return { success: false, error: error.message || 'Failed to lock idea' };
     }
   },
 }));

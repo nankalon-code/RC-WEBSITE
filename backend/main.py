@@ -49,7 +49,7 @@ ALLOWED_ORIGINS = [o.strip() for o in _origins_env.split(",")]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
-    allow_origin_regex=r"https://.*\.vercel\.app",
+    allow_origin_regex=r"^(https://.*\.vercel\.app|http://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+)(:\d+)?)$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -188,14 +188,14 @@ def seed_db():
             ("Micro-Soldering Workshop", "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=600", "Core member showing SMD soldering technique to freshmen.", 3),
             ("Rover Chassis 3D Print", "https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?auto=format&fit=crop&q=80&w=600", "Printing lightweight TPU carbon-fiber wheels.", 4),
             ("AI Core Vision Terminal", "https://images.unsplash.com/photo-1555255707-c07966088b7b?auto=format&fit=crop&q=80&w=600", "Deep learning models classifying objects in real-time.", 5),
-            ("Laying out a 4-Layer PCB", "https://images.unsplash.com/photo-1601524909162-be87252be298?auto=format&fit=crop&q=80&w=600", "Routing critical differential pairs on a high-speed controller board.", 6),
+            ("Laying out a 4-Layer PCB", "https://images.unsplash.com/photo-1580584126903-c17d41830450?auto=format&fit=crop&q=80&w=600", "Routing critical differential pairs on a high-speed controller board.", 6),
             ("Mars Rover Obstacle Trial", "https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?auto=format&fit=crop&q=80&w=600", "The ARES rover navigating a rock yard simulation.", 7),
             ("Holographic Interface Test", "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&q=80&w=600", "Visualizing spatial points cloud inside virtual reality.", 8),
             ("Late Night Hackathon Session", "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&q=80&w=600", "Coding team optimizing ROS2 navigation nodes.", 9),
             ("Robotic Arm Sorting Trial", "https://images.unsplash.com/photo-1616401784845-180882ba9ba8?auto=format&fit=crop&q=80&w=600", "Calibration of a 6-axis industrial arm with vision.", 10),
             ("Sensor Integration Phase", "https://images.unsplash.com/photo-1517059224940-d4af9eec41b7?auto=format&fit=crop&q=80&w=600", "Interfacing LiDAR with an NVIDIA Jetson Nano.", 11),
-            ("Pneumatics System Assembly", "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&q=80&w=600", "Connecting air valves for custom mechanical actuators.", 12),
-            ("Cybernetic Hand Showcase", "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=600", "Testing tactile touch sensors on fingers.", 13),
+            ("Pneumatics System Assembly", "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80&w=600", "Connecting air valves for custom mechanical actuators.", 12),
+            ("Cybernetic Hand Showcase", "https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&q=80&w=600", "Testing tactile touch sensors on fingers.", 13),
             ("Freshman Boot Camp", "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=600", "Introduction to Arduino coding and motor drivers.", 14),
             ("Telemetry Dashboard View", "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=600", "Live data streaming from autonomous drone swarm.", 15),
             ("Robotics Club Lab Space", "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?auto=format&fit=crop&q=80&w=600", "Overview of our active building workshop.", 16),
@@ -219,6 +219,17 @@ def seed_db():
         broken_url = "https://images.unsplash.com/photo-1615840287214-7fe58a8f3685?auto=format&fit=crop&q=80&w=600"
         new_url = "https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?auto=format&fit=crop&q=80&w=600"
         db.query(models.GalleryItem).filter(models.GalleryItem.caption == "Rover Chassis 3D Print", models.GalleryItem.image_url == broken_url).update({models.GalleryItem.image_url: new_url})
+        
+        # Self-healing migration for "Laying out a 4-Layer PCB"
+        broken_pcb = "https://images.unsplash.com/photo-1601524909162-be87252be298?auto=format&fit=crop&q=80&w=600"
+        new_pcb = "https://images.unsplash.com/photo-1580584126903-c17d41830450?auto=format&fit=crop&q=80&w=600"
+        db.query(models.GalleryItem).filter(models.GalleryItem.caption == "Laying out a 4-Layer PCB", models.GalleryItem.image_url == broken_pcb).update({models.GalleryItem.image_url: new_pcb})
+        
+        # Self-healing migration for "Pneumatics System Assembly"
+        broken_pneumatics = "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&q=80&w=600"
+        new_pneumatics = "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80&w=600"
+        db.query(models.GalleryItem).filter(models.GalleryItem.caption == "Pneumatics System Assembly", models.GalleryItem.image_url == broken_pneumatics).update({models.GalleryItem.image_url: new_pneumatics})
+        
         db.commit()
     except Exception as e_migration:
         logger.error(f"Gallery self-healing migration failed: {e_migration}")
@@ -553,8 +564,12 @@ def register_team(req: schemas.TeamRegisterRequest, background_tasks: Background
         raise HTTPException(status_code=404, detail="Project idea not found")
     if idea.status == "locked":
         raise HTTPException(status_code=400, detail="This idea is already locked by another team.")
-    if len(req.members) < 2 or len(req.members) > 4:
-        raise HTTPException(status_code=400, detail="Team must have 2 to 4 members.")
+    if len(req.members) < 1 or len(req.members) > 4:
+        raise HTTPException(status_code=400, detail="Team must have 1 to 4 members.")
+
+    existing_team = db.query(models.TeamRegistration).filter(models.TeamRegistration.team_name == req.team_name).first()
+    if existing_team:
+        raise HTTPException(status_code=400, detail=f"Team name '{req.team_name}' is already taken. Please choose another name.")
 
     idea.status = "locked"
     idea.locked_by_team = req.team_name
